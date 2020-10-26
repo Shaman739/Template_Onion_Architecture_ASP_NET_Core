@@ -1,2 +1,2 @@
-# Template_Onion_Architecture
-Template Onion Architecture
+# Template_Onion_Architecture_ASP_NET_Core
+Template_Onion_Architecture_ASP_NET_Core
