@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.9" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\0Shamdev.TOA\TOA.BLL\3Shamdev.TOA.BLL.csproj" />
+    <ProjectReference Include="..\..\0Shamdev.TOA\TOA.Core.Data\1Shamdev.TOA.Core.Data.csproj" />
+    <ProjectReference Include="..\..\0Shamdev.TOA\TOA.WEB\4Shamdev.TOA.WEB.csproj" />
+    <ProjectReference Include="..\BLL.Common\BLL.Common.csproj" />
+    <ProjectReference Include="..\Core.Data\Core.Data.csproj" />
+  </ItemGroup>
+
+
+</Project>
