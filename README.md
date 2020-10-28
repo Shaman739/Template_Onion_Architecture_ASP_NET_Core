@@ -1,2 +1,21 @@
-# Template_Onion_Architecture_ASP_NET_Core
-Template_Onion_Architecture_ASP_NET_Core
+#Template_Onion_Architecture_ASP_NET_Core
+## Шаблон Onion архитектуры на ASP.Net Core 
+Версия ASP.Net Core - 3.1
+## Структура проекта
+### 0Shamdev.TOA (Базовые проекты с базовыми функциями)
+Проект разделен на:
+* Core - Доменные классы и константы
+* DAL - Модель EF Core, UnitOfWork и репозитории для работы с БД
+* BLL - Бизнес-логика
+* Web - базовый контроллер, который предоставляет функции для работы с моделью БД
+#### Функции
+* CRUD операции (Добаление, Изменение, Удаление)
+* Получение записи по ID
+* Получение страницы (Pagging)
+* Валидация объекта по обязательным полям через контекст EF Core
+
+### 1Example (Пример использования)
+ * Core.Data 
+ * DAL.Common
+ * BLL.Common 
+ * RegisterHouse - запускаемое приложение
