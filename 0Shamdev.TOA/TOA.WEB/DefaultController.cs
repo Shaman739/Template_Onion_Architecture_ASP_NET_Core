@@ -93,7 +93,7 @@ namespace Shamdev.TOA.Web
 
         }
 
-        private async Task<JsonResult> SaveItemAsync(byte executeTypeCRUD, DefaultParamOfCRUDOperation<TEntity> paramOfCRUD)
+        private async Task<JsonResult> SaveItemAsync(ExecuteTypeConstCRUD executeTypeCRUD, DefaultParamOfCRUDOperation<TEntity> paramOfCRUD)
         {
             BaseResultType resultQuery;
             try

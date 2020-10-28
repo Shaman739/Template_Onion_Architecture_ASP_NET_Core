@@ -18,10 +18,10 @@ namespace Shamdev.TOA.BLL.Validate
     {
         struct ValidateStrategyType
         {
-            public byte ExecuteType { get; set; }
+            public ValidateTypeConstCRUD ExecuteType { get; set; }
             public Lazy<IValidateDomainObject<TEntity>> ValidateDomainObject { get; set; }
 
-            public ValidateStrategyType(byte executeType, Lazy<IValidateDomainObject<TEntity>> validateDomainObject)
+            public ValidateStrategyType(ValidateTypeConstCRUD executeType, Lazy<IValidateDomainObject<TEntity>> validateDomainObject)
             {
                 ExecuteType = executeType;
                 ValidateDomainObject = validateDomainObject;
@@ -45,10 +45,10 @@ namespace Shamdev.TOA.BLL.Validate
         /// ExecuteTypeConstCRUD.ADD и ExecuteTypeConstCRUD.EDIT => ValidateTypeConstCRUD.ADD_OR_EDIT
         /// ExecuteTypeConstCRUD.DELETE  => ValidateTypeConstCRUD.DELETE
         /// <returns></returns>
-        public BaseResultType GetValidate(TEntity item, byte executeTypeConstCRUD)
+        public BaseResultType GetValidate(TEntity item, ExecuteTypeConstCRUD executeTypeConstCRUD)
         {
             BaseResultType baseResultType = new BaseResultType() { IsSuccess = true };
-            byte validateTypeConstCRUD = GetTypeValidateByExecuteType(executeTypeConstCRUD);
+            ValidateTypeConstCRUD validateTypeConstCRUD = GetTypeValidateByExecuteType(executeTypeConstCRUD);
             var listValidate = _listValidateType.Where(x => x.ExecuteType == validateTypeConstCRUD).ToList();
             foreach (var validate in listValidate)
             {
@@ -60,14 +60,14 @@ namespace Shamdev.TOA.BLL.Validate
             return baseResultType;
         }
 
-        private byte GetTypeValidateByExecuteType(byte executeTypeConstCRUD) =>
-             executeTypeConstCRUD switch
-             {
-                 ExecuteTypeConstCRUD.ADD => ValidateTypeConstCRUD.ADD_OR_EDIT,
-                 ExecuteTypeConstCRUD.EDIT => ValidateTypeConstCRUD.ADD_OR_EDIT,
-                 ExecuteTypeConstCRUD.DELETE => ValidateTypeConstCRUD.DELETE,
-                 _ => throw new ArgumentException("Неизвестный тип валидации.")
-             };
+        private ValidateTypeConstCRUD GetTypeValidateByExecuteType(ExecuteTypeConstCRUD executeTypeConstCRUD) {
+            if (executeTypeConstCRUD == ExecuteTypeConstCRUD.ADD || executeTypeConstCRUD == ExecuteTypeConstCRUD.EDIT)
+                return ValidateTypeConstCRUD.ADD_OR_EDIT;
+            else if (executeTypeConstCRUD == ExecuteTypeConstCRUD.DELETE)
+                return ValidateTypeConstCRUD.DELETE;
+            else
+                throw new ArgumentException("Неизвестный тип валидации.");
+        }
 
 
         /// <summary>
@@ -75,7 +75,7 @@ namespace Shamdev.TOA.BLL.Validate
         /// </summary>
         /// <param name="executeTypeConstCRUD">Константа из ValidateTypeConstCRUD</param>
         /// <param name="newStrategy"></param>
-        public void AddStrategy(byte executeTypeConstCRUD, Lazy<IValidateDomainObject<TEntity>> newStrategy)
+        public void AddStrategy(ValidateTypeConstCRUD executeTypeConstCRUD, Lazy<IValidateDomainObject<TEntity>> newStrategy)
         {
             _listValidateType.Add(
                 new ValidateStrategyType(executeTypeConstCRUD, newStrategy)

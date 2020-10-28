@@ -1,4 +1,5 @@
-﻿using Shamdev.TOA.BLL.Infrastructure.ParamOfCRUD;
+﻿using Shamdev.TOA.BLL.Infrastructure;
+using Shamdev.TOA.BLL.Infrastructure.ParamOfCRUD;
 using Shamdev.TOA.BLL.Infrastructure.ResultType;
 using Shamdev.TOA.BLL.PrepareItemForCRUDOperations;
 using Shamdev.TOA.BLL.Validate;
@@ -36,12 +37,12 @@ namespace Shamdev.TOA.BLL
             PrepareItemForCRUDStrategyFactory = new Lazy<PrepareItemForCRUDStrategyFactory<TEntity>>(() => new PrepareItemForCRUDStrategyFactory<TEntity>(_contextDB));
             ValidateDomainObject = new Lazy<ValidateDomainObjectFactory<TEntity>>(() => new ValidateDomainObjectFactory<TEntity>(_contextDB));
         }
-        public async Task<SaveResultType<TEntity>> SaveItemAsync(byte executeTypeCRUD, DefaultParamOfCRUDOperation<TEntity> paramOfCRUDOperation)
+        public async Task<SaveResultType<TEntity>> SaveItemAsync(ExecuteTypeConstCRUD executeTypeCRUD, DefaultParamOfCRUDOperation<TEntity> paramOfCRUDOperation)
         {
             return await Task.Run(() => SaveItem(executeTypeCRUD, paramOfCRUDOperation));
 
         }
-        public SaveResultType<TEntity> SaveItem(byte executeTypeCRUD, DefaultParamOfCRUDOperation<TEntity> paramOfCRUDOperation)
+        public SaveResultType<TEntity> SaveItem(ExecuteTypeConstCRUD executeTypeCRUD, DefaultParamOfCRUDOperation<TEntity> paramOfCRUDOperation)
         {
             SaveResultType<TEntity> resultCRUDOpeartion = new SaveResultType<TEntity>();
             try
@@ -68,7 +69,7 @@ namespace Shamdev.TOA.BLL
         /// Сохраняет контекст EF с валидациейю Нужен для добавления и изменения объектов.
         /// Валидация через ValidateDomainObject
         /// </summary>
-        private SaveResultType<TEntity> SaveContextWithObject(TEntity item, byte executeTypeCRUD)
+        private SaveResultType<TEntity> SaveContextWithObject(TEntity item, ExecuteTypeConstCRUD executeTypeCRUD)
         {
             SaveResultType<TEntity> saveResultType = new SaveResultType<TEntity>();
             try

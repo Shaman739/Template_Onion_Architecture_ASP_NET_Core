@@ -5,8 +5,14 @@
     /// </summary>
     public class ExecuteTypeConstCRUD
     {
-        public const byte ADD = 1;
-        public const byte EDIT = 2;
-        public const byte DELETE = 3;
+        public static ExecuteTypeConstCRUD ADD { get; } = new ExecuteTypeConstCRUD(1);
+        public static ExecuteTypeConstCRUD EDIT { get; } = new ExecuteTypeConstCRUD(2);
+        public static ExecuteTypeConstCRUD DELETE { get; } = new ExecuteTypeConstCRUD(3);
+
+        public byte Value { get; private set; }
+        private ExecuteTypeConstCRUD(byte value)
+        {
+            Value = value;
+        }
     }
 }

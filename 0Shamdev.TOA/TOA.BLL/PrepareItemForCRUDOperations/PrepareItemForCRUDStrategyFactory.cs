@@ -20,19 +20,19 @@ namespace Shamdev.TOA.BLL.PrepareItemForCRUDOperations
         public PrepareItemForCRUDStrategyFactory(IUnitOfWork uow)
         {
 
-            listStrategies = new Dictionary<byte, Lazy<IPrepareItemForCRUDStrategy<TEntity>>>();
+            listStrategies = new Dictionary<ExecuteTypeConstCRUD, Lazy<IPrepareItemForCRUDStrategy<TEntity>>>();
             listStrategies.Add(ExecuteTypeConstCRUD.ADD, new Lazy<IPrepareItemForCRUDStrategy<TEntity>>(() => new AddPrepareItemForCRUDStrategy<TEntity>(uow)));
             listStrategies.Add(ExecuteTypeConstCRUD.EDIT, new Lazy<IPrepareItemForCRUDStrategy<TEntity>>(() => new EditPrepareItemForCRUDStrategy<TEntity>(uow)));
             listStrategies.Add(ExecuteTypeConstCRUD.DELETE, new Lazy<IPrepareItemForCRUDStrategy<TEntity>>(() => new DeletePrepareItemForCRUDStrategy<TEntity>(uow)));
 
         }
-        Dictionary<byte, Lazy<IPrepareItemForCRUDStrategy<TEntity>>> listStrategies;
+        Dictionary<ExecuteTypeConstCRUD, Lazy<IPrepareItemForCRUDStrategy<TEntity>>> listStrategies;
         /// <summary>
         /// Получение стратегии по типу CRUD
         /// </summary>
         /// <param name="executeType"></param>
         /// <returns></returns>
-        public IPrepareItemForCRUDStrategy<TEntity> GetStrategy(byte executeType)
+        public IPrepareItemForCRUDStrategy<TEntity> GetStrategy(ExecuteTypeConstCRUD executeType)
         {
             var strategy = listStrategies.SingleOrDefault(x => x.Key == executeType);
             if (strategy.Value == null)
@@ -44,7 +44,7 @@ namespace Shamdev.TOA.BLL.PrepareItemForCRUDOperations
         ///  Удаление стратегии по типу CRUD
         /// </summary>
         /// <param name="executeType"></param>
-        public void RemoveStrategy(byte executeType)
+        public void RemoveStrategy(ExecuteTypeConstCRUD executeType)
         {
             var strategy = listStrategies.SingleOrDefault(x => x.Key == executeType);
             if (strategy.Value != null) listStrategies.Remove(executeType);
@@ -54,7 +54,7 @@ namespace Shamdev.TOA.BLL.PrepareItemForCRUDOperations
         /// </summary>
         /// <param name="executeType"></param>
         /// <param name="newStrategy"></param>
-        public void ReplaceStrategy(byte executeType, IPrepareItemForCRUDStrategy<TEntity> newStrategy)
+        public void ReplaceStrategy(ExecuteTypeConstCRUD executeType, IPrepareItemForCRUDStrategy<TEntity> newStrategy)
         {
             var strategy = listStrategies.SingleOrDefault(x => x.Key == executeType);
             if (strategy.Value != null) listStrategies.Remove(executeType);
@@ -71,7 +71,7 @@ namespace Shamdev.TOA.BLL.PrepareItemForCRUDOperations
         /// <param name="jsonItem"></param>
         /// <param name="executeType"></param>
         /// <returns></returns>
-        public PrepareItemResult<TEntity> PrepareItem(TEntity jsonItem, byte executeType)
+        public PrepareItemResult<TEntity> PrepareItem(TEntity jsonItem, ExecuteTypeConstCRUD executeType)
         {
             PrepareItemResult<TEntity> result = new PrepareItemResult<TEntity>();
             try

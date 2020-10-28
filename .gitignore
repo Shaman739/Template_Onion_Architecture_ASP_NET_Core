@@ -18,6 +18,7 @@
 1Example/BLL.Common/bin/
 1Example/DAL.Common/bin/
 1Example/RegisterHouse/bin/
+1Example/ClientApp/
 
 4APP/Service/TestClient/bin/
 4APP/Service/TestClient/obj/
@@ -25,3 +26,4 @@
 .vs/RegisterHouse/v16/TestStore/0/testlog.manifest
 .vs/RegisterHouse/v16/.suo
 .vs/RegisterHouse/config/applicationhost.config
+
