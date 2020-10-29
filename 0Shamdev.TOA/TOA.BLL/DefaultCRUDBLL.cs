@@ -37,25 +37,25 @@ namespace Shamdev.TOA.BLL
             PrepareItemForCRUDStrategyFactory = new Lazy<PrepareItemForCRUDStrategyFactory<TEntity>>(() => new PrepareItemForCRUDStrategyFactory<TEntity>(_contextDB));
             ValidateDomainObject = new Lazy<ValidateDomainObjectFactory<TEntity>>(() => new ValidateDomainObjectFactory<TEntity>(_contextDB));
         }
-        public async Task<SaveResultType<TEntity>> SaveItemAsync(ExecuteTypeConstCRUD executeTypeCRUD, DefaultParamOfCRUDOperation<TEntity> paramOfCRUDOperation)
+        public async Task<BaseResultType<SaveResultType<TEntity>>> SaveItemAsync(ExecuteTypeConstCRUD executeTypeCRUD, DefaultParamOfCRUDOperation<TEntity> paramOfCRUDOperation)
         {
             return await Task.Run(() => SaveItem(executeTypeCRUD, paramOfCRUDOperation));
 
         }
-        public SaveResultType<TEntity> SaveItem(ExecuteTypeConstCRUD executeTypeCRUD, DefaultParamOfCRUDOperation<TEntity> paramOfCRUDOperation)
+        public BaseResultType<SaveResultType<TEntity>> SaveItem(ExecuteTypeConstCRUD executeTypeCRUD, DefaultParamOfCRUDOperation<TEntity> paramOfCRUDOperation)
         {
-            SaveResultType<TEntity> resultCRUDOpeartion = new SaveResultType<TEntity>();
+            BaseResultType<SaveResultType<TEntity>> resultCRUDOpeartion = new BaseResultType<SaveResultType<TEntity>>();
             try
             {
                 if (paramOfCRUDOperation == null || paramOfCRUDOperation.Item == null)
                     throw new Exception("Объект для добавления/изменения не может быть null.");
 
-                PrepareItemResult<TEntity> prepareItemResult = PrepareItemForCRUDStrategyFactory.Value.PrepareItem(paramOfCRUDOperation.Item, executeTypeCRUD);
+                BaseResultType<PrepareItemResult<TEntity>> prepareItemResult = PrepareItemForCRUDStrategyFactory.Value.PrepareItem(paramOfCRUDOperation.Item, executeTypeCRUD);
 
                 if (!prepareItemResult.IsSuccess)
                     resultCRUDOpeartion.AddError(prepareItemResult.Message);
                 else
-                    resultCRUDOpeartion = SaveContextWithObject(prepareItemResult.Item, executeTypeCRUD);
+                    resultCRUDOpeartion = SaveContextWithObject(prepareItemResult.Data.Item, executeTypeCRUD);
 
             }
             catch (Exception e)
@@ -69,9 +69,9 @@ namespace Shamdev.TOA.BLL
         /// Сохраняет контекст EF с валидациейю Нужен для добавления и изменения объектов.
         /// Валидация через ValidateDomainObject
         /// </summary>
-        private SaveResultType<TEntity> SaveContextWithObject(TEntity item, ExecuteTypeConstCRUD executeTypeCRUD)
+        private BaseResultType<SaveResultType<TEntity>> SaveContextWithObject(TEntity item, ExecuteTypeConstCRUD executeTypeCRUD)
         {
-            SaveResultType<TEntity> saveResultType = new SaveResultType<TEntity>();
+            BaseResultType<SaveResultType<TEntity>> saveResultType = new BaseResultType<SaveResultType<TEntity>>();
             try
             {
                 BaseResultType validate = new BaseResultType() { IsSuccess = true };
@@ -82,7 +82,7 @@ namespace Shamdev.TOA.BLL
                 {
                     _contextDB.SaveChanges();
                     saveResultType.IsSuccess = true;
-                    saveResultType.Item = item;
+                    saveResultType.Data.Item = item;
                 }
                 else
                     saveResultType.AddError(validate.Message);
@@ -109,18 +109,18 @@ namespace Shamdev.TOA.BLL
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public async Task<PrepareItemResult<TEntity>> GetByIdAsync(long id)
+        public async Task<BaseResultType<TEntity>> GetByIdAsync(long id)
         {
             return await Task.Run(() => GetById(id));
         }
-        private PrepareItemResult<TEntity> GetById(long id)
+        private BaseResultType<TEntity> GetById(long id)
         {
-            PrepareItemResult<TEntity> result = new PrepareItemResult<TEntity>();
+            BaseResultType<TEntity> result = new BaseResultType<TEntity>();
             result.IsSuccess = true;
             try
             {
-                result.Item = _contextDB.Repository<TEntity>().GetById(id);
-                if (result.Item == null)
+                result.Data = _contextDB.Repository<TEntity>().GetById(id);
+                if (result.Data == null)
                     result.AddError("Запись не найдена.");
 
             }

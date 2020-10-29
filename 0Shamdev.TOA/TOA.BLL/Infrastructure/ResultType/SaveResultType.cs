@@ -6,7 +6,7 @@ namespace Shamdev.TOA.BLL.Infrastructure.ResultType
     /// <summary>
     /// Результат CRUD операции
     /// </summary>
-    public class SaveResultType<TEntity> : BaseResultType
+    public class SaveResultType<TEntity>
         where TEntity : DomainObject
     {
         /// <summary>

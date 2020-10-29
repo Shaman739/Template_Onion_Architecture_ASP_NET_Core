@@ -2,6 +2,7 @@
 using Shamdev.TOA.BLL.Infrastructure.PrepareItemForCRUDOperations.Interface;
 using Shamdev.TOA.BLL.Infrastructure.ResultType;
 using Shamdev.TOA.Core.Data;
+using Shamdev.TOA.Core.Data.Infrastructure.ResultType;
 using Shamdev.TOA.DAL.Interface;
 using System;
 using System.Collections.Generic;
@@ -71,12 +72,12 @@ namespace Shamdev.TOA.BLL.PrepareItemForCRUDOperations
         /// <param name="jsonItem"></param>
         /// <param name="executeType"></param>
         /// <returns></returns>
-        public PrepareItemResult<TEntity> PrepareItem(TEntity jsonItem, ExecuteTypeConstCRUD executeType)
+        public BaseResultType<PrepareItemResult<TEntity>> PrepareItem(TEntity jsonItem, ExecuteTypeConstCRUD executeType)
         {
-            PrepareItemResult<TEntity> result = new PrepareItemResult<TEntity>();
+            BaseResultType<PrepareItemResult<TEntity>> result = new BaseResultType<PrepareItemResult<TEntity>>();
             try
             {
-                result.Item = GetStrategy(executeType).GetItem(jsonItem);
+                result.Data.Item = GetStrategy(executeType).GetItem(jsonItem);
                 result.IsSuccess = true;
             }
             catch (Exception e)

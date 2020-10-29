@@ -7,7 +7,7 @@ namespace Shamdev.TOA.BLL.Infrastructure.ResultType
     /// Подготовка объекта для CRUD
     /// </summary>
     /// <typeparam name="TEntity"></typeparam>
-    public class PrepareItemResult<TEntity> : BaseResultType
+    public class PrepareItemResult<TEntity>
         where TEntity : DomainObject
     {
         /// <summary>

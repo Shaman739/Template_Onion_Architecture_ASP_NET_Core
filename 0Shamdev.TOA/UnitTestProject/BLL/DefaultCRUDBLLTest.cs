@@ -5,6 +5,7 @@ using Shamdev.TOA.BLL.Infrastructure;
 using Shamdev.TOA.BLL.Infrastructure.ParamOfCRUD;
 using Shamdev.TOA.BLL.Infrastructure.PrepareItemForCRUDOperations.Interface;
 using Shamdev.TOA.BLL.Infrastructure.ResultType;
+using Shamdev.TOA.Core.Data.Infrastructure.ResultType;
 using Shamdev.TOA.DAL;
 using Shamdev.TOA.DAL.Infrastructure;
 using Shamdev.TOA.DAL.Interface;
@@ -62,7 +63,7 @@ namespace UnitTestProject.BLL
         public void SaveItemTest()
         {
             DefaultCRUDBLL<ObjectMappingForTest> bll = new DefaultCRUDBLL<ObjectMappingForTest>(_uow);
-            SaveResultType<ObjectMappingForTest> resultCRUDOpeartion = bll.SaveItem(ExecuteTypeConstCRUD.ADD, null);
+            BaseResultType<SaveResultType<ObjectMappingForTest>> resultCRUDOpeartion = bll.SaveItem(ExecuteTypeConstCRUD.ADD, null);
             Assert.IsFalse(resultCRUDOpeartion.IsSuccess);
             StringAssert.Contains(resultCRUDOpeartion.Message, "Объект для добавления/изменения не может быть null.");
 
@@ -84,11 +85,11 @@ namespace UnitTestProject.BLL
             bll = new DefaultCRUDBLL<ObjectMappingForTest>(_uow);
             resultCRUDOpeartion = bll.SaveItem(ExecuteTypeConstCRUD.ADD, objectFroCRUD);
             Assert.IsTrue(resultCRUDOpeartion.IsSuccess);
-            Assert.IsNotNull(resultCRUDOpeartion.Item, "После сохранения должен отдаваться сохраненный объект.");
-            Assert.IsInstanceOfType(resultCRUDOpeartion.Item, typeof(ObjectMappingForTest));
-            Assert.AreEqual(2, resultCRUDOpeartion.Item.Id);
-            Assert.AreEqual(11, ((ObjectMappingForTest)resultCRUDOpeartion.Item).IntValue);
-            Assert.AreEqual("22", ((ObjectMappingForTest)resultCRUDOpeartion.Item).StrValue);
+            Assert.IsNotNull(resultCRUDOpeartion.Data, "После сохранения должен отдаваться сохраненный объект.");
+            Assert.IsInstanceOfType(resultCRUDOpeartion.Data, typeof(SaveResultType<ObjectMappingForTest>));
+            Assert.AreEqual(2, resultCRUDOpeartion.Data.Item.Id);
+            Assert.AreEqual(11, ((ObjectMappingForTest)resultCRUDOpeartion.Data.Item).IntValue);
+            Assert.AreEqual("22", ((ObjectMappingForTest)resultCRUDOpeartion.Data.Item).StrValue);
             ResultFetchData<ObjectMappingForTest> allDataInDB = bll.FetchDataAsync(new FetchDataParameters()).Result;
             Assert.AreEqual(2, allDataInDB.TotalCountRows, "Должна была добавиться одна запись в БД");
             Assert.AreEqual(2, allDataInDB.Items[1].Id);
@@ -99,11 +100,11 @@ namespace UnitTestProject.BLL
             objectFroCRUD.Item = new ObjectMappingForTest() { Id = 1, IntValue = 111, StrValue = "222", IntValue2 = 222 };
             resultCRUDOpeartion = bll.SaveItem(ExecuteTypeConstCRUD.EDIT, objectFroCRUD);
             Assert.IsTrue(resultCRUDOpeartion.IsSuccess);
-            Assert.IsNotNull(resultCRUDOpeartion.Item, "После сохранения должен отдаваться сохраненный объект.");
-            Assert.IsInstanceOfType(resultCRUDOpeartion.Item, typeof(ObjectMappingForTest));
-            Assert.AreEqual(1, resultCRUDOpeartion.Item.Id);
-            Assert.AreEqual(111, ((ObjectMappingForTest)resultCRUDOpeartion.Item).IntValue);
-            Assert.AreEqual("222", ((ObjectMappingForTest)resultCRUDOpeartion.Item).StrValue);
+            Assert.IsNotNull(resultCRUDOpeartion.Data, "После сохранения должен отдаваться сохраненный объект.");
+            Assert.IsInstanceOfType(resultCRUDOpeartion.Data, typeof(SaveResultType<ObjectMappingForTest>));
+            Assert.AreEqual(1, resultCRUDOpeartion.Data.Item.Id);
+            Assert.AreEqual(111, ((ObjectMappingForTest)resultCRUDOpeartion.Data.Item).IntValue);
+            Assert.AreEqual("222", ((ObjectMappingForTest)resultCRUDOpeartion.Data.Item).StrValue);
             allDataInDB = bll.FetchDataAsync(new FetchDataParameters()).Result;
             Assert.AreEqual(2, allDataInDB.TotalCountRows, "Количество записей не должно меняться в БД");
             //Проверка, что данные изменились
@@ -123,17 +124,18 @@ namespace UnitTestProject.BLL
             DefaultParamOfCRUDOperation<ObjectMappingForTest> objectFroCRUD = new DefaultParamOfCRUDOperation<ObjectMappingForTest>();
             //Проверка на удаление не существующего объекта
             objectFroCRUD.Item = new ObjectMappingForTest() { Id = 10 };
-            SaveResultType<ObjectMappingForTest> resultCRUDOpeartion = bll.SaveItem(ExecuteTypeConstCRUD.DELETE, objectFroCRUD);
+            BaseResultType<SaveResultType<ObjectMappingForTest>> resultCRUDOpeartion = bll.SaveItem(ExecuteTypeConstCRUD.DELETE, objectFroCRUD);
             Assert.IsFalse(resultCRUDOpeartion.IsSuccess);
-            Assert.IsNull(resultCRUDOpeartion.Item, "Объекта с таким ID нет в БД.");
+            Assert.IsNotNull(resultCRUDOpeartion.Data, "Результат не может быть null.");
+            Assert.IsNull(resultCRUDOpeartion.Data.Item, "Объекта с таким ID нет в БД.");
             Assert.AreEqual(1, bll.FetchDataAsync(new FetchDataParameters()).Result.TotalCountRows, "Не должно измениться количество строк в БД");
 
             //Удаление объекта
             objectFroCRUD.Item = new ObjectMappingForTest() { Id = 1 };
             resultCRUDOpeartion = bll.SaveItem(ExecuteTypeConstCRUD.DELETE, objectFroCRUD);
             Assert.IsTrue(resultCRUDOpeartion.IsSuccess);
-            Assert.IsNotNull(resultCRUDOpeartion.Item, "После сохранения должен отдаваться сохраненный объект.");
-            Assert.IsInstanceOfType(resultCRUDOpeartion.Item, typeof(ObjectMappingForTest));
+            Assert.IsNotNull(resultCRUDOpeartion.Data, "После сохранения должен отдаваться сохраненный объект.");
+            Assert.IsInstanceOfType(resultCRUDOpeartion.Data, typeof(SaveResultType<ObjectMappingForTest>));
             Assert.AreEqual(0, bll.FetchDataAsync(new FetchDataParameters()).Result.TotalCountRows, "Не должно измениться количество строк в БД");
         }
         [TestMethod]
@@ -143,7 +145,7 @@ namespace UnitTestProject.BLL
             DefaultCRUDBLLForTest bll = new DefaultCRUDBLLForTest(_uow);
             DefaultParamOfCRUDOperation<ObjectMappingForTest> objectFroCRUD = new DefaultParamOfCRUDOperation<ObjectMappingForTest>();
             objectFroCRUD.Item = new ObjectMappingForTest() { StrValue = "222222" };
-            SaveResultType<ObjectMappingForTest> resultCRUDOpeartion = bll.SaveItem(ExecuteTypeConstCRUD.ADD, objectFroCRUD);
+            BaseResultType<SaveResultType<ObjectMappingForTest>> resultCRUDOpeartion = bll.SaveItem(ExecuteTypeConstCRUD.ADD, objectFroCRUD);
             Assert.IsFalse(resultCRUDOpeartion.IsSuccess, "Не прошла валидация по обязательным полям контекста.");
             StringAssert.Contains("Для проверки ошибки подготовки в БЛЛ", resultCRUDOpeartion.Message, "Должно пробрасываться сообщение об ошибке из стратегии.");
             ResultFetchData<ObjectMappingForTest> allDataInDB = bll.FetchDataAsync(new FetchDataParameters()).Result;
@@ -156,7 +158,7 @@ namespace UnitTestProject.BLL
             DefaultCRUDBLL<ObjectMappingForTest> bll = new DefaultCRUDBLL<ObjectMappingForTest>(_uow);
             DefaultParamOfCRUDOperation<ObjectMappingForTest> objectFroCRUD = new DefaultParamOfCRUDOperation<ObjectMappingForTest>();
             objectFroCRUD.Item = new ObjectMappingForTest() { StrValue = "22" };
-            SaveResultType<ObjectMappingForTest> resultCRUDOpeartion = bll.SaveItem(ExecuteTypeConstCRUD.ADD, objectFroCRUD);
+            BaseResultType<SaveResultType<ObjectMappingForTest>> resultCRUDOpeartion = bll.SaveItem(ExecuteTypeConstCRUD.ADD, objectFroCRUD);
             Assert.IsFalse(resultCRUDOpeartion.IsSuccess, "Не прошла валидация по обязательным полям контекста.");
         }
 
@@ -166,19 +168,19 @@ namespace UnitTestProject.BLL
             CreateContext();
             DefaultCRUDBLL<ObjectMappingForTest> bll = new DefaultCRUDBLL<ObjectMappingForTest>(_uow);
 
-            PrepareItemResult<ObjectMappingForTest> resultGetById = bll.GetByIdAsync(10).Result;
+            BaseResultType<ObjectMappingForTest> resultGetById = bll.GetByIdAsync(10).Result;
             Assert.IsFalse(resultGetById.IsSuccess);
-            Assert.AreEqual("Запись не найдена.", ((PrepareItemResult<ObjectMappingForTest>)resultGetById).Message);
+            Assert.AreEqual("Запись не найдена.", ((BaseResultType<ObjectMappingForTest>)resultGetById).Message);
 
             //Проверка успешного получения записи
 
             resultGetById = bll.GetByIdAsync(1).Result;
 
             Assert.IsTrue(resultGetById.IsSuccess);
-            Assert.IsNotNull(resultGetById.Item);
-            Assert.AreEqual(1, resultGetById.Item.Id);
-            Assert.AreEqual(2, resultGetById.Item.IntValue);
-            Assert.AreEqual("2", resultGetById.Item.StrValue);
+            Assert.IsNotNull(resultGetById.Data);
+            Assert.AreEqual(1, resultGetById.Data.Id);
+            Assert.AreEqual(2, resultGetById.Data.IntValue);
+            Assert.AreEqual("2", resultGetById.Data.StrValue);
         }
     }
 }

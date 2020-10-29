@@ -4,6 +4,7 @@ using Shamdev.TOA.BLL.Infrastructure;
 using Shamdev.TOA.BLL.Infrastructure.PrepareItemForCRUDOperations.Interface;
 using Shamdev.TOA.BLL.Infrastructure.ResultType;
 using Shamdev.TOA.BLL.PrepareItemForCRUDOperations;
+using Shamdev.TOA.Core.Data.Infrastructure.ResultType;
 using Shamdev.TOA.DAL;
 using System;
 using UnitTestProject.DAL.TestFakeClasses;
@@ -74,14 +75,14 @@ namespace UnitTestProject.BLL.PrepareItemForCRUDStrategy
             ObjectMappingForTest sourceObjectMappingForTest = new ObjectMappingForTest();
             sourceObjectMappingForTest.IntValue = 1;
             sourceObjectMappingForTest.StrValue = "str";
-            PrepareItemResult<ObjectMappingForTest> prepareItemResult = factory.PrepareItem(sourceObjectMappingForTest, ExecuteTypeConstCRUD.ADD);
+            BaseResultType<PrepareItemResult<ObjectMappingForTest>> prepareItemResult = factory.PrepareItem(sourceObjectMappingForTest, ExecuteTypeConstCRUD.ADD);
 
             //Проверка при добавлении
             Assert.IsTrue(prepareItemResult.IsSuccess, "Подготовка для добавления в БД должна быть успешной");
-            Assert.IsNotNull(prepareItemResult.Item);
-            Assert.AreEqual(sourceObjectMappingForTest.IntValue, prepareItemResult.Item.IntValue);
-            Assert.AreEqual(sourceObjectMappingForTest.StrValue, prepareItemResult.Item.StrValue);
-            Assert.IsNull(prepareItemResult.Item.SubObject, "Мапятся только простые типы.");
+            Assert.IsNotNull(prepareItemResult.Data);
+            Assert.AreEqual(sourceObjectMappingForTest.IntValue, prepareItemResult.Data.Item.IntValue);
+            Assert.AreEqual(sourceObjectMappingForTest.StrValue, prepareItemResult.Data.Item.StrValue);
+            Assert.IsNull(prepareItemResult.Data.Item.SubObject, "Мапятся только простые типы.");
             Assert.IsTrue(String.IsNullOrWhiteSpace(prepareItemResult.Message));
 
             //Проверка при изменение с несуществующим объектом в БД
@@ -93,14 +94,14 @@ namespace UnitTestProject.BLL.PrepareItemForCRUDStrategy
             //Проверка  с существующим БД при изменение
             sourceObjectMappingForTest.Id = 1;
             prepareItemResult = factory.PrepareItem(sourceObjectMappingForTest, ExecuteTypeConstCRUD.EDIT);
-            Assert.IsNotNull(prepareItemResult.Item);
-            Assert.AreEqual(sourceObjectMappingForTest.IntValue, prepareItemResult.Item.IntValue);
+            Assert.IsNotNull(prepareItemResult.Data);
+            Assert.AreEqual(sourceObjectMappingForTest.IntValue, prepareItemResult.Data.Item.IntValue);
 
-            Assert.AreEqual(sourceObjectMappingForTest.StrValue, prepareItemResult.Item.StrValue);
-            Assert.IsNotNull(prepareItemResult.Item.SubObject, "В БД есть ссылка на этот объект и не должно затираться");
-            Assert.AreEqual(33, prepareItemResult.Item.SubObject.Id);
-            Assert.AreEqual(34, prepareItemResult.Item.SubObject.IntValueSub);
-            Assert.AreEqual("35", prepareItemResult.Item.SubObject.StrValueSub);
+            Assert.AreEqual(sourceObjectMappingForTest.StrValue, prepareItemResult.Data.Item.StrValue);
+            Assert.IsNotNull(prepareItemResult.Data.Item.SubObject, "В БД есть ссылка на этот объект и не должно затираться");
+            Assert.AreEqual(33, prepareItemResult.Data.Item.SubObject.Id);
+            Assert.AreEqual(34, prepareItemResult.Data.Item.SubObject.IntValueSub);
+            Assert.AreEqual("35", prepareItemResult.Data.Item.SubObject.StrValueSub);
 
             Assert.IsTrue(String.IsNullOrWhiteSpace(prepareItemResult.Message));
 

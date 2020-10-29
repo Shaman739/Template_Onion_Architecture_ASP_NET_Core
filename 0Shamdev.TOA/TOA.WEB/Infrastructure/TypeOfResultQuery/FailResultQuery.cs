@@ -11,9 +11,5 @@ namespace Shamdev.TOA.Web.Infrastructure.TypeOfResultQuery
         {
             IsSuccess = false;
         }
-        /// <summary>
-        /// Сообщение об ошибке
-        /// </summary>
-        public string ErrorMessage { get; set; }
     }
 }

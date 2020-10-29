@@ -34,21 +34,21 @@ namespace Shamdev.TOA.Web
         [HttpGet]
         public async Task<JsonResult> GetAsync([FromQuery] FetchDataParameters fetchDataParameters)
         {
-            BaseResultType resultQuery;
+            BaseResultType resultQuery = new BaseResultType();
+            
             try
             {
-                FetchDataResultQuery<TEntity> resultSuccessQuery = new FetchDataResultQuery<TEntity>();
-
                 if (fetchDataParameters == null) fetchDataParameters = new FetchDataParameters();
 
                 ResultFetchData<TEntity> items = await _defaultCRUDBLL.FetchDataAsync(fetchDataParameters);
-                resultSuccessQuery.Items = items.Items;
-                resultSuccessQuery.Count = items.TotalCountRows;
-                resultQuery = resultSuccessQuery;
+                resultQuery = new BaseResultType<ResultFetchData<TEntity>>();
+
+                (resultQuery as BaseResultType<ResultFetchData<TEntity>>).Data = items;
+
             }
             catch (Exception e)
             {
-                resultQuery = new FailResultQuery() { ErrorMessage = e.Message };
+                resultQuery = new FailResultQuery() { Message = e.Message };
             }
             return Json(resultQuery);
         }
@@ -57,14 +57,15 @@ namespace Shamdev.TOA.Web
         [Route("Get")]
         public async Task<JsonResult> GetByIdAsync(long id)
         {
-            BaseResultType resultQuery;
+            BaseResultType resultQuery = new BaseResultType();
             try
             {
-                resultQuery = await _defaultCRUDBLL.GetByIdAsync(id);
+                resultQuery= await _defaultCRUDBLL.GetByIdAsync(id);
+               // resultQuery.Merge((resultQuery as BaseResultType<TEntity>));
             }
             catch (Exception e)
             {
-                resultQuery = new FailResultQuery() { ErrorMessage = e.Message };
+                resultQuery = new FailResultQuery() { Message = e.Message };
             }
             return Json(resultQuery);
         }
@@ -95,19 +96,20 @@ namespace Shamdev.TOA.Web
 
         private async Task<JsonResult> SaveItemAsync(ExecuteTypeConstCRUD executeTypeCRUD, DefaultParamOfCRUDOperation<TEntity> paramOfCRUD)
         {
-            BaseResultType resultQuery;
+            BaseResultType resultQuery = new BaseResultType();
             try
             {
-                SaveResultType<TEntity> resultCRUDOpeartion = await _defaultCRUDBLL.SaveItemAsync(executeTypeCRUD, paramOfCRUD);
-
+                BaseResultType<SaveResultType<TEntity>> resultCRUDOpeartion = await _defaultCRUDBLL.SaveItemAsync(executeTypeCRUD, paramOfCRUD);
+                resultQuery = resultCRUDOpeartion;
                 if (resultCRUDOpeartion == null || !resultCRUDOpeartion.IsSuccess)
                     throw new Exception(resultCRUDOpeartion?.Message);
 
-                resultQuery = resultCRUDOpeartion;
+             //   resultQuery = new BaseResultType<SaveResultType<TEntity>>();
+              //  (resultQuery as BaseResultType<SaveResultType<TEntity>>).Data = resultCRUDOpeartion;
             }
             catch (Exception e)
             {
-                resultQuery = new FailResultQuery() { ErrorMessage = e.Message };
+                resultQuery = new FailResultQuery() { Message = e.Message };
             }
             return Json(resultQuery);
         }

@@ -2,11 +2,24 @@
 
 namespace Shamdev.TOA.Core.Data.Infrastructure.ResultType
 {
+    public class BaseResultType<T> : BaseResultType
+        where T : class,new()
+    {
+        public BaseResultType()
+        {
+            Data = new T();
+        }
+        public T Data { get; set; }
+    }
     /// <summary>
     /// Базовый класс для возврата результата обработки какой-то 
     /// </summary>
     public class BaseResultType
     {
+        public BaseResultType()
+        {
+            IsSuccess = true;
+        }
         public bool IsSuccess { get; set; }
         public string Message { get; set; }
 
