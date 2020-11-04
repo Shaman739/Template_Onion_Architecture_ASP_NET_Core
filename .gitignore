@@ -18,6 +18,7 @@
 1Example/BLL.Common/bin/
 1Example/DAL.Common/bin/
 1Example/RegisterHouse/bin/
+1Example/RegisterHouse/wwwroot/
 1Example/ClientApp/
 
 4APP/Service/TestClient/bin/

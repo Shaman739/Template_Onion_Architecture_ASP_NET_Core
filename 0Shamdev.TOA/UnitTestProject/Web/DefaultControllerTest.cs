@@ -81,7 +81,7 @@ namespace UnitTestProject.Web
             Assert.AreEqual(3, fetchDataResultQuery.Data.TotalCountRows, "Общий подсчет записей при запросе не работает.");
             Assert.AreEqual(1, fetchDataResultQuery.Data.Items.Count);
             Assert.AreEqual(1, fetchDataResultQuery.Data.Items[0].Id);
-
+            Assert.AreEqual(1, fetchDataResultQuery.Data.PageNumber);
             //Проверка выборки второй страницы 
             result = defaultController.GetAsync(new FetchDataParameters() { CountOnPage = 1, PageNumber = 2 }).Result;
             fetchDataResultQuery = (BaseResultType<ResultFetchData<ObjectMappingForTest>>)result.Value;
@@ -89,6 +89,7 @@ namespace UnitTestProject.Web
             Assert.AreEqual(3, fetchDataResultQuery.Data.TotalCountRows);
             Assert.AreEqual(1, fetchDataResultQuery.Data.Items.Count);
             Assert.AreEqual(2, fetchDataResultQuery.Data.Items[0].Id);
+            Assert.AreEqual(2, fetchDataResultQuery.Data.PageNumber);
 
         }
 

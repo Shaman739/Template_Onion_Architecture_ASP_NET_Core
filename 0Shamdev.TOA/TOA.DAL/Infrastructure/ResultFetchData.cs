@@ -17,5 +17,10 @@ namespace Shamdev.TOA.DAL.Infrastructure
         /// Данные по запросу - это страница
         /// </summary>
         public List<TEntity> Items { get; set; }
+
+        /// <summary>
+        /// Номер страницы
+        /// </summary>
+        public int PageNumber{get;set;}
     }
 }

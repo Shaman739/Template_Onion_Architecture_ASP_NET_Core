@@ -43,7 +43,7 @@ namespace Shamdev.TOA.DAL
                 query = query.AsNoTracking();
 
             result.Items = query.ToList();
-
+            result.PageNumber = paramQuery.PageNumber;
             return result;
         }
 
