@@ -17,6 +17,11 @@ namespace Shamdev.TOA.DAL
             _contextDB = contextDB;
             _dbSet = _contextDB.Set<TEntity>();
         }
+        /// <summary>
+        /// Для получения записей со связанными объектами 
+        /// </summary>
+        protected virtual IQueryable<TEntity> DbSetWithInclude => _dbSet; 
+        
 
         /// <summary>
         /// Метод, который получает данные из БД
@@ -34,10 +39,10 @@ namespace Shamdev.TOA.DAL
 
             ResultFetchData<TEntity> result = new ResultFetchData<TEntity>();
 
-            result.TotalCountRows = _dbSet.Count();
+            result.TotalCountRows = DbSetWithInclude.Count();
 
             int startRow = (paramQuery.PageNumber - 1) * paramQuery.CountOnPage;
-            IQueryable<TEntity> query = _dbSet.Skip(startRow).Take((int)paramQuery.CountOnPage);
+            IQueryable<TEntity> query = DbSetWithInclude.Skip(startRow).Take((int)paramQuery.CountOnPage);
 
             if (paramQuery.IsOnlyShowData)
                 query = query.AsNoTracking();
@@ -67,7 +72,7 @@ namespace Shamdev.TOA.DAL
         }
         public TEntity GetById(long id)
         {
-            return _dbSet.Find(id);
+            return DbSetWithInclude.SingleOrDefault(x=>x.Id == id);
         }
 
         public TEntity Delete(long id)

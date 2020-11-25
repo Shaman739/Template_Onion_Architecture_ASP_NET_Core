@@ -5,38 +5,54 @@ using System;
 using System.Collections.Generic;
 using Shamdev.TOA.Core.Data;
 using Shamdev.TOA.DAL.ValidateContext;
+using System.Data.Entity;
+using System.Linq;
 
 namespace Shamdev.TOA.DAL
 {
     public class UnitOfWork : IUnitOfWork, IDisposable
     {
         private IApplicationContext _contextDB;
-        public UnitOfWork(IApplicationContext contextDB)
+      
+        private UnitOfWork()
+        {
+           
+        }
+        public UnitOfWork(IApplicationContext contextDB) : this()
         {
             _contextDB = contextDB;
         }
+        private Dictionary<string, dynamic> _repositoriesCreated;
 
-        private Dictionary<string, dynamic> _repositories;
+      
         /// <summary>
         /// Получения репозитория для CRUD операций или выборки данных
         /// </summary>
         /// <typeparam name="TEntity"></typeparam>
         /// <returns></returns>
         public IRepository<TEntity> Repository<TEntity>()
-            where TEntity : DomainObject
+            where TEntity : DomainObject,new()
         {
-            if (_repositories == null)
-                _repositories = new Dictionary<string, dynamic>();
+            if (_repositoriesCreated == null)
+                _repositoriesCreated = new Dictionary<string, dynamic>();
             var type = typeof(TEntity).Name;
-            if (_repositories.ContainsKey(type))
-                return (IRepository<TEntity>)_repositories[type];
-            var repositoryType = typeof(Repository<>);
-            _repositories.Add(type, Activator.CreateInstance(
-                repositoryType.MakeGenericType(typeof(TEntity)), _contextDB)
-            );
-            return (IRepository<TEntity>)_repositories[type];
-        }
+            if (_repositoriesCreated.ContainsKey(type))
+                return (IRepository<TEntity>)_repositoriesCreated[type];
+            Type repositoryType = _contextDB.GetRepositoriesType().FirstOrDefault(x => x.Key == typeof(TEntity)).Value;
 
+            if (repositoryType != null)
+            {
+                _repositoriesCreated.Add(type, Activator.CreateInstance(repositoryType, _contextDB));
+            }
+            else
+            {
+                repositoryType = typeof(Repository<>);
+                _repositoriesCreated.Add(type, Activator.CreateInstance(repositoryType.MakeGenericType(typeof(TEntity)), _contextDB));
+                
+            }          
+            
+            return (IRepository<TEntity>)_repositoriesCreated[type];
+        }
         public int SaveChanges()
         {
             return _contextDB.SaveChanges();
@@ -44,7 +60,7 @@ namespace Shamdev.TOA.DAL
 
         public void Dispose()
         {
-            _repositories?.Clear();
+            _repositoriesCreated?.Clear();
             _contextDB.Dispose();
             GC.Collect();
 
@@ -70,5 +86,6 @@ namespace Shamdev.TOA.DAL
         {
             _contextDB.UpdateItem<TEntity>(toItem, fromItem);
         }
+
     }
 }

@@ -3,19 +3,25 @@
 using Microsoft.EntityFrameworkCore;
 using Shamdev.TOA.Core.Data;
 using Shamdev.TOA.DAL.ValidateContext;
+using System;
+using System.Collections.Generic;
 
 namespace Shamdev.TOA.DAL
 {
     public class ApplicationContext : DbContext, IApplicationContext
     {
-        public ApplicationContext(DbContextOptions<ApplicationContext> options)
+        private Dictionary<Type, Type> _repositoriesType;
+
+        public ApplicationContext(DbContextOptions<ApplicationContext> options) 
             : base(options)
         {
             Database.EnsureCreated();   // создаем базу данных при первом обращении
         }
-        protected ApplicationContext(DbContextOptions options)
+        protected ApplicationContext(DbContextOptions options) 
          : base(options)
         {
+            _repositoriesType = new Dictionary<Type, Type>();
+            Database.EnsureCreated();   // создаем базу данных при первом обращении
         }
 
         int IApplicationContext.SaveChanges()
@@ -23,6 +29,21 @@ namespace Shamdev.TOA.DAL
             return base.SaveChanges();
         }
 
+        /// <summary>
+        /// Регистрация кастомных типов репозиторий.
+        /// </summary>
+        /// <typeparam name="TEntity">Тип доменного класса</typeparam>
+        /// <typeparam name="TRepository">Репозиторий для этого класса</typeparam>
+        protected void RegisterCustomReposynoryType<TEntity, TRepository>()
+          where TEntity : DomainObject
+          where TRepository : IRepository<TEntity>
+        {
+            _repositoriesType.Add(typeof(TEntity), typeof(TRepository));
+        }
+        public Dictionary<Type, Type> GetRepositoriesType()
+        {
+            return _repositoriesType;
+        }
         /// <summary>
         /// Маппинг полей в объекте
         /// </summary>
