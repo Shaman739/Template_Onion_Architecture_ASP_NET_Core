@@ -5,6 +5,8 @@ using Shamdev.TOA.Core.Data;
 using Shamdev.TOA.DAL.ValidateContext;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 
 namespace Shamdev.TOA.DAL
 {
@@ -52,7 +54,15 @@ namespace Shamdev.TOA.DAL
         /// <param name="fromItem"></param>
         public void UpdateItem<TEntity>(TEntity toItem, TEntity fromItem) where TEntity : DomainObject
         {
-            this.Entry(toItem).CurrentValues.SetValues(fromItem);
+          //  this.Entry(toItem).CurrentValues.SetValues(fromItem);
+            var typefromItem = fromItem.GetType();
+            var typetoItem = toItem.GetType();
+            var properties = typefromItem.GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(info => !info.PropertyType.IsClass ||info.PropertyType == typeof(String) );
+            foreach (var pi in properties)
+            {
+                var selfValue = typefromItem.GetProperty(pi.Name).GetValue(fromItem, null);
+                typetoItem.GetProperty(pi.Name).SetValue(toItem, selfValue);
+            }
         }
 
         /// <summary>

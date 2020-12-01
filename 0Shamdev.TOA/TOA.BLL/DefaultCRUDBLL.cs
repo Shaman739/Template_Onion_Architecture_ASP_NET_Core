@@ -19,6 +19,10 @@ namespace Shamdev.TOA.BLL
         IUnitOfWork _contextDB;
         IRepository<TEntity> _repository;
         /// <summary>
+        /// Признак, что нужно только добавить в контекст, но не сохранять в БД
+        /// </summary>
+        public bool IsOnlyAddInContext { get; set; }
+        /// <summary>
         /// Стратегии CRUD. Через это проперти можно удалить или изменить стратегии.
         /// Например
         ///  PrepareItemForCRUDStrategyFactory.Value.ReplaceStrategy(ExecuteTypeCRUD.ADD, new CustomddPrepareItemForCRUDStrategy<TEntity>(uow))
@@ -80,7 +84,8 @@ namespace Shamdev.TOA.BLL
 
                 if (validate.IsSuccess)
                 {
-                    _contextDB.SaveChanges();
+                    if(!IsOnlyAddInContext)
+                        _contextDB.SaveChanges();
                     saveResultType.IsSuccess = true;
                     saveResultType.Data.Item = item;
                 }

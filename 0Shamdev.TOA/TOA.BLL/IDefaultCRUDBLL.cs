@@ -12,6 +12,9 @@ namespace Shamdev.TOA.BLL
     {
         Task<ResultFetchData<TEntity>> FetchDataAsync(FetchDataParameters paramQuery);
         Task<BaseResultType<SaveResultType<TEntity>>> SaveItemAsync(ExecuteTypeConstCRUD executeTypeCRUD, DefaultParamOfCRUDOperation<TEntity> paramOfCRUDOperation);
+
+        bool IsOnlyAddInContext { get; set; }
+
         Task<BaseResultType<TEntity>> GetByIdAsync(long id);
     }
 }

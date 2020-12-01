@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using BLL.Common;
 using Core.Data.Domain;
 using Shamdev.TOA.BLL;
+using BLL.Common.House;
 
 namespace RegisterHouse
 {
@@ -23,7 +24,7 @@ namespace RegisterHouse
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddCors();
-            services.AddTransient<IDefaultCRUDBLL<House>, DefaultCRUDBLL<House>>();
+            services.AddTransient<IDefaultCRUDBLL<House>, HouseBLL>();
             //Добавляем Onion Architecture
             services.AddBLL(Configuration);
 

@@ -182,5 +182,35 @@ namespace UnitTestProject.BLL
             Assert.AreEqual(2, resultGetById.Data.IntValue);
             Assert.AreEqual("2", resultGetById.Data.StrValue);
         }
+
+        [TestMethod]
+        public void SaveItem_IsOnlyAddInContext_Test()
+        {
+            DefaultParamOfCRUDOperation<ObjectMappingForTest> objectFroCRUD = new DefaultParamOfCRUDOperation<ObjectMappingForTest>();
+            objectFroCRUD.Item = new ObjectMappingForTest() { IntValue = 11, StrValue = "22" };
+            objectFroCRUD.Item.IntValue2 = 33;
+
+
+
+            CreateContext();
+            DefaultCRUDBLL<ObjectMappingForTest>  bll = new DefaultCRUDBLL<ObjectMappingForTest>(_uow);
+            bll.IsOnlyAddInContext = true;
+            BaseResultType<SaveResultType<ObjectMappingForTest>> resultCRUDOpeartion = bll.SaveItem(ExecuteTypeConstCRUD.ADD, objectFroCRUD);
+            Assert.IsTrue(resultCRUDOpeartion.IsSuccess);
+            Assert.IsNotNull(resultCRUDOpeartion.Data, "После сохранения должен отдаваться сохраненный объект.");
+            Assert.IsInstanceOfType(resultCRUDOpeartion.Data, typeof(SaveResultType<ObjectMappingForTest>));
+            //Вернет объект, но не сохранит его в БД
+            Assert.AreEqual(2, resultCRUDOpeartion.Data.Item.Id);
+            Assert.AreEqual(11, ((ObjectMappingForTest)resultCRUDOpeartion.Data.Item).IntValue);
+            Assert.AreEqual("22", ((ObjectMappingForTest)resultCRUDOpeartion.Data.Item).StrValue);
+            ResultFetchData<ObjectMappingForTest> allDataInDB = bll.FetchDataAsync(new FetchDataParameters()).Result;
+            Assert.AreEqual(1, allDataInDB.TotalCountRows, "Должна была добавиться одна запись в БД");
+            Assert.AreEqual(1, allDataInDB.Items[0].Id);
+            Assert.AreEqual(2, allDataInDB.Items[0].IntValue);
+            Assert.AreEqual("2", allDataInDB.Items[0].StrValue);
+
+          
+
+        }
     }
 }
