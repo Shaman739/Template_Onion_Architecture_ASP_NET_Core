@@ -16,6 +16,12 @@ namespace DAL.Common
         {
             modelBuilder.Entity<House>().Property(b => b.Number).IsRequired();
             modelBuilder.Entity<Flat>().Property(b => b.Number).IsRequired();
+
+            modelBuilder.Entity<Flat>()
+            .HasOne(p => p.House)
+            .WithMany(t => t.Flats)
+            .OnDelete(DeleteBehavior.Cascade);
+
             base.OnModelCreating(modelBuilder);
         }
     }

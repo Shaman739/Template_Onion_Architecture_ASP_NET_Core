@@ -8,6 +8,9 @@ using BLL.Common;
 using Core.Data.Domain;
 using Shamdev.TOA.BLL;
 using BLL.Common.House;
+using Microsoft.AspNetCore.Mvc;
+using System.Net.Mime;
+using Shamdev.TOA.Web.Infrastructure.TypeOfResultQuery;
 
 namespace RegisterHouse
 {
@@ -28,14 +31,30 @@ namespace RegisterHouse
             //Добавляем Onion Architecture
             services.AddBLL(Configuration);
 
-            services.AddControllers().AddJsonOptions(options =>
+            services.AddControllers()
+            .AddJsonOptions(options =>
             {
                 options.JsonSerializerOptions.IgnoreNullValues = true;
             })
             .AddNewtonsoftJson(o =>
             {
                 o.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
+                o.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
             });
+            
+            //.ConfigureApiBehaviorOptions(options =>
+            //{
+            //    options.InvalidModelStateResponseFactory = context =>
+            //    {
+            //        var result = new BadRequestObjectResult(context.ModelState);
+
+            //        // TODO: add `using System.Net.Mime;` to resolve MediaTypeNames
+            //        result.ContentTypes.Add(MediaTypeNames.Application.Json);
+            //        result.ContentTypes.Add(MediaTypeNames.Application.Xml);
+            //       // return new FailResultQuery() { Message = result.ToString() };
+            //        return result;
+            //    };
+            //});
 
         }
 
