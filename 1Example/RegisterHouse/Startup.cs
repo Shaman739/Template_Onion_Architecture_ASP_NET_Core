@@ -30,18 +30,18 @@ namespace RegisterHouse
             services.AddTransient<IDefaultCRUDBLL<House>, HouseBLL>();
             //Добавляем Onion Architecture
             services.AddBLL(Configuration);
-
+           // services.AddOnionArchitecture(Configuration);
             services.AddControllers()
-            .AddJsonOptions(options =>
-            {
-                options.JsonSerializerOptions.IgnoreNullValues = true;
-            })
-            .AddNewtonsoftJson(o =>
-            {
-                o.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
-                o.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-            });
-            
+           .AddJsonOptions(options =>
+           {
+               options.JsonSerializerOptions.IgnoreNullValues = true;
+           })
+           .AddNewtonsoftJson(o =>
+           {
+               o.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
+               o.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+           });
+
             //.ConfigureApiBehaviorOptions(options =>
             //{
             //    options.InvalidModelStateResponseFactory = context =>

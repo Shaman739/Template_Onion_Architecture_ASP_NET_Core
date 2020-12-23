@@ -1,6 +1,8 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Shamdev.ERP.Core.Data.Infrastructure.ResultType.Question;
 using Shamdev.TOA.Core.Data.Infrastructure.ResultType;
 using System;
+using System.Collections.Generic;
 
 namespace UnitTestProject.Data.Core.Infrastructure.ResultType
 {
@@ -60,6 +62,31 @@ namespace UnitTestProject.Data.Core.Infrastructure.ResultType
             Assert.AreEqual("Message" + Environment.NewLine + "Error", message.Message);
 
 
+        }
+
+        [TestMethod]
+        public void MergeQuestionTest()
+        {
+            BaseResultType withQuestion = new BaseResultType();
+            withQuestion.AddQuestion(new WarningQuestion());
+
+            BaseResultType withoutQuestion = new BaseResultType();
+
+            withQuestion.Merge(withoutQuestion);
+            Assert.IsNotNull(withQuestion.Question);
+            Assert.AreEqual(1,withQuestion.Question.Count);
+
+            withoutQuestion.Merge(withoutQuestion);
+            Assert.IsNotNull(withQuestion.Question);
+            Assert.AreEqual(1, withQuestion.Question.Count);
+
+            //Мерж с пустыми списками вопросов
+            withQuestion = new BaseResultType();
+            withoutQuestion = new BaseResultType();
+
+            withoutQuestion.Merge(withoutQuestion);
+            Assert.IsNotNull(withoutQuestion.Question);
+            Assert.AreEqual(0, withoutQuestion.Question.Count);
         }
 
     }

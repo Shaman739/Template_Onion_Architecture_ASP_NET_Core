@@ -24,9 +24,11 @@ namespace BLL.Common.House.PrepareStrategy
         protected override Core.Data.Domain.House CreateItem(Core.Data.Domain.House item)
         {
             Core.Data.Domain.House house = base.CreateItem(item);
-            SynchronizeChildrenObject<Flat> synchronizeChildrenObject = new SynchronizeChildrenObject<Flat>(house.Flats, flatBLL);
-            synchronizeChildrenObject.Synchonize(item.Flats);
-
+            if (house != null)
+            {
+                SynchronizeChildrenObject<Flat> synchronizeChildrenObject = new SynchronizeChildrenObject<Flat>(house.Flats, flatBLL);
+                synchronizeChildrenObject.Synchonize(item.Flats);
+            }
             return house;
         }
     }

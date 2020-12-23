@@ -17,7 +17,7 @@ namespace Shamdev.TOA.DAL
         public ApplicationContext(DbContextOptions<ApplicationContext> options) 
             : base(options)
         {
-            Database.EnsureCreated();   // создаем базу данных при первом обращении
+           Database.EnsureCreated();   // создаем базу данных при первом обращении
         }
         protected ApplicationContext(DbContextOptions options) 
          : base(options)

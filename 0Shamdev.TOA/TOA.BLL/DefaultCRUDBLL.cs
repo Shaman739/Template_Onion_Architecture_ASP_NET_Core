@@ -86,6 +86,7 @@ namespace Shamdev.TOA.BLL
                 {
                     if(!IsOnlyAddInContext)
                         _contextDB.SaveChanges();
+                    saveResultType.Merge(validate);
                     saveResultType.IsSuccess = true;
                     saveResultType.Data.Item = item;
                 }

@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Shamdev.ERP.Core.Data.Infrastructure.ResultType.Question;
+using System;
+using System.Collections.Generic;
 
 namespace Shamdev.TOA.Core.Data.Infrastructure.ResultType
 {
@@ -22,6 +24,7 @@ namespace Shamdev.TOA.Core.Data.Infrastructure.ResultType
         }
         public bool IsSuccess { get; set; }
         public string Message { get; set; }
+        public List<Question> Question { get;private set;}
 
         /// <summary>
         /// Merge двух результатов. Если у одного результат IsSuccess=false, то в итоге общий результат будет IsSuccess = false, но сообщения соединятся.
@@ -31,6 +34,10 @@ namespace Shamdev.TOA.Core.Data.Infrastructure.ResultType
         {
             AddMessage(resultValidate.Message);
             this.IsSuccess &= resultValidate.IsSuccess;
+            if (Question == null)
+                Question = new List<Question>();
+            if(resultValidate.Question != null)
+                 Question.AddRange(resultValidate.Question);
         }
 
         public void AddError(string newMessage)
@@ -55,6 +62,14 @@ namespace Shamdev.TOA.Core.Data.Infrastructure.ResultType
             sourceMessage += newMessage;
 
             return sourceMessage;
+        }
+
+        public void AddQuestion(Question question)
+        {
+            if (Question == null)
+                Question = new List<Question>();
+            Question.Add(question);
+
         }
     }
 }

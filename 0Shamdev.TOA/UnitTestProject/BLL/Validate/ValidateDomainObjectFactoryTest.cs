@@ -8,7 +8,7 @@ using Shamdev.TOA.DAL;
 using Shamdev.TOA.DAL.Interface;
 using System;
 using UnitTestProject.DAL.TestFakeClasses;
-
+using Shamdev.ERP.Core.Data.Infrastructure.ResultType.Question;
 namespace UnitTestProject.BLL.Validate
 {
     [TestClass]
@@ -29,6 +29,31 @@ namespace UnitTestProject.BLL.Validate
             public ValidateDomainObjectFactoryForTest(IUnitOfWork contextDB) : base(contextDB)
             {
                 AddStrategy(ValidateTypeConstCRUD.ADD_OR_EDIT, new Lazy<IValidateDomainObject<ObjectMappingForTest>>(() => new CustomValidateDomainObject()));
+            }
+        }
+
+        class QuestionValidateDomainObject : IValidateDomainObject<ObjectMappingForTest>
+        {
+            public BaseResultType Validate(ObjectMappingForTest item)
+            {
+                BaseResultType baseResultType = new BaseResultType() { IsSuccess = true };
+                if (String.IsNullOrWhiteSpace(item.StrValue))
+                {
+                    WarningQuestion question = new WarningQuestion()
+                    {
+                        Id = 1,
+                        Message = "Предупреждение"
+                    };
+                    baseResultType.AddQuestion(question);
+                }
+                return baseResultType;
+            }
+        }
+        class QuestionValidateFactoryForTest : ValidateDomainObjectFactory<ObjectMappingForTest>
+        {
+            public QuestionValidateFactoryForTest(IUnitOfWork contextDB) : base(contextDB)
+            {
+                AddStrategy(ValidateTypeConstCRUD.ADD_OR_EDIT, new Lazy<IValidateDomainObject<ObjectMappingForTest>>(() => new QuestionValidateDomainObject()));
             }
         }
         [TestMethod]
@@ -100,6 +125,28 @@ namespace UnitTestProject.BLL.Validate
             baseResultType = validateDomainObjectFactory.GetValidate(sourceObjectMappingForTest, ExecuteTypeConstCRUD.ADD);
             Assert.IsTrue(baseResultType.IsSuccess);
             Assert.IsTrue(String.IsNullOrWhiteSpace(baseResultType.Message));
+        }
+
+        [TestMethod]
+        public void QuestionTest()
+        {
+            ApplicationContextForTest context;
+            UnitOfWork uow;
+            CreateContext(out context, out uow);
+
+            QuestionValidateFactoryForTest validateDomainObjectFactory = new QuestionValidateFactoryForTest(uow);
+
+            ObjectMappingForTest sourceObjectMappingForTest = new ObjectMappingForTest();
+            sourceObjectMappingForTest.SubObject = new SubObjectMappingForTest() { };
+            sourceObjectMappingForTest.IntValue = 1;
+            sourceObjectMappingForTest.IntValue2 = 1;
+            context.Set<ObjectMappingForTest>().Add(sourceObjectMappingForTest);
+            //Проверка без заполнения StrValue. Будет предупреждение
+            BaseResultType baseResultType = validateDomainObjectFactory.GetValidate(sourceObjectMappingForTest, ExecuteTypeConstCRUD.ADD);
+
+            Assert.IsTrue(baseResultType.IsSuccess);
+            Assert.AreEqual(1, baseResultType.Question.Count);
+            Assert.AreEqual("Предупреждение", baseResultType.Question[0].Message);
         }
     }
 }

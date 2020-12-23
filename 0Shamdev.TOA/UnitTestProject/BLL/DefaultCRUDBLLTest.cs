@@ -1,10 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Shamdev.ERP.Core.Data.Infrastructure.ResultType.Question;
 using Shamdev.TOA.BLL;
 using Shamdev.TOA.BLL.Infrastructure;
 using Shamdev.TOA.BLL.Infrastructure.ParamOfCRUD;
 using Shamdev.TOA.BLL.Infrastructure.PrepareItemForCRUDOperations.Interface;
 using Shamdev.TOA.BLL.Infrastructure.ResultType;
+using Shamdev.TOA.BLL.Validate.Interface;
 using Shamdev.TOA.Core.Data.Infrastructure.ResultType;
 using Shamdev.TOA.DAL;
 using Shamdev.TOA.DAL.Infrastructure;
@@ -34,6 +36,32 @@ namespace UnitTestProject.BLL
             public DefaultCRUDBLLForTest(IUnitOfWork contextDB) : base(contextDB)
             {
                 PrepareItemForCRUDStrategyFactory.Value.ReplaceStrategy(ExecuteTypeConstCRUD.ADD, new PrepareItemForCRUDStrategyFake());
+            }
+        }
+
+        class ValidateWithQuestionDomainObject : IValidateDomainObject<ObjectMappingForTest>
+        {
+            public BaseResultType Validate(ObjectMappingForTest item)
+            {
+                BaseResultType baseResultType = new BaseResultType() { IsSuccess = true };
+                if (String.IsNullOrWhiteSpace(item.StrValue))
+                {
+                    WarningQuestion question = new WarningQuestion()
+                    {
+                        Id = 1,
+                        Message = "Отсутствует строка"
+                    };
+                    baseResultType.AddQuestion(question);
+                }
+
+                return baseResultType;
+            }
+        }
+        class SaveWithQuestionDefaultCRUDBLLForTest : DefaultCRUDBLL<ObjectMappingForTest>
+        {
+            public SaveWithQuestionDefaultCRUDBLLForTest(IUnitOfWork contextDB) : base(contextDB)
+            {
+                ValidateDomainObject.Value.AddStrategy(ValidateTypeConstCRUD.ADD_OR_EDIT, new Lazy<IValidateDomainObject<ObjectMappingForTest>>(() => new ValidateWithQuestionDomainObject()));
             }
         }
         #endregion
@@ -209,8 +237,25 @@ namespace UnitTestProject.BLL
             Assert.AreEqual(2, allDataInDB.Items[0].IntValue);
             Assert.AreEqual("2", allDataInDB.Items[0].StrValue);
 
-          
+        }
 
+        [TestMethod]
+        public void SaveWithQuestionTest()
+        {
+            
+            DefaultParamOfCRUDOperation<ObjectMappingForTest> objectFroCRUD = new DefaultParamOfCRUDOperation<ObjectMappingForTest>();
+            objectFroCRUD.Item = new ObjectMappingForTest() { IntValue = 11};
+            objectFroCRUD.Item.IntValue2 = 33;
+            CreateContext();
+            SaveWithQuestionDefaultCRUDBLLForTest bll = new SaveWithQuestionDefaultCRUDBLLForTest(_uow);
+
+            BaseResultType<SaveResultType<ObjectMappingForTest>> resultCRUDOpeartion = bll.SaveItem(ExecuteTypeConstCRUD.ADD, objectFroCRUD);
+
+            Assert.IsNotNull(resultCRUDOpeartion.Question);
+            Assert.AreEqual(1, resultCRUDOpeartion.Question.Count);
+            Assert.AreEqual("Отсутствует строка", resultCRUDOpeartion.Question[0].Message);
+            Assert.AreEqual(1, resultCRUDOpeartion.Question[0].Buttons.Count);
+            Assert.AreEqual("ОК", resultCRUDOpeartion.Question[0].Buttons[0].Label);
         }
     }
 }
