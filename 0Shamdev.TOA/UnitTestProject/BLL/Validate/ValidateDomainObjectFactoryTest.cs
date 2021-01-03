@@ -9,6 +9,8 @@ using Shamdev.TOA.DAL.Interface;
 using System;
 using UnitTestProject.DAL.TestFakeClasses;
 using Shamdev.ERP.Core.Data.Infrastructure.ResultType.Question;
+using Shamdev.TOA.BLL.Infrastructure.ParamOfCRUD;
+
 namespace UnitTestProject.BLL.Validate
 {
     [TestClass]
@@ -16,10 +18,10 @@ namespace UnitTestProject.BLL.Validate
     {
         class CustomValidateDomainObject : IValidateDomainObject<ObjectMappingForTest>
         {
-            public BaseResultType Validate(ObjectMappingForTest item)
+            public BaseResultType Validate(DefaultParamOfCRUDOperation<ObjectMappingForTest> item)
             {
-                BaseResultType baseResultType = new BaseResultType() { IsSuccess = true };
-                if (String.IsNullOrWhiteSpace(item.StrValue))
+                BaseResultType baseResultType = new BaseResultType() { Status = ResultStatus.Success };
+                if (String.IsNullOrWhiteSpace(item.Item.StrValue))
                     baseResultType.AddError("Пустое значение StrValue.");
                 return baseResultType;
             }
@@ -34,17 +36,17 @@ namespace UnitTestProject.BLL.Validate
 
         class QuestionValidateDomainObject : IValidateDomainObject<ObjectMappingForTest>
         {
-            public BaseResultType Validate(ObjectMappingForTest item)
+            public BaseResultType Validate(DefaultParamOfCRUDOperation<ObjectMappingForTest> item)
             {
-                BaseResultType baseResultType = new BaseResultType() { IsSuccess = true };
-                if (String.IsNullOrWhiteSpace(item.StrValue))
+                BaseResultType baseResultType = new BaseResultType() { Status = ResultStatus.Success };
+                if (String.IsNullOrWhiteSpace(item.Item.StrValue))
                 {
                     WarningQuestion question = new WarningQuestion()
                     {
-                        Id = 1,
+                        Id = "1",
                         Message = "Предупреждение"
                     };
-                    baseResultType.AddQuestion(question);
+                    baseResultType.AddWarring(question);
                 }
                 return baseResultType;
             }
@@ -65,27 +67,28 @@ namespace UnitTestProject.BLL.Validate
 
             ValidateDomainObjectFactory<ObjectMappingForTest> validateDomainObjectFactory = new ValidateDomainObjectFactory<ObjectMappingForTest>(uow);
 
-            ObjectMappingForTest sourceObjectMappingForTest = new ObjectMappingForTest();
-            sourceObjectMappingForTest.SubObject = new SubObjectMappingForTest() { };
+            DefaultParamOfCRUDOperation<ObjectMappingForTest> sourceObjectMappingForTest = new DefaultParamOfCRUDOperation<ObjectMappingForTest>();
+            sourceObjectMappingForTest.Item = new ObjectMappingForTest();
+            sourceObjectMappingForTest.Item.SubObject = new SubObjectMappingForTest() { };
 
             BaseResultType baseResultType = validateDomainObjectFactory.GetValidate(sourceObjectMappingForTest, ExecuteTypeConstCRUD.ADD);
 
-            Assert.IsFalse(baseResultType.IsSuccess);
+            Assert.AreEqual(ResultStatus.Fail, baseResultType.Status);
             Assert.AreEqual("Объект не найден в контексте для проверки обязательных полей", baseResultType.Message);
 
-            context.Set<ObjectMappingForTest>().Add(sourceObjectMappingForTest);
+            context.Set<ObjectMappingForTest>().Add(sourceObjectMappingForTest.Item);
             baseResultType = validateDomainObjectFactory.GetValidate(sourceObjectMappingForTest, ExecuteTypeConstCRUD.ADD);
             string messageError = "Не пройдена проверка записи \"ObjectMappingForTest\":" + Environment.NewLine +
                 "Не заполнено значение \"IntValue\"." + Environment.NewLine +
                 "Не заполнено значение \"Строка\".";
-            Assert.IsFalse(baseResultType.IsSuccess);
+            Assert.AreEqual(ResultStatus.Fail, baseResultType.Status);
             Assert.AreEqual(messageError, baseResultType.Message);
 
-            sourceObjectMappingForTest.IntValue = 1;
-            sourceObjectMappingForTest.IntValue2 = 1;
+            sourceObjectMappingForTest.Item.IntValue = 1;
+            sourceObjectMappingForTest.Item.IntValue2 = 1;
 
             baseResultType = validateDomainObjectFactory.GetValidate(sourceObjectMappingForTest, ExecuteTypeConstCRUD.ADD);
-            Assert.IsTrue(baseResultType.IsSuccess);
+            Assert.AreEqual(ResultStatus.Success, baseResultType.Status);
             Assert.IsTrue(String.IsNullOrWhiteSpace(baseResultType.Message));
 
         }
@@ -109,21 +112,22 @@ namespace UnitTestProject.BLL.Validate
 
             ValidateDomainObjectFactoryForTest validateDomainObjectFactory = new ValidateDomainObjectFactoryForTest(uow);
 
-            ObjectMappingForTest sourceObjectMappingForTest = new ObjectMappingForTest();
-            sourceObjectMappingForTest.SubObject = new SubObjectMappingForTest() { };
-            sourceObjectMappingForTest.IntValue = 1;
-            sourceObjectMappingForTest.IntValue2 = 1;
-            context.Set<ObjectMappingForTest>().Add(sourceObjectMappingForTest);
+            DefaultParamOfCRUDOperation<ObjectMappingForTest> sourceObjectMappingForTest = new DefaultParamOfCRUDOperation<ObjectMappingForTest>();
+            sourceObjectMappingForTest.Item = new ObjectMappingForTest();
+            sourceObjectMappingForTest.Item.SubObject = new SubObjectMappingForTest() { };
+            sourceObjectMappingForTest.Item.IntValue = 1;
+            sourceObjectMappingForTest.Item.IntValue2 = 1;
+            context.Set<ObjectMappingForTest>().Add(sourceObjectMappingForTest.Item);
             //Проверка без заполнения StrValue. Будет ошибка, так как пустая строка
             BaseResultType baseResultType = validateDomainObjectFactory.GetValidate(sourceObjectMappingForTest, ExecuteTypeConstCRUD.ADD);
 
-            Assert.IsFalse(baseResultType.IsSuccess);
+            Assert.AreEqual(ResultStatus.Fail, baseResultType.Status);
             Assert.AreEqual("Пустое значение StrValue.", baseResultType.Message);
 
             //Проверка, что условие кастомной проверки не выполнилось
-            sourceObjectMappingForTest.StrValue = "1";
+            sourceObjectMappingForTest.Item.StrValue = "1";
             baseResultType = validateDomainObjectFactory.GetValidate(sourceObjectMappingForTest, ExecuteTypeConstCRUD.ADD);
-            Assert.IsTrue(baseResultType.IsSuccess);
+            Assert.AreEqual(ResultStatus.Success, baseResultType.Status);
             Assert.IsTrue(String.IsNullOrWhiteSpace(baseResultType.Message));
         }
 
@@ -136,15 +140,17 @@ namespace UnitTestProject.BLL.Validate
 
             QuestionValidateFactoryForTest validateDomainObjectFactory = new QuestionValidateFactoryForTest(uow);
 
-            ObjectMappingForTest sourceObjectMappingForTest = new ObjectMappingForTest();
-            sourceObjectMappingForTest.SubObject = new SubObjectMappingForTest() { };
-            sourceObjectMappingForTest.IntValue = 1;
-            sourceObjectMappingForTest.IntValue2 = 1;
-            context.Set<ObjectMappingForTest>().Add(sourceObjectMappingForTest);
+
+            DefaultParamOfCRUDOperation<ObjectMappingForTest> sourceObjectMappingForTest = new DefaultParamOfCRUDOperation<ObjectMappingForTest>();
+            sourceObjectMappingForTest.Item = new ObjectMappingForTest();
+            sourceObjectMappingForTest.Item.SubObject = new SubObjectMappingForTest() { };
+            sourceObjectMappingForTest.Item.IntValue = 1;
+            sourceObjectMappingForTest.Item.IntValue2 = 1;
+            context.Set<ObjectMappingForTest>().Add(sourceObjectMappingForTest.Item);
             //Проверка без заполнения StrValue. Будет предупреждение
             BaseResultType baseResultType = validateDomainObjectFactory.GetValidate(sourceObjectMappingForTest, ExecuteTypeConstCRUD.ADD);
 
-            Assert.IsTrue(baseResultType.IsSuccess);
+            Assert.AreEqual(ResultStatus.Success, baseResultType.Status);
             Assert.AreEqual(1, baseResultType.Question.Count);
             Assert.AreEqual("Предупреждение", baseResultType.Question[0].Message);
         }

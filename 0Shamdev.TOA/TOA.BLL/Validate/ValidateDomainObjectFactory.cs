@@ -1,4 +1,5 @@
 ﻿using Shamdev.TOA.BLL.Infrastructure;
+using Shamdev.TOA.BLL.Infrastructure.ParamOfCRUD;
 using Shamdev.TOA.BLL.Validate.Interface;
 using Shamdev.TOA.Core.Data;
 using Shamdev.TOA.Core.Data.Infrastructure.ResultType;
@@ -45,15 +46,15 @@ namespace Shamdev.TOA.BLL.Validate
         /// ExecuteTypeConstCRUD.ADD и ExecuteTypeConstCRUD.EDIT => ValidateTypeConstCRUD.ADD_OR_EDIT
         /// ExecuteTypeConstCRUD.DELETE  => ValidateTypeConstCRUD.DELETE
         /// <returns></returns>
-        public BaseResultType GetValidate(TEntity item, ExecuteTypeConstCRUD executeTypeConstCRUD)
+        public BaseResultType GetValidate(DefaultParamOfCRUDOperation<TEntity> item, ExecuteTypeConstCRUD executeTypeConstCRUD)
         {
-            BaseResultType baseResultType = new BaseResultType() { IsSuccess = true };
+            BaseResultType baseResultType = new BaseResultType() { Status = ResultStatus.Success };
             ValidateTypeConstCRUD validateTypeConstCRUD = GetTypeValidateByExecuteType(executeTypeConstCRUD);
             var listValidate = _listValidateType.Where(x => x.ExecuteType == validateTypeConstCRUD).ToList();
             foreach (var validate in listValidate)
             {
                 baseResultType.Merge(validate.ValidateDomainObject.Value.Validate(item));
-                if (!baseResultType.IsSuccess)
+                if (baseResultType.Status == ResultStatus.Fail)
                     break;
             }
 

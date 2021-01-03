@@ -12,7 +12,7 @@ namespace Shamdev.TOA.Web.Infrastructure.TypeOfResultQuery
     {
         public ItemResultQuery() : base()
         {
-            IsSuccess = true;
+            Status = ResultStatus.Success;
         }
         public TEntity Item { get; set; }
     }

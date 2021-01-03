@@ -13,7 +13,7 @@ namespace Shamdev.TOA.Web.Infrastructure.TypeOfResultQuery
     {
         public FetchDataResultQuery() : base()
         {
-            IsSuccess = true;
+            Status = ResultStatus.Success;
         }
         /// <summary>
         /// Список объектов на странице

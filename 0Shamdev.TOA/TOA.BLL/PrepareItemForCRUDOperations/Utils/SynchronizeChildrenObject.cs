@@ -54,7 +54,7 @@ namespace Shamdev.TOA.BLL.PrepareItemForCRUDOperations.Utils
             {
                 ExecuteTypeConstCRUD executeTypeConstCRUD;
                 BaseResultType<TEntity> itemFromDB = _bllChild.GetByIdAsync(item.Id).Result;
-                if (!itemFromDB.IsSuccess)
+                if (itemFromDB.Status == ResultStatus.Fail)
                     executeTypeConstCRUD = ExecuteTypeConstCRUD.ADD;
                 else
                     executeTypeConstCRUD = ExecuteTypeConstCRUD.EDIT;
@@ -88,7 +88,7 @@ namespace Shamdev.TOA.BLL.PrepareItemForCRUDOperations.Utils
             DefaultParamOfCRUDOperation<TEntity> param = new DefaultParamOfCRUDOperation<TEntity>();
             param.Item = item;
             BaseResultType<SaveResultType<TEntity>> resultSaveFlat = _bllChild.SaveItemAsync(executeTypeConstCRUD, param).Result;
-            if (resultSaveFlat.IsSuccess)
+            if (resultSaveFlat.Status == ResultStatus.Success)
             {
                 if (item.Id != 0)
                 {

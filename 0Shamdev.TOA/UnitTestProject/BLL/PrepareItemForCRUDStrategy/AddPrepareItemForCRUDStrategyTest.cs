@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Shamdev.TOA.BLL.Infrastructure.ParamOfCRUD;
 using Shamdev.TOA.BLL.PrepareItemForCRUDOperations;
 using Shamdev.TOA.DAL;
 using System;
@@ -20,16 +21,17 @@ namespace UnitTestProject.BLL.PrepareItemForCRUDStrategy
 
             UnitOfWork uow = new UnitOfWork(context);
             uow.SaveChanges();
-            ObjectMappingForTest sourceObjectMappingForTest = new ObjectMappingForTest();
-            sourceObjectMappingForTest.IntValue = 1;
-            sourceObjectMappingForTest.StrValue = "str";
-            sourceObjectMappingForTest.SubObject = new SubObjectMappingForTest() { IntValueSub = 2, StrValueSub = "str2" };
+            DefaultParamOfCRUDOperation<ObjectMappingForTest> sourceObjectMappingForTest = new DefaultParamOfCRUDOperation<ObjectMappingForTest>();
+            sourceObjectMappingForTest.Item = new ObjectMappingForTest();
+            sourceObjectMappingForTest.Item.IntValue = 1;
+            sourceObjectMappingForTest.Item.StrValue = "str";
+            sourceObjectMappingForTest.Item.SubObject = new SubObjectMappingForTest() { IntValueSub = 2, StrValueSub = "str2" };
 
             AddPrepareItemForCRUDStrategy<ObjectMappingForTest> addPrepareItemForCRUDStrategy = new AddPrepareItemForCRUDStrategy<ObjectMappingForTest>(uow);
             ObjectMappingForTest objectMappingForTest = addPrepareItemForCRUDStrategy.GetItem(sourceObjectMappingForTest);
 
-            Assert.AreEqual(sourceObjectMappingForTest.IntValue, objectMappingForTest.IntValue);
-            Assert.AreEqual(sourceObjectMappingForTest.StrValue, objectMappingForTest.StrValue);
+            Assert.AreEqual(sourceObjectMappingForTest.Item.IntValue, objectMappingForTest.IntValue);
+            Assert.AreEqual(sourceObjectMappingForTest.Item.StrValue, objectMappingForTest.StrValue);
             Assert.IsNull(objectMappingForTest.SubObject, "Мапятся только простые типы.");
         }
     }

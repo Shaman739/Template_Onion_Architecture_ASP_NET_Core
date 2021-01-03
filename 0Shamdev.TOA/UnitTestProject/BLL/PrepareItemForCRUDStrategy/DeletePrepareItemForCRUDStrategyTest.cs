@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Shamdev.TOA.BLL.Infrastructure.ParamOfCRUD;
 using Shamdev.TOA.BLL.PrepareItemForCRUDOperations;
 using Shamdev.TOA.DAL;
 using System;
@@ -22,16 +23,17 @@ namespace UnitTestProject.BLL.PrepareItemForCRUDStrategy
             uow.SaveChanges();
             Assert.AreEqual(1, uow.Repository<ObjectMappingForTest>().FetchData(null).TotalCountRows);
             //Такого объекта нет в БД. Должна быть ошибка
-            ObjectMappingForTest sourceObjectMappingForTest = new ObjectMappingForTest();
-            sourceObjectMappingForTest.Id = 2;
-            sourceObjectMappingForTest.IntValue = 1;
-            sourceObjectMappingForTest.StrValue = "str";
+            DefaultParamOfCRUDOperation<ObjectMappingForTest> sourceObjectMappingForTest = new DefaultParamOfCRUDOperation<ObjectMappingForTest>();
+            sourceObjectMappingForTest.Item = new ObjectMappingForTest();
+            sourceObjectMappingForTest.Item.Id = 2;
+            sourceObjectMappingForTest.Item.IntValue = 1;
+            sourceObjectMappingForTest.Item.StrValue = "str";
 
             DeletePrepareItemForCRUDStrategy<ObjectMappingForTest> deletePrepareItemForCRUDStrategy = new DeletePrepareItemForCRUDStrategy<ObjectMappingForTest>(uow);
             ObjectMappingForTest objectMappingForTest;
             Assert.ThrowsException<ArgumentException>(() => objectMappingForTest = deletePrepareItemForCRUDStrategy.GetItem(sourceObjectMappingForTest), "Будет ошибка, так как это изменение и не указан id записи. В БД есть только с id = 1");
 
-            sourceObjectMappingForTest.Id = 1;
+            sourceObjectMappingForTest.Item.Id = 1;
             objectMappingForTest = deletePrepareItemForCRUDStrategy.GetItem(sourceObjectMappingForTest);
             uow.SaveChanges();
             Assert.AreEqual(0, uow.Repository<ObjectMappingForTest>().FetchData(null).TotalCountRows);

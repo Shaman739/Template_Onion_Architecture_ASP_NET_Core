@@ -11,6 +11,7 @@ using BLL.Common.House;
 using Microsoft.AspNetCore.Mvc;
 using System.Net.Mime;
 using Shamdev.TOA.Web.Infrastructure.TypeOfResultQuery;
+using Newtonsoft.Json.Converters;
 
 namespace RegisterHouse
 {
@@ -40,6 +41,7 @@ namespace RegisterHouse
            {
                o.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
                o.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+               o.SerializerSettings.Converters.Add(new StringEnumConverter());
            });
 
             //.ConfigureApiBehaviorOptions(options =>

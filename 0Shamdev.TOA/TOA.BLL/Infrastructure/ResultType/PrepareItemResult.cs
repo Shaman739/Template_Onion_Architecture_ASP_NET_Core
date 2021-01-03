@@ -1,5 +1,7 @@
-﻿using Shamdev.TOA.Core.Data;
+﻿using Shamdev.ERP.Core.Data.Infrastructure.ResultType.Question;
+using Shamdev.TOA.Core.Data;
 using Shamdev.TOA.Core.Data.Infrastructure.ResultType;
+using System.Collections.Generic;
 
 namespace Shamdev.TOA.BLL.Infrastructure.ResultType
 {
@@ -14,5 +16,10 @@ namespace Shamdev.TOA.BLL.Infrastructure.ResultType
         /// Объекта, который будет сохранен. 
         /// </summary>
         public TEntity Item { get; set; }
+
+        /// <summary>
+        /// Вопросы с ответами
+        /// </summary>
+        public List<Question> Question { get; private set; }
     }
 }

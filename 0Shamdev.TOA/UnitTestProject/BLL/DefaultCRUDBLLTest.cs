@@ -25,7 +25,7 @@ namespace UnitTestProject.BLL
 
         class PrepareItemForCRUDStrategyFake : IPrepareItemForCRUDStrategy<ObjectMappingForTest>
         {
-            public ObjectMappingForTest GetItem(ObjectMappingForTest item)
+            public ObjectMappingForTest GetItem(DefaultParamOfCRUDOperation<ObjectMappingForTest> item)
             {
                 throw new NotImplementedException("Для проверки ошибки подготовки в БЛЛ");
             }
@@ -39,21 +39,50 @@ namespace UnitTestProject.BLL
             }
         }
 
-        class ValidateWithQuestionDomainObject : IValidateDomainObject<ObjectMappingForTest>
+        class ValidateWithWarrningDomainObject : IValidateDomainObject<ObjectMappingForTest>
         {
-            public BaseResultType Validate(ObjectMappingForTest item)
+            public BaseResultType Validate(DefaultParamOfCRUDOperation<ObjectMappingForTest> item)
             {
-                BaseResultType baseResultType = new BaseResultType() { IsSuccess = true };
-                if (String.IsNullOrWhiteSpace(item.StrValue))
+                BaseResultType baseResultType = new BaseResultType() { Status = ResultStatus.Success };
+                if (String.IsNullOrWhiteSpace(item.Item.StrValue))
                 {
                     WarningQuestion question = new WarningQuestion()
                     {
-                        Id = 1,
+                        Id = "1",
                         Message = "Отсутствует строка"
                     };
-                    baseResultType.AddQuestion(question);
+                    baseResultType.AddWarring(question);
                 }
 
+                return baseResultType;
+            }
+        }
+
+
+        class SaveWithWarrningDefaultCRUDBLLForTest : DefaultCRUDBLL<ObjectMappingForTest>
+        {
+            public SaveWithWarrningDefaultCRUDBLLForTest(IUnitOfWork contextDB) : base(contextDB)
+            {
+                ValidateDomainObject.Value.AddStrategy(ValidateTypeConstCRUD.ADD_OR_EDIT, new Lazy<IValidateDomainObject<ObjectMappingForTest>>(() => new ValidateWithWarrningDomainObject()));
+            }
+        }
+
+        class ValidateWithQuestionDomainObject : IValidateDomainObject<ObjectMappingForTest>
+        {
+            public BaseResultType Validate(DefaultParamOfCRUDOperation<ObjectMappingForTest> item)
+            {
+                BaseResultType baseResultType = new BaseResultType() { Status = ResultStatus.Success };
+
+                if (String.IsNullOrWhiteSpace(item.Item.StrValue))
+                {
+                    if (!item.IsSendAndAnswerQuestion("Продолжить?", ResultQuestionType.NO, baseResultType))
+                        baseResultType.AddError("Ошибка");
+                }
+
+                if(item.Item.IntValue2 == 22)
+                {
+                    baseResultType.AddWarring(new WarningQuestion() { Message = "Уведомления" });
+                }
                 return baseResultType;
             }
         }
@@ -92,11 +121,11 @@ namespace UnitTestProject.BLL
         {
             DefaultCRUDBLL<ObjectMappingForTest> bll = new DefaultCRUDBLL<ObjectMappingForTest>(_uow);
             BaseResultType<SaveResultType<ObjectMappingForTest>> resultCRUDOpeartion = bll.SaveItem(ExecuteTypeConstCRUD.ADD, null);
-            Assert.IsFalse(resultCRUDOpeartion.IsSuccess);
+            Assert.AreEqual(ResultStatus.Fail, resultCRUDOpeartion.Status);
             StringAssert.Contains(resultCRUDOpeartion.Message, "Объект для добавления/изменения не может быть null.");
 
             resultCRUDOpeartion = bll.SaveItem(ExecuteTypeConstCRUD.ADD, new DefaultParamOfCRUDOperation<ObjectMappingForTest>());
-            Assert.IsFalse(resultCRUDOpeartion.IsSuccess);
+            Assert.AreEqual(ResultStatus.Fail, resultCRUDOpeartion.Status);
             StringAssert.Contains(resultCRUDOpeartion.Message, "Объект для добавления/изменения не может быть null.");
 
             DefaultParamOfCRUDOperation<ObjectMappingForTest> objectFroCRUD = new DefaultParamOfCRUDOperation<ObjectMappingForTest>();
@@ -105,14 +134,14 @@ namespace UnitTestProject.BLL
             Assert.AreEqual(1, bll.FetchDataAsync(new FetchDataParameters()).Result.TotalCountRows);
             resultCRUDOpeartion = bll.SaveItem(ExecuteTypeConstCRUD.ADD, objectFroCRUD);
 
-            Assert.IsFalse(resultCRUDOpeartion.IsSuccess, "У объекта не заполнено обязательное поле IntValue2. Такое не должно проходить валидацию по контексту");
+            Assert.AreEqual(ResultStatus.Fail, resultCRUDOpeartion.Status, "У объекта не заполнено обязательное поле IntValue2. Такое не должно проходить валидацию по контексту");
 
             objectFroCRUD.Item.IntValue2 = 33;
             //Пересоздаем контекст, так как были в него добавления других объектов, которые не сохранились.
             CreateContext();
             bll = new DefaultCRUDBLL<ObjectMappingForTest>(_uow);
             resultCRUDOpeartion = bll.SaveItem(ExecuteTypeConstCRUD.ADD, objectFroCRUD);
-            Assert.IsTrue(resultCRUDOpeartion.IsSuccess);
+            Assert.AreEqual(ResultStatus.Success, resultCRUDOpeartion.Status);
             Assert.IsNotNull(resultCRUDOpeartion.Data, "После сохранения должен отдаваться сохраненный объект.");
             Assert.IsInstanceOfType(resultCRUDOpeartion.Data, typeof(SaveResultType<ObjectMappingForTest>));
             Assert.AreEqual(2, resultCRUDOpeartion.Data.Item.Id);
@@ -127,7 +156,7 @@ namespace UnitTestProject.BLL
             //Проверка на изменение
             objectFroCRUD.Item = new ObjectMappingForTest() { Id = 1, IntValue = 111, StrValue = "222", IntValue2 = 222 };
             resultCRUDOpeartion = bll.SaveItem(ExecuteTypeConstCRUD.EDIT, objectFroCRUD);
-            Assert.IsTrue(resultCRUDOpeartion.IsSuccess);
+            Assert.AreEqual(ResultStatus.Success, resultCRUDOpeartion.Status);
             Assert.IsNotNull(resultCRUDOpeartion.Data, "После сохранения должен отдаваться сохраненный объект.");
             Assert.IsInstanceOfType(resultCRUDOpeartion.Data, typeof(SaveResultType<ObjectMappingForTest>));
             Assert.AreEqual(1, resultCRUDOpeartion.Data.Item.Id);
@@ -153,7 +182,7 @@ namespace UnitTestProject.BLL
             //Проверка на удаление не существующего объекта
             objectFroCRUD.Item = new ObjectMappingForTest() { Id = 10 };
             BaseResultType<SaveResultType<ObjectMappingForTest>> resultCRUDOpeartion = bll.SaveItem(ExecuteTypeConstCRUD.DELETE, objectFroCRUD);
-            Assert.IsFalse(resultCRUDOpeartion.IsSuccess);
+            Assert.AreEqual(ResultStatus.Fail, resultCRUDOpeartion.Status);
             Assert.IsNotNull(resultCRUDOpeartion.Data, "Результат не может быть null.");
             Assert.IsNull(resultCRUDOpeartion.Data.Item, "Объекта с таким ID нет в БД.");
             Assert.AreEqual(1, bll.FetchDataAsync(new FetchDataParameters()).Result.TotalCountRows, "Не должно измениться количество строк в БД");
@@ -161,7 +190,7 @@ namespace UnitTestProject.BLL
             //Удаление объекта
             objectFroCRUD.Item = new ObjectMappingForTest() { Id = 1 };
             resultCRUDOpeartion = bll.SaveItem(ExecuteTypeConstCRUD.DELETE, objectFroCRUD);
-            Assert.IsTrue(resultCRUDOpeartion.IsSuccess);
+            Assert.AreEqual(ResultStatus.Success, resultCRUDOpeartion.Status);
             Assert.IsNotNull(resultCRUDOpeartion.Data, "После сохранения должен отдаваться сохраненный объект.");
             Assert.IsInstanceOfType(resultCRUDOpeartion.Data, typeof(SaveResultType<ObjectMappingForTest>));
             Assert.AreEqual(0, bll.FetchDataAsync(new FetchDataParameters()).Result.TotalCountRows, "Не должно измениться количество строк в БД");
@@ -174,7 +203,7 @@ namespace UnitTestProject.BLL
             DefaultParamOfCRUDOperation<ObjectMappingForTest> objectFroCRUD = new DefaultParamOfCRUDOperation<ObjectMappingForTest>();
             objectFroCRUD.Item = new ObjectMappingForTest() { StrValue = "222222" };
             BaseResultType<SaveResultType<ObjectMappingForTest>> resultCRUDOpeartion = bll.SaveItem(ExecuteTypeConstCRUD.ADD, objectFroCRUD);
-            Assert.IsFalse(resultCRUDOpeartion.IsSuccess, "Не прошла валидация по обязательным полям контекста.");
+            Assert.AreEqual(ResultStatus.Fail, resultCRUDOpeartion.Status, "Не прошла валидация по обязательным полям контекста.");
             StringAssert.Contains("Для проверки ошибки подготовки в БЛЛ", resultCRUDOpeartion.Message, "Должно пробрасываться сообщение об ошибке из стратегии.");
             ResultFetchData<ObjectMappingForTest> allDataInDB = bll.FetchDataAsync(new FetchDataParameters()).Result;
             Assert.IsNull(allDataInDB.Items.FirstOrDefault(x => x.StrValue == "222222"), "Не должно быть записи в БД, так как ошибка подготовки была");
@@ -187,7 +216,7 @@ namespace UnitTestProject.BLL
             DefaultParamOfCRUDOperation<ObjectMappingForTest> objectFroCRUD = new DefaultParamOfCRUDOperation<ObjectMappingForTest>();
             objectFroCRUD.Item = new ObjectMappingForTest() { StrValue = "22" };
             BaseResultType<SaveResultType<ObjectMappingForTest>> resultCRUDOpeartion = bll.SaveItem(ExecuteTypeConstCRUD.ADD, objectFroCRUD);
-            Assert.IsFalse(resultCRUDOpeartion.IsSuccess, "Не прошла валидация по обязательным полям контекста.");
+            Assert.AreEqual(ResultStatus.Fail, resultCRUDOpeartion.Status, "Не прошла валидация по обязательным полям контекста.");
         }
 
         [TestMethod]
@@ -197,14 +226,14 @@ namespace UnitTestProject.BLL
             DefaultCRUDBLL<ObjectMappingForTest> bll = new DefaultCRUDBLL<ObjectMappingForTest>(_uow);
 
             BaseResultType<ObjectMappingForTest> resultGetById = bll.GetByIdAsync(10).Result;
-            Assert.IsFalse(resultGetById.IsSuccess);
+            Assert.AreEqual(ResultStatus.Fail, resultGetById.Status);
             Assert.AreEqual("Запись не найдена.", ((BaseResultType<ObjectMappingForTest>)resultGetById).Message);
 
             //Проверка успешного получения записи
 
             resultGetById = bll.GetByIdAsync(1).Result;
 
-            Assert.IsTrue(resultGetById.IsSuccess);
+            Assert.AreEqual(ResultStatus.Success, resultGetById.Status);
             Assert.IsNotNull(resultGetById.Data);
             Assert.AreEqual(1, resultGetById.Data.Id);
             Assert.AreEqual(2, resultGetById.Data.IntValue);
@@ -221,10 +250,10 @@ namespace UnitTestProject.BLL
 
 
             CreateContext();
-            DefaultCRUDBLL<ObjectMappingForTest>  bll = new DefaultCRUDBLL<ObjectMappingForTest>(_uow);
+            DefaultCRUDBLL<ObjectMappingForTest> bll = new DefaultCRUDBLL<ObjectMappingForTest>(_uow);
             bll.IsOnlyAddInContext = true;
             BaseResultType<SaveResultType<ObjectMappingForTest>> resultCRUDOpeartion = bll.SaveItem(ExecuteTypeConstCRUD.ADD, objectFroCRUD);
-            Assert.IsTrue(resultCRUDOpeartion.IsSuccess);
+            Assert.AreEqual(ResultStatus.Success, resultCRUDOpeartion.Status);
             Assert.IsNotNull(resultCRUDOpeartion.Data, "После сохранения должен отдаваться сохраненный объект.");
             Assert.IsInstanceOfType(resultCRUDOpeartion.Data, typeof(SaveResultType<ObjectMappingForTest>));
             //Вернет объект, но не сохранит его в БД
@@ -242,20 +271,164 @@ namespace UnitTestProject.BLL
         [TestMethod]
         public void SaveWithQuestionTest()
         {
-            
+
             DefaultParamOfCRUDOperation<ObjectMappingForTest> objectFroCRUD = new DefaultParamOfCRUDOperation<ObjectMappingForTest>();
-            objectFroCRUD.Item = new ObjectMappingForTest() { IntValue = 11};
+            objectFroCRUD.Item = new ObjectMappingForTest() { IntValue = 11 };
             objectFroCRUD.Item.IntValue2 = 33;
             CreateContext();
-            SaveWithQuestionDefaultCRUDBLLForTest bll = new SaveWithQuestionDefaultCRUDBLLForTest(_uow);
+            SaveWithWarrningDefaultCRUDBLLForTest bll = new SaveWithWarrningDefaultCRUDBLLForTest(_uow);
 
             BaseResultType<SaveResultType<ObjectMappingForTest>> resultCRUDOpeartion = bll.SaveItem(ExecuteTypeConstCRUD.ADD, objectFroCRUD);
 
+            Assert.AreEqual(ResultStatus.Success, resultCRUDOpeartion.Status);
             Assert.IsNotNull(resultCRUDOpeartion.Question);
             Assert.AreEqual(1, resultCRUDOpeartion.Question.Count);
             Assert.AreEqual("Отсутствует строка", resultCRUDOpeartion.Question[0].Message);
             Assert.AreEqual(1, resultCRUDOpeartion.Question[0].Buttons.Count);
             Assert.AreEqual("ОК", resultCRUDOpeartion.Question[0].Buttons[0].Label);
+        }
+
+        [TestMethod]
+        public void ValidateWithQuestionTest()
+        {
+            //Проверка валидации с вопрос пользователю, после которого пользователь отправит этот же объект ответ
+            DefaultParamOfCRUDOperation<ObjectMappingForTest> objectFroCRUD = new DefaultParamOfCRUDOperation<ObjectMappingForTest>();
+            objectFroCRUD.Item = new ObjectMappingForTest() { IntValue = 11 };
+            objectFroCRUD.Item.IntValue2 = 33;
+            objectFroCRUD.Item.CustomIdentity = "1";
+            CreateContext();
+            SaveWithQuestionDefaultCRUDBLLForTest bll = new SaveWithQuestionDefaultCRUDBLLForTest(_uow);
+
+            BaseResultType<SaveResultType<ObjectMappingForTest>> resultCRUDOpeartion = bll.SaveItem(ExecuteTypeConstCRUD.ADD, objectFroCRUD);
+
+            Assert.AreEqual(ResultStatus.Question, resultCRUDOpeartion.Status);
+            Assert.IsNotNull(resultCRUDOpeartion.Question);
+            Assert.AreEqual(1, resultCRUDOpeartion.Question.Count);
+            Assert.AreEqual("Продолжить?", resultCRUDOpeartion.Question[0].Message);
+            Assert.IsFalse(String.IsNullOrWhiteSpace(resultCRUDOpeartion.Question[0].Id));
+            Assert.AreEqual(2, resultCRUDOpeartion.Question[0].Buttons.Count);
+
+            Assert.AreEqual("Да", resultCRUDOpeartion.Question[0].Buttons[0].Label);
+            Assert.AreEqual("Нет", resultCRUDOpeartion.Question[0].Buttons[1].Label);
+            Assert.IsInstanceOfType(resultCRUDOpeartion.Question[0].Buttons[0], typeof(ButtonQuestionWithResult));
+            Assert.IsInstanceOfType(resultCRUDOpeartion.Question[0].Buttons[1], typeof(ButtonQuestionWithResult));
+
+            ResultFetchData<ObjectMappingForTest> allDataInDB = bll.FetchDataAsync(new FetchDataParameters()).Result;
+            Assert.AreEqual(1, allDataInDB.TotalCountRows, "Добавление не произошло, так как есть вопрос к пользователю");
+            Assert.AreEqual(1, allDataInDB.Items[0].Id);
+            Assert.AreEqual(2, allDataInDB.Items[0].IntValue);
+            Assert.AreEqual("2", allDataInDB.Items[0].StrValue);
+
+            Assert.IsInstanceOfType(resultCRUDOpeartion.Question[0], typeof(QuestionYesNo));
+            //Отвечаем "Да" на вопрос из валидации
+            (resultCRUDOpeartion.Question[0] as QuestionYesNo).Result = (resultCRUDOpeartion.Question[0].Buttons[0] as ButtonQuestionWithResult).Result;
+            objectFroCRUD.Questions = resultCRUDOpeartion.Question;
+            CreateContext();
+            bll = new SaveWithQuestionDefaultCRUDBLLForTest(_uow);
+            resultCRUDOpeartion = bll.SaveItem(ExecuteTypeConstCRUD.ADD, objectFroCRUD);
+            Assert.AreEqual(ResultStatus.Success, resultCRUDOpeartion.Status);
+            Assert.IsTrue(resultCRUDOpeartion.Question == null || resultCRUDOpeartion.Question.Count() == 0);
+
+            //После ответа ДА сохранилось и должно быть 2 записи
+            allDataInDB = bll.FetchDataAsync(new FetchDataParameters()).Result;
+            Assert.AreEqual(2, allDataInDB.TotalCountRows, "После ответа ДА сохранилось и должно быть 2 записи в БД");
+            Assert.AreEqual(1, allDataInDB.Items[0].Id);
+            Assert.AreEqual(2, allDataInDB.Items[0].IntValue);
+            Assert.AreEqual("2", allDataInDB.Items[0].StrValue);
+            Assert.AreEqual(2, allDataInDB.Items[1].Id);
+            Assert.AreEqual(33, allDataInDB.Items[1].IntValue2);
+            Assert.IsTrue(String.IsNullOrWhiteSpace(allDataInDB.Items[1].StrValue));
+        }
+
+        [TestMethod]
+        public void ValidateWithQuestionNotCorrectAnswerTest()
+        {
+            //Проверка валидации с вопрос пользователю, после которого пользователь отправит этот же объект ответ
+            DefaultParamOfCRUDOperation<ObjectMappingForTest> objectFroCRUD = new DefaultParamOfCRUDOperation<ObjectMappingForTest>();
+            objectFroCRUD.Item = new ObjectMappingForTest() { IntValue = 11 };
+            objectFroCRUD.Item.IntValue2 = 33;
+            objectFroCRUD.Item.CustomIdentity = "1";
+            CreateContext();
+            SaveWithQuestionDefaultCRUDBLLForTest bll = new SaveWithQuestionDefaultCRUDBLLForTest(_uow);
+
+            BaseResultType<SaveResultType<ObjectMappingForTest>> resultCRUDOpeartion = bll.SaveItem(ExecuteTypeConstCRUD.ADD, objectFroCRUD);
+
+            Assert.AreEqual(ResultStatus.Question, resultCRUDOpeartion.Status);
+            Assert.IsNotNull(resultCRUDOpeartion.Question);
+            Assert.AreEqual(1, resultCRUDOpeartion.Question.Count);
+            Assert.AreEqual("Продолжить?", resultCRUDOpeartion.Question[0].Message);
+            Assert.IsFalse(String.IsNullOrWhiteSpace(resultCRUDOpeartion.Question[0].Id));
+            Assert.AreEqual(2, resultCRUDOpeartion.Question[0].Buttons.Count);
+
+            Assert.AreEqual("Да", resultCRUDOpeartion.Question[0].Buttons[0].Label);
+            Assert.AreEqual("Нет", resultCRUDOpeartion.Question[0].Buttons[1].Label);
+            Assert.IsInstanceOfType(resultCRUDOpeartion.Question[0].Buttons[0], typeof(ButtonQuestionWithResult));
+            Assert.IsInstanceOfType(resultCRUDOpeartion.Question[0].Buttons[1], typeof(ButtonQuestionWithResult));
+
+            ResultFetchData<ObjectMappingForTest> allDataInDB = bll.FetchDataAsync(new FetchDataParameters()).Result;
+            Assert.AreEqual(1, allDataInDB.TotalCountRows, "Добавление не произошло, так как есть вопрос к пользователю");
+            Assert.AreEqual(1, allDataInDB.Items[0].Id);
+            Assert.AreEqual(2, allDataInDB.Items[0].IntValue);
+            Assert.AreEqual("2", allDataInDB.Items[0].StrValue);
+
+            Assert.IsInstanceOfType(resultCRUDOpeartion.Question[0], typeof(QuestionYesNo));
+            //Отвечаем "Да" на вопрос из валидации
+            (resultCRUDOpeartion.Question[0] as QuestionYesNo).Result = (resultCRUDOpeartion.Question[0].Buttons[0] as ButtonQuestionWithResult).Result;
+            (resultCRUDOpeartion.Question[0] as QuestionYesNo).Id = "Меняем идентификатор";
+            objectFroCRUD.Questions = resultCRUDOpeartion.Question;
+            CreateContext();
+            bll = new SaveWithQuestionDefaultCRUDBLLForTest(_uow);
+            resultCRUDOpeartion = bll.SaveItem(ExecuteTypeConstCRUD.ADD, objectFroCRUD);
+            //Будет опять тот же вопрос, так как в ответе изменен идентификатор ответа
+            Assert.AreEqual(ResultStatus.Question, resultCRUDOpeartion.Status);
+            Assert.IsNotNull(resultCRUDOpeartion.Question);
+            Assert.AreEqual(1, resultCRUDOpeartion.Question.Count);
+            Assert.AreEqual("Продолжить?", resultCRUDOpeartion.Question[0].Message);
+            Assert.IsFalse(String.IsNullOrWhiteSpace(resultCRUDOpeartion.Question[0].Id));
+            Assert.AreEqual(2, resultCRUDOpeartion.Question[0].Buttons.Count);
+
+            //После ответа ДА сохранилось и должно быть 2 записи
+            allDataInDB = bll.FetchDataAsync(new FetchDataParameters()).Result;
+            Assert.AreEqual(1, allDataInDB.TotalCountRows, "После ответа ДА сохранилось и должно быть 2 записи в БД");
+            Assert.AreEqual(1, allDataInDB.Items[0].Id);
+            Assert.AreEqual(2, allDataInDB.Items[0].IntValue);
+            Assert.AreEqual("2", allDataInDB.Items[0].StrValue);
+
+        }
+        [TestMethod]
+        public void DeleteWarrningIfQuestionExist()
+        {
+            //При добавление вопросов нуно удалять предупреждения, так как они нужны после сохранения
+            //Проверка валидации с вопрос пользователю, после которого пользователь отправит этот же объект ответ
+            DefaultParamOfCRUDOperation<ObjectMappingForTest> objectFroCRUD = new DefaultParamOfCRUDOperation<ObjectMappingForTest>();
+            objectFroCRUD.Item = new ObjectMappingForTest() { IntValue = 11 };
+            objectFroCRUD.Item.IntValue2 = 22;
+            objectFroCRUD.Item.CustomIdentity = "1";
+            CreateContext();
+            SaveWithQuestionDefaultCRUDBLLForTest bll = new SaveWithQuestionDefaultCRUDBLLForTest(_uow);
+
+            BaseResultType<SaveResultType<ObjectMappingForTest>> resultCRUDOpeartion = bll.SaveItem(ExecuteTypeConstCRUD.ADD, objectFroCRUD);
+
+            //Будет только вопрос
+            Assert.AreEqual(ResultStatus.Question, resultCRUDOpeartion.Status);
+            Assert.IsNotNull(resultCRUDOpeartion.Question);
+            Assert.AreEqual(1, resultCRUDOpeartion.Question.Count);
+            Assert.AreEqual("Продолжить?", resultCRUDOpeartion.Question[0].Message);
+            Assert.IsFalse(String.IsNullOrWhiteSpace(resultCRUDOpeartion.Question[0].Id));
+            Assert.AreEqual(2, resultCRUDOpeartion.Question[0].Buttons.Count);
+            Assert.IsInstanceOfType(resultCRUDOpeartion.Question[0], typeof(QuestionYesNo));
+            //Добавим ответы, чтобы появилось уведомление
+            (resultCRUDOpeartion.Question[0] as QuestionYesNo).Result = (resultCRUDOpeartion.Question[0].Buttons[0] as ButtonQuestionWithResult).Result;
+            objectFroCRUD.Questions = resultCRUDOpeartion.Question;
+            CreateContext();
+            bll = new SaveWithQuestionDefaultCRUDBLLForTest(_uow);
+            resultCRUDOpeartion = bll.SaveItem(ExecuteTypeConstCRUD.ADD, objectFroCRUD);
+            Assert.AreEqual(ResultStatus.Success, resultCRUDOpeartion.Status);
+            Assert.IsNotNull(resultCRUDOpeartion.Question);
+            Assert.AreEqual(1, resultCRUDOpeartion.Question.Count);
+            Assert.AreEqual("Уведомления", resultCRUDOpeartion.Question[0].Message);
+            Assert.IsInstanceOfType(resultCRUDOpeartion.Question[0], typeof(WarningQuestion));
+
         }
     }
 }

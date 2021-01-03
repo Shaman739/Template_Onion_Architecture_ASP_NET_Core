@@ -1,11 +1,13 @@
 ﻿using Shamdev.ERP.Core.Data.Infrastructure.ResultType.Question;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.Serialization;
 
 namespace Shamdev.TOA.Core.Data.Infrastructure.ResultType
 {
     public class BaseResultType<T> : BaseResultType
-        where T : class,new()
+        where T : class, new()
     {
         public BaseResultType()
         {
@@ -20,11 +22,12 @@ namespace Shamdev.TOA.Core.Data.Infrastructure.ResultType
     {
         public BaseResultType()
         {
-            IsSuccess = true;
+            Status = ResultStatus.Success;
         }
-        public bool IsSuccess { get; set; }
+        public ResultStatus Status { get; set; }
+
         public string Message { get; set; }
-        public List<Question> Question { get;private set;}
+        public List<Question> Question { get; private set; }
 
         /// <summary>
         /// Merge двух результатов. Если у одного результат IsSuccess=false, то в итоге общий результат будет IsSuccess = false, но сообщения соединятся.
@@ -33,16 +36,27 @@ namespace Shamdev.TOA.Core.Data.Infrastructure.ResultType
         public void Merge(BaseResultType resultValidate)
         {
             AddMessage(resultValidate.Message);
-            this.IsSuccess &= resultValidate.IsSuccess;
+            Status = MergeStatus(Status, resultValidate.Status);
             if (Question == null)
                 Question = new List<Question>();
-            if(resultValidate.Question != null)
-                 Question.AddRange(resultValidate.Question);
+            if (resultValidate.Question != null)
+                Question.AddRange(resultValidate.Question);
         }
+        private ResultStatus MergeStatus(ResultStatus target, ResultStatus source)
+        {
+            if (source == ResultStatus.Fail || target == ResultStatus.Fail)
+                return ResultStatus.Fail;
+            else if (source == ResultStatus.Question || target == ResultStatus.Question)
+                return ResultStatus.Question;
+            else if (source == ResultStatus.Success && target == ResultStatus.Success)
+                return ResultStatus.Success;
+            else
+                return ResultStatus.Fail;
 
+        }
         public void AddError(string newMessage)
         {
-            this.IsSuccess = false;
+            this.Status = ResultStatus.Fail;
             AddMessage(newMessage);
         }
 
@@ -64,12 +78,40 @@ namespace Shamdev.TOA.Core.Data.Infrastructure.ResultType
             return sourceMessage;
         }
 
-        public void AddQuestion(Question question)
+        public void AddWarring(WarningQuestion question)
         {
             if (Question == null)
                 Question = new List<Question>();
+            if (!Question.Any(x => x is QuestionYesNo))
+                Question.Add(question);
+
+        }
+
+        public void AddQuestion(QuestionYesNo question)
+        {
+            if (Question == null)
+                Question = new List<Question>();
+            if (Question.Any(x => x is QuestionYesNo))
+
+                Question = Question.Where(x => x is QuestionYesNo).ToList();
+
+            Status = ResultStatus.Question;
             Question.Add(question);
 
         }
+
+
     }
+
+    public enum ResultStatus
+    {
+        [EnumMember(Value = "Success")]
+        Success,
+        [EnumMember(Value = "Fail")]
+        Fail,
+        [EnumMember(Value = "Question")]
+        Question
+
+    }
+
 }

@@ -1,4 +1,5 @@
-﻿using Shamdev.TOA.BLL.Infrastructure.PrepareItemForCRUDOperations;
+﻿using Shamdev.TOA.BLL.Infrastructure.ParamOfCRUD;
+using Shamdev.TOA.BLL.Infrastructure.PrepareItemForCRUDOperations;
 using Shamdev.TOA.Core.Data;
 using Shamdev.TOA.DAL.Interface;
 
@@ -18,11 +19,11 @@ namespace Shamdev.TOA.BLL.PrepareItemForCRUDOperations
         {
 
         }
-        public sealed override TEntity GetItem(TEntity item)
+        public sealed override TEntity GetItem(DefaultParamOfCRUDOperation<TEntity> item)
         {
-            TEntity itemNew = CreateItem(item);
-            item.Id = itemNew.Id;
-            uow.UpdateItem<TEntity>(itemNew, item);
+            TEntity itemNew = CreateItem(item.Item);
+            item.Item.Id = itemNew.Id;
+            uow.UpdateItem<TEntity>(itemNew, item.Item);
             return itemNew;
         }
 

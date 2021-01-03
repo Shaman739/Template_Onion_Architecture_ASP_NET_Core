@@ -70,14 +70,14 @@ namespace UnitTestProject.Web
             //Выборка первой страницы с дефолтным размером стриницы
             JsonResult result = defaultController.GetAsync(null).Result;
             BaseResultType<ResultFetchData<ObjectMappingForTest>> fetchDataResultQuery = (BaseResultType<ResultFetchData<ObjectMappingForTest>>)result.Value;
-            Assert.IsTrue(fetchDataResultQuery.IsSuccess);
+            Assert.AreEqual(ResultStatus.Success, fetchDataResultQuery.Status);
             Assert.AreEqual(3, fetchDataResultQuery.Data.TotalCountRows);
             Assert.AreEqual(3, fetchDataResultQuery.Data.Items.Count);
 
             //Проверка выборки первой страницы 
             result = defaultController.GetAsync(new FetchDataParameters() { CountOnPage = 1 }).Result;
             fetchDataResultQuery = (BaseResultType<ResultFetchData<ObjectMappingForTest>>)result.Value;
-            Assert.IsTrue(fetchDataResultQuery.IsSuccess);
+            Assert.AreEqual(ResultStatus.Success,fetchDataResultQuery.Status);
             Assert.AreEqual(3, fetchDataResultQuery.Data.TotalCountRows, "Общий подсчет записей при запросе не работает.");
             Assert.AreEqual(1, fetchDataResultQuery.Data.Items.Count);
             Assert.AreEqual(1, fetchDataResultQuery.Data.Items[0].Id);
@@ -85,7 +85,7 @@ namespace UnitTestProject.Web
             //Проверка выборки второй страницы 
             result = defaultController.GetAsync(new FetchDataParameters() { CountOnPage = 1, PageNumber = 2 }).Result;
             fetchDataResultQuery = (BaseResultType<ResultFetchData<ObjectMappingForTest>>)result.Value;
-            Assert.IsTrue(fetchDataResultQuery.IsSuccess);
+            Assert.AreEqual(ResultStatus.Success, fetchDataResultQuery.Status);
             Assert.AreEqual(3, fetchDataResultQuery.Data.TotalCountRows);
             Assert.AreEqual(1, fetchDataResultQuery.Data.Items.Count);
             Assert.AreEqual(2, fetchDataResultQuery.Data.Items[0].Id);
@@ -102,14 +102,14 @@ namespace UnitTestProject.Web
             //Проверка на возврат ошибки
             JsonResult resultAdd = defaultController.Add(new DefaultParamOfCRUDOperation<ObjectMappingForTest>()).Result;
             BaseResultType resultQuery = (FailResultQuery)resultAdd.Value;
-            Assert.IsFalse(resultQuery.IsSuccess);
+            Assert.AreEqual(ResultStatus.Fail, resultQuery.Status);
             Assert.AreEqual("Объект для добавления/изменения не может быть null.", ((FailResultQuery)resultQuery).Message);
 
             DefaultParamOfCRUDOperation<ObjectMappingForTest> paramQueryAdd = new DefaultParamOfCRUDOperation<ObjectMappingForTest>();
             paramQueryAdd.Item = new ObjectMappingForTest() { IntValue = 1, IntValue2 = 1, StrValue = "1" };
             resultAdd = defaultController.Add(paramQueryAdd).Result;
             BaseResultType<SaveResultType<ObjectMappingForTest>> resultSuccessQuery = ((BaseResultType<SaveResultType<ObjectMappingForTest>>)resultAdd.Value);
-            Assert.IsTrue(resultSuccessQuery.IsSuccess);
+            Assert.AreEqual(ResultStatus.Success, resultSuccessQuery.Status);
             Assert.IsNotNull(resultSuccessQuery.Data);
 
             Assert.IsInstanceOfType(resultSuccessQuery.Data, typeof(SaveResultType<ObjectMappingForTest>), "Вернулся тип объекта не ObjectMappingForTest после сохранения этого объекта.");
@@ -121,7 +121,7 @@ namespace UnitTestProject.Web
             //Проверка запроса из БД, что запись добавилась
             JsonResult result = defaultController.GetAsync(new FetchDataParameters() { CountOnPage = 10, PageNumber = 1 }).Result;
             BaseResultType<ResultFetchData<ObjectMappingForTest>> fetchDataResultQuery = (BaseResultType<ResultFetchData<ObjectMappingForTest>>)result.Value;
-            Assert.IsTrue(fetchDataResultQuery.IsSuccess);
+            Assert.AreEqual(ResultStatus.Success, fetchDataResultQuery.Status);
             Assert.AreEqual(4, fetchDataResultQuery.Data.TotalCountRows);
         }
 
@@ -134,7 +134,7 @@ namespace UnitTestProject.Web
             //Проверка на возврат ошибки
             JsonResult resultAdd = defaultController.Edit(new DefaultParamOfCRUDOperation<ObjectMappingForTest>()).Result;
             BaseResultType resultQuery = (FailResultQuery)resultAdd.Value;
-            Assert.IsFalse(resultQuery.IsSuccess);
+            Assert.AreEqual(ResultStatus.Fail, resultQuery.Status);
             Assert.AreEqual("Объект для добавления/изменения не может быть null.", ((FailResultQuery)resultQuery).Message);
 
             //Проверка редактирования без ID.Будет ошибка, так как нет идентификатора записи
@@ -147,14 +147,20 @@ namespace UnitTestProject.Web
             };
             resultAdd = defaultController.Edit(paramQueryAdd).Result;
             resultQuery = (FailResultQuery)resultAdd.Value;
-            Assert.IsFalse(resultQuery.IsSuccess);
+            Assert.AreEqual(ResultStatus.Fail, resultQuery.Status);
             Assert.AreEqual("Объект не найден в БД для изменения.", ((FailResultQuery)resultQuery).Message);
 
             //Проверка успешного изменения записи
-            paramQueryAdd.Item.Id = 3;
+            paramQueryAdd.Item = new ObjectMappingForTest()
+            {
+                Id = 3,
+                IntValue = 1,
+                IntValue2 = 1,
+                StrValue = "1"
+            };
             resultAdd = defaultController.Edit(paramQueryAdd).Result;
             BaseResultType<SaveResultType<ObjectMappingForTest>> resultSuccessQuery = (BaseResultType<SaveResultType<ObjectMappingForTest>>)resultAdd.Value;
-            Assert.IsTrue(resultSuccessQuery.IsSuccess);
+            Assert.AreEqual(ResultStatus.Success, resultSuccessQuery.Status);
             Assert.IsNotNull(resultSuccessQuery.Data.Item);
 
             Assert.IsInstanceOfType(resultSuccessQuery.Data.Item, typeof(ObjectMappingForTest), "Вернулся тип объекта не ObjectMappingForTest после сохранения этого объекта.");
@@ -167,7 +173,7 @@ namespace UnitTestProject.Web
             //Проверка запроса из БД, что запись не добавилась
             JsonResult result = defaultController.GetAsync(new FetchDataParameters() { CountOnPage = 10, PageNumber = 1 }).Result;
             BaseResultType<ResultFetchData<ObjectMappingForTest>> fetchDataResultQuery = (BaseResultType<ResultFetchData<ObjectMappingForTest>>)result.Value;
-            Assert.IsTrue(fetchDataResultQuery.IsSuccess);
+            Assert.AreEqual(ResultStatus.Success, fetchDataResultQuery.Status);
             Assert.AreEqual(3, fetchDataResultQuery.Data.TotalCountRows);
 
             ObjectMappingForTest itemFromDB = fetchDataResultQuery.Data.Items[2];
@@ -184,20 +190,20 @@ namespace UnitTestProject.Web
 
             JsonResult resultAdd = defaultController.Delete(10).Result;
             BaseResultType resultQuery = (FailResultQuery)resultAdd.Value;
-            Assert.IsFalse(resultQuery.IsSuccess);
+            Assert.AreEqual(ResultStatus.Fail, resultQuery.Status);
             Assert.AreEqual("Записи для удаления не существует.", ((FailResultQuery)resultQuery).Message);
 
             //Проверка успешного удаления записи
             long idDelete = 3;
             resultAdd = defaultController.Delete(idDelete).Result;
             BaseResultType<SaveResultType<ObjectMappingForTest>> resultSuccessQuery = (BaseResultType<SaveResultType<ObjectMappingForTest>>)resultAdd.Value;
-            Assert.IsTrue(resultSuccessQuery.IsSuccess);
+            Assert.AreEqual(ResultStatus.Success, resultSuccessQuery.Status);
             Assert.IsNotNull(resultSuccessQuery.Data.Item);
 
             //Проверка запроса из БД, что запись удалилась
             JsonResult result = defaultController.GetAsync(new FetchDataParameters() { CountOnPage = 10, PageNumber = 1 }).Result;
             BaseResultType<ResultFetchData<ObjectMappingForTest>> fetchDataResultQuery = (BaseResultType<ResultFetchData<ObjectMappingForTest>>)result.Value;
-            Assert.IsTrue(fetchDataResultQuery.IsSuccess);
+            Assert.AreEqual(ResultStatus.Success, fetchDataResultQuery.Status);
             Assert.AreEqual(2, fetchDataResultQuery.Data.TotalCountRows);
 
             Assert.AreEqual(2, fetchDataResultQuery.Data.Items.Count);
@@ -213,14 +219,14 @@ namespace UnitTestProject.Web
 
             JsonResult resultGetById = defaultController.GetByIdAsync(10).Result;
             BaseResultType<ObjectMappingForTest> resultQuery = (BaseResultType<ObjectMappingForTest>)resultGetById.Value;
-            Assert.IsFalse(resultQuery.IsSuccess);
+            Assert.AreEqual(ResultStatus.Fail, resultQuery.Status);
             Assert.AreEqual("Запись не найдена.", resultQuery.Message);
 
             //Проверка успешного получения записи
 
             resultGetById = defaultController.GetByIdAsync(3).Result;
             BaseResultType<ObjectMappingForTest> resultSuccessQuery = (BaseResultType<ObjectMappingForTest>)resultGetById.Value;
-            Assert.IsTrue(resultSuccessQuery.IsSuccess);
+            Assert.AreEqual(ResultStatus.Success, resultSuccessQuery.Status);
             Assert.IsNotNull(resultSuccessQuery.Data);
             Assert.AreEqual(3, resultSuccessQuery.Data.Id);
             Assert.AreEqual(23, resultSuccessQuery.Data.IntValue);

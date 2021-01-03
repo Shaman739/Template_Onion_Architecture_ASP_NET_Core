@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Shamdev.TOA.Core.Data.Infrastructure.ResultType;
 using Shamdev.TOA.DAL.ValidateContext;
 using System;
 
@@ -11,7 +12,7 @@ namespace UnitTestProject.DAL.ValidateContext
         public void AddEntityTest()
         {
             ValidateContextResult validateContextResult = new ValidateContextResult();
-            validateContextResult.IsSuccess = true;
+            validateContextResult.Status = ResultStatus.Success;
             Assert.IsTrue(String.IsNullOrWhiteSpace(validateContextResult.Message), "По умолчанию сообщение пусто.");
 
             //Добавим одну невалидную сущность
@@ -24,7 +25,7 @@ namespace UnitTestProject.DAL.ValidateContext
             string messageError = "Не пройдена проверка записи \"Объект1\":" + Environment.NewLine +
                 "Не заполнено значение \"Поле1\"." + Environment.NewLine +
                 "Не заполнено значение \"Поле2\".";
-            Assert.IsFalse(validateContextResult.IsSuccess);
+            Assert.AreEqual(ResultStatus.Fail, validateContextResult.Status);
             Assert.AreEqual(messageError, validateContextResult.Message);
 
             ValidateContextResultItem validateContextResultItem2 = new ValidateContextResultItem();
@@ -40,7 +41,7 @@ namespace UnitTestProject.DAL.ValidateContext
             "Не пройдена проверка записи \"Объект2\":" + Environment.NewLine +
                "Не заполнено значение \"Поле3\"." + Environment.NewLine +
                "Не заполнено значение \"Поле4\".";
-            Assert.IsFalse(validateContextResult.IsSuccess);
+            Assert.AreEqual(ResultStatus.Fail, validateContextResult.Status);
             Assert.AreEqual(messageError, validateContextResult.Message);
 
         }

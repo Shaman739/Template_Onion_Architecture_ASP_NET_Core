@@ -14,51 +14,52 @@ namespace UnitTestProject.Data.Core.Infrastructure.ResultType
         {
             BaseResultType baseResultType = new BaseResultType();
 
-            baseResultType.IsSuccess = false;
+            baseResultType.Status = ResultStatus.Fail;
             baseResultType.AddMessage("Message1");
             Assert.AreEqual("Message1", baseResultType.Message);
-            Assert.IsFalse(baseResultType.IsSuccess, "При добавлении сообщения,IsSuccess не должен меняться. Добавялется только сообщение.");
+            Assert.AreEqual(ResultStatus.Fail, baseResultType.Status, "При добавлении сообщения,IsSuccess не должен меняться. Добавялется только сообщение.");
 
-            baseResultType.IsSuccess = true;
+            baseResultType.Status = ResultStatus.Success;
             baseResultType.AddMessage("Message2");
             Assert.AreEqual("Message1" + Environment.NewLine + "Message2", baseResultType.Message);
-            Assert.IsTrue(baseResultType.IsSuccess, "При добавлении сообщения,IsSuccess не должен меняться. Добавялется только сообщение.");
+            Assert.AreEqual(ResultStatus.Success, baseResultType.Status, "При добавлении сообщения,IsSuccess не должен меняться. Добавялется только сообщение.");
         }
         [TestMethod]
         public void AddErrorTest()
         {
             BaseResultType baseResultType = new BaseResultType();
 
-            baseResultType.IsSuccess = false;
+            baseResultType.Status = ResultStatus.Fail;
             baseResultType.AddError("Error1");
             Assert.AreEqual("Error1", baseResultType.Message);
-            Assert.IsFalse(baseResultType.IsSuccess, "При добавлении ошибки,IsSuccess  должен меняться на false.");
+            Assert.AreEqual(ResultStatus.Fail, baseResultType.Status, "При добавлении ошибки,IsSuccess  должен меняться на false.");
 
-            baseResultType.IsSuccess = true;
+            baseResultType.Status = ResultStatus.Success;
             baseResultType.AddError("Error2");
             Assert.AreEqual("Error1" + Environment.NewLine + "Error2", baseResultType.Message);
-            Assert.IsFalse(baseResultType.IsSuccess, "При добавлении ошибки,IsSuccess  должен меняться на false.");
+            Assert.AreEqual(ResultStatus.Fail, baseResultType.Status, "При добавлении ошибки,IsSuccess  должен меняться на false.");
         }
 
         [TestMethod]
         public void MergeTest()
         {
+            //TODO: дописать тесты для вопросов
             BaseResultType error = new BaseResultType();
-            error.IsSuccess = false;
+            error.Status = ResultStatus.Fail;
             error.AddError("Error");
 
             BaseResultType message = new BaseResultType();
-            message.IsSuccess = true;
+            message.Status = ResultStatus.Success;
             message.AddMessage("Message");
 
-            //При merge, IsSuccess не должен изменяться из false в true, но должен меняться из true в false. Если была ошибка, то ошибка должна остаться 
+            //При merge, IsSuccess не должен изменяться из fail в success, но должен меняться из success в fail. Если была ошибка, то ошибка должна остаться 
             error.Merge(message);
-            Assert.IsFalse(error.IsSuccess);
+            Assert.AreEqual(ResultStatus.Fail, error.Status);
             Assert.AreEqual("Error" + Environment.NewLine + "Message", error.Message);
 
             error.Message = "Error";//Сьрасываем сообщение на исходное
             message.Merge(error);
-            Assert.IsFalse(error.IsSuccess);
+            Assert.AreEqual(ResultStatus.Fail, error.Status);
             Assert.AreEqual("Message" + Environment.NewLine + "Error", message.Message);
 
 
@@ -68,7 +69,7 @@ namespace UnitTestProject.Data.Core.Infrastructure.ResultType
         public void MergeQuestionTest()
         {
             BaseResultType withQuestion = new BaseResultType();
-            withQuestion.AddQuestion(new WarningQuestion());
+            withQuestion.AddWarring(new WarningQuestion());
 
             BaseResultType withoutQuestion = new BaseResultType();
 

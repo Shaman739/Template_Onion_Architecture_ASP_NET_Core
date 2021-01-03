@@ -1,4 +1,5 @@
-﻿using Shamdev.TOA.BLL.Infrastructure.PrepareItemForCRUDOperations.Interface;
+﻿using Shamdev.TOA.BLL.Infrastructure.ParamOfCRUD;
+using Shamdev.TOA.BLL.Infrastructure.PrepareItemForCRUDOperations.Interface;
 using Shamdev.TOA.Core.Data;
 using Shamdev.TOA.DAL;
 using Shamdev.TOA.DAL.Interface;
@@ -16,7 +17,7 @@ namespace Shamdev.TOA.BLL.Infrastructure.PrepareItemForCRUDOperations
             this.dao = uow.Repository<TEntity>();
         }
 
-        public abstract TEntity GetItem(TEntity item);
+        public abstract TEntity GetItem(DefaultParamOfCRUDOperation<TEntity> item);
 
 
 

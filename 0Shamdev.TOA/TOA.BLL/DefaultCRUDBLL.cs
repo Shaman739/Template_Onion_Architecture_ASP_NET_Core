@@ -54,12 +54,16 @@ namespace Shamdev.TOA.BLL
                 if (paramOfCRUDOperation == null || paramOfCRUDOperation.Item == null)
                     throw new Exception("Объект для добавления/изменения не может быть null.");
 
-                BaseResultType<PrepareItemResult<TEntity>> prepareItemResult = PrepareItemForCRUDStrategyFactory.Value.PrepareItem(paramOfCRUDOperation.Item, executeTypeCRUD);
-
-                if (!prepareItemResult.IsSuccess)
+                BaseResultType<PrepareItemResult<TEntity>> prepareItemResult = PrepareItemForCRUDStrategyFactory.Value.PrepareItem(paramOfCRUDOperation, executeTypeCRUD);
+              
+                DefaultParamOfCRUDOperation<TEntity> paramValidate = new DefaultParamOfCRUDOperation<TEntity>();
+                paramOfCRUDOperation.Item = prepareItemResult.Data.Item;
+                paramOfCRUDOperation.Questions = paramOfCRUDOperation.Questions;
+               
+                if (prepareItemResult.Status == ResultStatus.Fail)
                     resultCRUDOpeartion.AddError(prepareItemResult.Message);
                 else
-                    resultCRUDOpeartion = SaveContextWithObject(prepareItemResult.Data.Item, executeTypeCRUD);
+                    resultCRUDOpeartion = SaveContextWithObject(paramOfCRUDOperation, executeTypeCRUD);
 
             }
             catch (Exception e)
@@ -73,25 +77,31 @@ namespace Shamdev.TOA.BLL
         /// Сохраняет контекст EF с валидациейю Нужен для добавления и изменения объектов.
         /// Валидация через ValidateDomainObject
         /// </summary>
-        private BaseResultType<SaveResultType<TEntity>> SaveContextWithObject(TEntity item, ExecuteTypeConstCRUD executeTypeCRUD)
+        private BaseResultType<SaveResultType<TEntity>> SaveContextWithObject(DefaultParamOfCRUDOperation<TEntity> item, ExecuteTypeConstCRUD executeTypeCRUD)
         {
             BaseResultType<SaveResultType<TEntity>> saveResultType = new BaseResultType<SaveResultType<TEntity>>();
             try
             {
-                BaseResultType validate = new BaseResultType() { IsSuccess = true };
+                BaseResultType validate = new BaseResultType() { Status = ResultStatus.Success };
                 //Валидация объекта по типу запроса
                 validate.Merge(ValidateDomainObject.Value.GetValidate(item, executeTypeCRUD));
 
-                if (validate.IsSuccess)
+                saveResultType.Merge(validate);
+
+                if (validate.Status == ResultStatus.Success)
                 {
-                    if(!IsOnlyAddInContext)
+                    if (!IsOnlyAddInContext)
                         _contextDB.SaveChanges();
-                    saveResultType.Merge(validate);
-                    saveResultType.IsSuccess = true;
-                    saveResultType.Data.Item = item;
+
+                    saveResultType.Status = ResultStatus.Success;
+                    saveResultType.Data.Item = item.Item;
                 }
-                else
+                else if (validate.Status == ResultStatus.Fail)
+                {
                     saveResultType.AddError(validate.Message);
+                }
+                if (saveResultType.Question?.Count > 0)
+                    saveResultType.Data.Item = item.Item;
 
             }
             catch (Exception e)
@@ -122,7 +132,7 @@ namespace Shamdev.TOA.BLL
         private BaseResultType<TEntity> GetById(long id)
         {
             BaseResultType<TEntity> result = new BaseResultType<TEntity>();
-            result.IsSuccess = true;
+            result.Status = ResultStatus.Success;
             try
             {
                 result.Data = _contextDB.Repository<TEntity>().GetById(id);

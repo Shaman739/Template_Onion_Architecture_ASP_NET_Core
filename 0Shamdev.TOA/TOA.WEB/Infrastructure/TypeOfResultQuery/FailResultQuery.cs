@@ -9,7 +9,7 @@ namespace Shamdev.TOA.Web.Infrastructure.TypeOfResultQuery
     {
         public FailResultQuery() : base()
         {
-            IsSuccess = false;
+            Status = ResultStatus.Fail;
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Shamdev.TOA.BLL.Infrastructure;
+using Shamdev.TOA.BLL.Infrastructure.ParamOfCRUD;
 using Shamdev.TOA.BLL.Infrastructure.PrepareItemForCRUDOperations.Interface;
 using Shamdev.TOA.BLL.Infrastructure.ResultType;
 using Shamdev.TOA.Core.Data;
@@ -69,16 +70,16 @@ namespace Shamdev.TOA.BLL.PrepareItemForCRUDOperations
         /// 2 - добавление\изменение в контексте на данные с клиента
         /// 3 - отдача результата об успешной подготовки или ошибке(например, по ExecuteTypeCRUD.EDIT не найдена запись в БД)
         /// </summary>
-        /// <param name="jsonItem"></param>
+        /// <param name="queryObject"></param>
         /// <param name="executeType"></param>
         /// <returns></returns>
-        public BaseResultType<PrepareItemResult<TEntity>> PrepareItem(TEntity jsonItem, ExecuteTypeConstCRUD executeType)
+        public BaseResultType<PrepareItemResult<TEntity>> PrepareItem(DefaultParamOfCRUDOperation<TEntity> queryObject, ExecuteTypeConstCRUD executeType)
         {
             BaseResultType<PrepareItemResult<TEntity>> result = new BaseResultType<PrepareItemResult<TEntity>>();
             try
             {
-                result.Data.Item = GetStrategy(executeType).GetItem(jsonItem);
-                result.IsSuccess = true;
+                result.Data.Item = GetStrategy(executeType).GetItem(queryObject);
+                result.Status = ResultStatus.Success;
             }
             catch (Exception e)
             {

@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Shamdev.TOA.Core.Data;
 using Shamdev.TOA.Core.Data.Attribute;
+using Shamdev.TOA.Core.Data.Infrastructure.ResultType;
 using System;
 using System.Linq;
 using System.Reflection;
@@ -30,7 +31,7 @@ namespace Shamdev.TOA.DAL.ValidateContext
         {
 
             ValidateContextResult result = new ValidateContextResult();
-            result.IsSuccess = true;
+            result.Status = ResultStatus.Success;
 
             if (_applicationContext.Set<TEntity>().Local.FirstOrDefault(x => x == item) == null)
             {

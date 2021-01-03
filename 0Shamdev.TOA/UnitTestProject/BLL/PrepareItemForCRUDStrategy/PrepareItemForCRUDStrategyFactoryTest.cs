@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Shamdev.TOA.BLL.Infrastructure;
+using Shamdev.TOA.BLL.Infrastructure.ParamOfCRUD;
 using Shamdev.TOA.BLL.Infrastructure.PrepareItemForCRUDOperations.Interface;
 using Shamdev.TOA.BLL.Infrastructure.ResultType;
 using Shamdev.TOA.BLL.PrepareItemForCRUDOperations;
@@ -72,32 +73,33 @@ namespace UnitTestProject.BLL.PrepareItemForCRUDStrategy
         public void PrepareItemTest()
         {
             PrepareItemForCRUDStrategyFactory<ObjectMappingForTest> factory = new PrepareItemForCRUDStrategyFactory<ObjectMappingForTest>(_uow);
-            ObjectMappingForTest sourceObjectMappingForTest = new ObjectMappingForTest();
-            sourceObjectMappingForTest.IntValue = 1;
-            sourceObjectMappingForTest.StrValue = "str";
+            DefaultParamOfCRUDOperation<ObjectMappingForTest> sourceObjectMappingForTest = new DefaultParamOfCRUDOperation<ObjectMappingForTest>();
+            sourceObjectMappingForTest.Item =new ObjectMappingForTest();
+            sourceObjectMappingForTest.Item.IntValue = 1;
+            sourceObjectMappingForTest.Item.StrValue = "str";
             BaseResultType<PrepareItemResult<ObjectMappingForTest>> prepareItemResult = factory.PrepareItem(sourceObjectMappingForTest, ExecuteTypeConstCRUD.ADD);
 
             //Проверка при добавлении
-            Assert.IsTrue(prepareItemResult.IsSuccess, "Подготовка для добавления в БД должна быть успешной");
+            Assert.AreEqual(ResultStatus.Success, prepareItemResult.Status, "Подготовка для добавления в БД должна быть успешной");
             Assert.IsNotNull(prepareItemResult.Data);
-            Assert.AreEqual(sourceObjectMappingForTest.IntValue, prepareItemResult.Data.Item.IntValue);
-            Assert.AreEqual(sourceObjectMappingForTest.StrValue, prepareItemResult.Data.Item.StrValue);
+            Assert.AreEqual(sourceObjectMappingForTest.Item.IntValue, prepareItemResult.Data.Item.IntValue);
+            Assert.AreEqual(sourceObjectMappingForTest.Item.StrValue, prepareItemResult.Data.Item.StrValue);
             Assert.IsNull(prepareItemResult.Data.Item.SubObject, "Мапятся только простые типы.");
             Assert.IsTrue(String.IsNullOrWhiteSpace(prepareItemResult.Message));
 
             //Проверка при изменение с несуществующим объектом в БД
-            sourceObjectMappingForTest.Id = 1000;
+            sourceObjectMappingForTest.Item.Id = 1000;
             prepareItemResult = factory.PrepareItem(sourceObjectMappingForTest, ExecuteTypeConstCRUD.EDIT);
-            Assert.IsFalse(prepareItemResult.IsSuccess, "Подготовка для изменения в БД должна быть не успешной, так как не задан id, а для изменения происходит запрос объекта из БД.");
+            Assert.AreEqual(ResultStatus.Fail, prepareItemResult.Status, "Подготовка для изменения в БД должна быть не успешной, так как не задан id, а для изменения происходит запрос объекта из БД.");
             Assert.AreEqual("Объект не найден в БД для изменения.", prepareItemResult.Message);
 
             //Проверка  с существующим БД при изменение
-            sourceObjectMappingForTest.Id = 1;
+            sourceObjectMappingForTest.Item.Id = 1;
             prepareItemResult = factory.PrepareItem(sourceObjectMappingForTest, ExecuteTypeConstCRUD.EDIT);
             Assert.IsNotNull(prepareItemResult.Data);
-            Assert.AreEqual(sourceObjectMappingForTest.IntValue, prepareItemResult.Data.Item.IntValue);
+            Assert.AreEqual(sourceObjectMappingForTest.Item.IntValue, prepareItemResult.Data.Item.IntValue);
 
-            Assert.AreEqual(sourceObjectMappingForTest.StrValue, prepareItemResult.Data.Item.StrValue);
+            Assert.AreEqual(sourceObjectMappingForTest.Item.StrValue, prepareItemResult.Data.Item.StrValue);
             Assert.IsNotNull(prepareItemResult.Data.Item.SubObject, "В БД есть ссылка на этот объект и не должно затираться");
             Assert.AreEqual(33, prepareItemResult.Data.Item.SubObject.Id);
             Assert.AreEqual(34, prepareItemResult.Data.Item.SubObject.IntValueSub);
@@ -116,7 +118,7 @@ namespace UnitTestProject.BLL.PrepareItemForCRUDStrategy
         {
         }
 
-        public ObjectMappingForTest GetItem(ObjectMappingForTest item)
+        public ObjectMappingForTest GetItem(DefaultParamOfCRUDOperation<ObjectMappingForTest> item)
         {
             return new ObjectMappingForTest();
         }

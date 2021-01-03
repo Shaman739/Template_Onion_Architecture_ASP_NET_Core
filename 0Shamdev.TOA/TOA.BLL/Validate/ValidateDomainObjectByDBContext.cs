@@ -1,4 +1,5 @@
-﻿using Shamdev.TOA.BLL.Validate.Interface;
+﻿using Shamdev.TOA.BLL.Infrastructure.ParamOfCRUD;
+using Shamdev.TOA.BLL.Validate.Interface;
 using Shamdev.TOA.Core.Data;
 using Shamdev.TOA.Core.Data.Infrastructure.ResultType;
 using Shamdev.TOA.DAL.Interface;
@@ -16,9 +17,9 @@ namespace Shamdev.TOA.BLL.Validate
         {
             _contextDB = contextDB;
         }
-        public BaseResultType Validate(TEntity item)
+        public BaseResultType Validate(DefaultParamOfCRUDOperation<TEntity> item)
         {
-            return _contextDB.IsValidateContext<TEntity>(item);
+            return _contextDB.IsValidateContext<TEntity>(item.Item);
         }
     }
 }

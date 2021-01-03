@@ -10,6 +10,7 @@ using Shamdev.TOA.DAL.Infrastructure;
 
 using Shamdev.TOA.Web.Infrastructure.TypeOfResultQuery;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Shamdev.TOA.Web
@@ -101,7 +102,7 @@ namespace Shamdev.TOA.Web
             {
                 BaseResultType<SaveResultType<TEntity>> resultCRUDOpeartion = await _defaultCRUDBLL.SaveItemAsync(executeTypeCRUD, paramOfCRUD);
                 resultQuery = resultCRUDOpeartion;
-                if (resultCRUDOpeartion == null || !resultCRUDOpeartion.IsSuccess)
+                if (resultCRUDOpeartion != null && ((resultCRUDOpeartion.Question == null || resultCRUDOpeartion.Question.Count() == 0) && resultCRUDOpeartion.Status == ResultStatus.Fail))
                     throw new Exception(resultCRUDOpeartion?.Message);
 
              //   resultQuery = new BaseResultType<SaveResultType<TEntity>>();
