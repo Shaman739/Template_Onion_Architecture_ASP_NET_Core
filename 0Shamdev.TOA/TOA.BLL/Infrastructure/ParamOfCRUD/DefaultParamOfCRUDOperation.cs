@@ -36,14 +36,19 @@ namespace Shamdev.TOA.BLL.Infrastructure.ParamOfCRUD
             {
                 if (question == null)
                 {
-                    //Добавляем воспрос
-                   // Item.CustomIdentity = Guid.NewGuid().ToString();
-                    question = new QuestionYesNo()
+                    //Если нет идентификатора, то добавляем ошибку, так как идентификатор нужен для сопоставления объекта с ответом.
+                    if (String.IsNullOrWhiteSpace(Item.CustomIdentity))
+                        baseResultType.AddError("Отсутствует идентификатор объекта для вопроса.");
+                    else
                     {
-                        Id = Item.CustomIdentity,
-                        Message = query
-                    };
-                    baseResultType.AddQuestion((QuestionYesNo)question);
+                        //Добавляем воспрос
+                        question = new QuestionYesNo()
+                        {
+                            Id = Item.CustomIdentity,
+                            Message = query
+                        };
+                        baseResultType.AddQuestion((QuestionYesNo)question);
+                    }
                 }
                 return true;
             }

@@ -96,10 +96,10 @@ namespace Shamdev.TOA.BLL
                     saveResultType.Status = ResultStatus.Success;
                     saveResultType.Data.Item = item.Item;
                 }
-                else if (validate.Status == ResultStatus.Fail)
-                {
-                    saveResultType.AddError(validate.Message);
-                }
+               // else if (validate.Status == ResultStatus.Fail)
+               // {
+               //     saveResultType.AddError(validate.Message);
+              //  }
                 if (saveResultType.Question?.Count > 0)
                     saveResultType.Data.Item = item.Item;
 

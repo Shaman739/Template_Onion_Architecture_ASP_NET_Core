@@ -79,7 +79,7 @@ namespace UnitTestProject.BLL
                         baseResultType.AddError("Ошибка");
                 }
 
-                if(item.Item.IntValue2 == 22)
+                if (item.Item.IntValue2 == 22)
                 {
                     baseResultType.AddWarring(new WarningQuestion() { Message = "Уведомления" });
                 }
@@ -396,7 +396,7 @@ namespace UnitTestProject.BLL
 
         }
         [TestMethod]
-        public void DeleteWarrningIfQuestionExist()
+        public void DeleteWarrningIfQuestionExistTest()
         {
             //При добавление вопросов нуно удалять предупреждения, так как они нужны после сохранения
             //Проверка валидации с вопрос пользователю, после которого пользователь отправит этот же объект ответ
@@ -429,6 +429,20 @@ namespace UnitTestProject.BLL
             Assert.AreEqual("Уведомления", resultCRUDOpeartion.Question[0].Message);
             Assert.IsInstanceOfType(resultCRUDOpeartion.Question[0], typeof(WarningQuestion));
 
+        }
+
+        [TestMethod]
+        public void ExceptionforItemWithoutCustomIdInObject()
+        {
+            DefaultParamOfCRUDOperation<ObjectMappingForTest> objectFroCRUD = new DefaultParamOfCRUDOperation<ObjectMappingForTest>();
+            objectFroCRUD.Item = new ObjectMappingForTest() { IntValue = 11 };
+            objectFroCRUD.Item.IntValue2 = 22;
+            CreateContext();
+            SaveWithQuestionDefaultCRUDBLLForTest bll = new SaveWithQuestionDefaultCRUDBLLForTest(_uow);
+            BaseResultType<SaveResultType<ObjectMappingForTest>> resultCRUDOpeartion = bll.SaveItem(ExecuteTypeConstCRUD.ADD, objectFroCRUD);
+
+            Assert.AreEqual(ResultStatus.Fail, resultCRUDOpeartion.Status);
+            Assert.AreEqual("Отсутствует идентификатор объекта для вопроса.", resultCRUDOpeartion.Message);
         }
     }
 }
