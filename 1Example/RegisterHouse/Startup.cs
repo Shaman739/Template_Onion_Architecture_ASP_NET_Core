@@ -12,6 +12,9 @@ using Microsoft.AspNetCore.Mvc;
 using System.Net.Mime;
 using Shamdev.TOA.Web.Infrastructure.TypeOfResultQuery;
 using Newtonsoft.Json.Converters;
+using System;
+using Newtonsoft.Json.Linq;
+using DAL.Common;
 
 namespace RegisterHouse
 {
@@ -29,34 +32,10 @@ namespace RegisterHouse
         {
             services.AddCors();
             services.AddTransient<IDefaultCRUDBLL<House>, HouseBLL>();
-            //Добавляем Onion Architecture
-            services.AddBLL(Configuration);
-           // services.AddOnionArchitecture(Configuration);
-            services.AddControllers()
-           .AddJsonOptions(options =>
-           {
-               options.JsonSerializerOptions.IgnoreNullValues = true;
-           })
-           .AddNewtonsoftJson(o =>
-           {
-               o.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
-               o.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-               o.SerializerSettings.Converters.Add(new StringEnumConverter());
-           });
+          
+            //Добавление TOA зависимостей
+            services.AddOnionArchitecture<RegisterApplicationContext>(Configuration);
 
-            //.ConfigureApiBehaviorOptions(options =>
-            //{
-            //    options.InvalidModelStateResponseFactory = context =>
-            //    {
-            //        var result = new BadRequestObjectResult(context.ModelState);
-
-            //        // TODO: add `using System.Net.Mime;` to resolve MediaTypeNames
-            //        result.ContentTypes.Add(MediaTypeNames.Application.Json);
-            //        result.ContentTypes.Add(MediaTypeNames.Application.Xml);
-            //       // return new FailResultQuery() { Message = result.ToString() };
-            //        return result;
-            //    };
-            //});
 
         }
 
@@ -80,6 +59,8 @@ namespace RegisterHouse
                 endpoints.MapControllers();
             });
         }
+
+       
 
     }
 }
