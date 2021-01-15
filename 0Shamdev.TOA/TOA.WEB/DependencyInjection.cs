@@ -8,6 +8,11 @@ using BLL.Common;
 using TOA.BLL;
 using Microsoft.EntityFrameworkCore;
 using Shamdev.TOA.DAL;
+using Shamdev.ERP.Core.Data.Domain;
+using Shamdev.TOA.BLL;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Shamdev.TOA.BLL.Service;
+using Shamdev.TOA.BLL.Service.Interface;
 
 namespace BLL.Common
 {
@@ -24,6 +29,9 @@ namespace BLL.Common
         {
             services.AddBLL<TContext>(configuration);
 
+            services.AddTransient<IDefaultCRUDBLL<User>, DefaultCRUDBLL<User>>();
+            services.AddTransient<IAccountService,AccountService> ();
+            
             services
                .AddControllers()
                .AddJsonOptions(options =>
@@ -39,6 +47,13 @@ namespace BLL.Common
                    o.SerializerSettings.Converters.Add(new JsonInt32Converter());
 
                });
+
+            // установка конфигурации подключения
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                    .AddCookie(options => //CookieAuthenticationOptions
+                    {
+                        options.LoginPath = new Microsoft.AspNetCore.Http.PathString("/Login");
+                    });
         }
     }
 }

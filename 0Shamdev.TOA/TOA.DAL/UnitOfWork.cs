@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using Shamdev.TOA.Core.Data;
 using Shamdev.TOA.DAL.ValidateContext;
-using System.Data.Entity;
 using System.Linq;
 
 namespace Shamdev.TOA.DAL

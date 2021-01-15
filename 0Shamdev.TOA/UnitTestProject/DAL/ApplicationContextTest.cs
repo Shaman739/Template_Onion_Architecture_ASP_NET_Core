@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Data.Entity.Validation;
 using UnitTestProject.DAL.TestFakeClasses;
 
 namespace UnitTestProject.DAL
@@ -20,7 +19,7 @@ namespace UnitTestProject.DAL
             ObjectMappingForTest objectMappingForTest = new ObjectMappingForTest();
             context.SaveChanges();
             context.Set<ObjectMappingForTest>().Add(objectMappingForTest);
-            var result = Assert.ThrowsException<DbEntityValidationException>(() => context.SaveChanges());
+           // var result = Assert.ThrowsException<DbEntityValidationException>(() => context.SaveChanges());
 
             //Assert.IsFalse(validateContextResult.IsSuccess);
 

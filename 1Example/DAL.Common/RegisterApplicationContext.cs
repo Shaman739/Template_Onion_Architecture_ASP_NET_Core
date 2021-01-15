@@ -12,10 +12,12 @@ namespace DAL.Common
         }
         public DbSet<House> Houses { get; set; }
         public DbSet<Flat> Flats { get; set; }
+        public DbSet<Street> Streets { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<House>().Property(b => b.Number).IsRequired();
             modelBuilder.Entity<Flat>().Property(b => b.Number).IsRequired();
+            modelBuilder.Entity<Street>().Property(b => b.Name).IsRequired();
 
             modelBuilder.Entity<Flat>()
             .HasOne(p => p.House)

@@ -1,6 +1,8 @@
 ﻿
 
 using Microsoft.EntityFrameworkCore;
+using Shamdev.ERP.Core.Data.Domain;
+using Shamdev.ERP.DAL.Common.Repository;
 using Shamdev.TOA.Core.Data;
 using Shamdev.TOA.DAL.ValidateContext;
 using System;
@@ -12,6 +14,8 @@ namespace Shamdev.TOA.DAL
 {
     public class ApplicationContext : DbContext, IApplicationContext
     {
+        public DbSet<User> Users { get; set; }
+
         private Dictionary<Type, Type> _repositoriesType;
 
         public ApplicationContext(DbContextOptions<ApplicationContext> options) 
@@ -24,11 +28,21 @@ namespace Shamdev.TOA.DAL
         {
             _repositoriesType = new Dictionary<Type, Type>();
             Database.EnsureCreated();   // создаем базу данных при первом обращении
+
+            RegisterCustomReposynoryType<User, UserRepository>();
         }
 
         int IApplicationContext.SaveChanges()
         {
             return base.SaveChanges();
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<User>().Property(b => b.Email).IsRequired();
+            modelBuilder.Entity<User>().Property(b => b.Password).IsRequired();
+ 
+            base.OnModelCreating(modelBuilder);
         }
 
         /// <summary>

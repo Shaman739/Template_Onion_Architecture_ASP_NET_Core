@@ -17,7 +17,7 @@ namespace Shamdev.TOA.BLL
         where TEntity : DomainObject, new()
     {
         IUnitOfWork _contextDB;
-        IRepository<TEntity> _repository;
+        protected IRepository<TEntity> Repository { get; set; }
         /// <summary>
         /// Признак, что нужно только добавить в контекст, но не сохранять в БД
         /// </summary>
@@ -37,7 +37,7 @@ namespace Shamdev.TOA.BLL
         public DefaultCRUDBLL(IUnitOfWork contextDB) : this()
         {
             _contextDB = contextDB;
-            _repository = _contextDB.Repository<TEntity>();
+            Repository = _contextDB.Repository<TEntity>();
             PrepareItemForCRUDStrategyFactory = new Lazy<PrepareItemForCRUDStrategyFactory<TEntity>>(() => new PrepareItemForCRUDStrategyFactory<TEntity>(_contextDB));
             ValidateDomainObject = new Lazy<ValidateDomainObjectFactory<TEntity>>(() => new ValidateDomainObjectFactory<TEntity>(_contextDB));
         }

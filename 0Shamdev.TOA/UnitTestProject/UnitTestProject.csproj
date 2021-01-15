@@ -17,10 +17,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="DAL\NewFolder\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\TOA.BLL\3Shamdev.TOA.BLL.csproj" />
     <ProjectReference Include="..\TOA.Core.Data\1Shamdev.TOA.Core.Data.csproj" />
     <ProjectReference Include="..\TOA.DAL\2Shamdev.TOA.DAL.csproj" />

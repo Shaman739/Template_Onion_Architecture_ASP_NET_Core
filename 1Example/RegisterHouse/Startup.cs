@@ -32,7 +32,8 @@ namespace RegisterHouse
         {
             services.AddCors();
             services.AddTransient<IDefaultCRUDBLL<House>, HouseBLL>();
-          
+            services.AddTransient<IDefaultCRUDBLL<Street>, DefaultCRUDBLL<Street>>();
+
             //Добавление TOA зависимостей
             services.AddOnionArchitecture<RegisterApplicationContext>(Configuration);
 
@@ -46,14 +47,15 @@ namespace RegisterHouse
             {
                 app.UseDeveloperExceptionPage();
             }
-
+          
             app.UseRouting();
             app.UseDefaultFiles();
             app.UseStaticFiles();
             app.UseCors(builder => builder.WithOrigins("http://localhost:4200").AllowAnyHeader()
                             .AllowAnyMethod());
+           // app.UseAuthorization();
+            app.UseAuthentication();    // аутентификация
             app.UseAuthorization();
-
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
