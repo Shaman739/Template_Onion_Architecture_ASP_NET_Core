@@ -2,6 +2,7 @@
 using Shamdev.TOA.BLL.Infrastructure;
 using Shamdev.TOA.BLL.Infrastructure.ParamOfCRUD;
 using Shamdev.TOA.BLL.Infrastructure.ResultType;
+using Shamdev.TOA.BLL.Interface;
 using Shamdev.TOA.Core.Data;
 using Shamdev.TOA.Core.Data.Infrastructure.ResultType;
 using System;
@@ -18,14 +19,19 @@ namespace Shamdev.TOA.BLL.PrepareItemForCRUDOperations.Utils
     {
         List<TEntity> _listChildren;
         IDefaultCRUDBLL<TEntity> _bllChild;
+        IFetchData<TEntity> _fetchData;
         private SynchronizeChildrenObject() { }
-        public SynchronizeChildrenObject(List<TEntity> listChildren, IDefaultCRUDBLL<TEntity> bllChild)
+        public SynchronizeChildrenObject(List<TEntity> listChildren, IDefaultCRUDBLL<TEntity> bllChild, IFetchData<TEntity> fetchData)
         {
             _listChildren = listChildren;
             if (_listChildren == null) throw new Exception("Отсутствует список дочерних элементов.");
 
             _bllChild = bllChild;
             if (_bllChild == null) throw new Exception("Отсутствует БЛЛ для дочерних элементов");
+
+            _fetchData = fetchData;
+            if (_fetchData == null) throw new Exception("Отсутствует БЛЛ для получения дочерних элементов");
+
 
             _bllChild.IsOnlyAddInContext = true;
         }
@@ -53,7 +59,7 @@ namespace Shamdev.TOA.BLL.PrepareItemForCRUDOperations.Utils
             foreach (TEntity item in newItems)
             {
                 ExecuteTypeConstCRUD executeTypeConstCRUD;
-                BaseResultType<TEntity> itemFromDB = _bllChild.GetByIdAsync(item.Id).Result;
+                BaseResultType<TEntity> itemFromDB = _fetchData.GetByIdAsync(item.Id).Result;
                 if (itemFromDB.Status == ResultStatus.Fail)
                     executeTypeConstCRUD = ExecuteTypeConstCRUD.ADD;
                 else

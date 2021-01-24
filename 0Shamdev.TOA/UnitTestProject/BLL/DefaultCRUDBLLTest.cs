@@ -6,7 +6,9 @@ using Shamdev.TOA.BLL.Infrastructure;
 using Shamdev.TOA.BLL.Infrastructure.ParamOfCRUD;
 using Shamdev.TOA.BLL.Infrastructure.PrepareItemForCRUDOperations.Interface;
 using Shamdev.TOA.BLL.Infrastructure.ResultType;
+using Shamdev.TOA.BLL.Interface;
 using Shamdev.TOA.BLL.Validate.Interface;
+using Shamdev.TOA.Core.Data;
 using Shamdev.TOA.Core.Data.Infrastructure.ResultType;
 using Shamdev.TOA.DAL;
 using Shamdev.TOA.DAL.Infrastructure;
@@ -116,6 +118,10 @@ namespace UnitTestProject.BLL
             _uow.SaveChanges();
         }
 
+        private IFetchData<TEntity> GetFetchData<TEntity>() where TEntity : DomainObject,new()
+        {
+            return new FetchDomainData<TEntity>(_uow);
+        }
         [TestMethod]
         public void SaveItemTest()
         {
@@ -131,7 +137,7 @@ namespace UnitTestProject.BLL
             DefaultParamOfCRUDOperation<ObjectMappingForTest> objectFroCRUD = new DefaultParamOfCRUDOperation<ObjectMappingForTest>();
             objectFroCRUD.Item = new ObjectMappingForTest() { IntValue = 11, StrValue = "22" };
 
-            Assert.AreEqual(1, bll.FetchDataAsync(new FetchDataParameters()).Result.TotalCountRows);
+            Assert.AreEqual(1, GetFetchData<ObjectMappingForTest>().FetchDataAsync(new FetchDataParameters()).Result.TotalCountRows);
             resultCRUDOpeartion = bll.SaveItem(ExecuteTypeConstCRUD.ADD, objectFroCRUD);
 
             Assert.AreEqual(ResultStatus.Fail, resultCRUDOpeartion.Status, "У объекта не заполнено обязательное поле IntValue2. Такое не должно проходить валидацию по контексту");
@@ -147,7 +153,7 @@ namespace UnitTestProject.BLL
             Assert.AreEqual(2, resultCRUDOpeartion.Data.Item.Id);
             Assert.AreEqual(11, ((ObjectMappingForTest)resultCRUDOpeartion.Data.Item).IntValue);
             Assert.AreEqual("22", ((ObjectMappingForTest)resultCRUDOpeartion.Data.Item).StrValue);
-            ResultFetchData<ObjectMappingForTest> allDataInDB = bll.FetchDataAsync(new FetchDataParameters()).Result;
+            ResultFetchData<ObjectMappingForTest> allDataInDB = GetFetchData<ObjectMappingForTest>().FetchDataAsync(new FetchDataParameters()).Result;
             Assert.AreEqual(2, allDataInDB.TotalCountRows, "Должна была добавиться одна запись в БД");
             Assert.AreEqual(2, allDataInDB.Items[1].Id);
             Assert.AreEqual(11, allDataInDB.Items[1].IntValue);
@@ -162,7 +168,7 @@ namespace UnitTestProject.BLL
             Assert.AreEqual(1, resultCRUDOpeartion.Data.Item.Id);
             Assert.AreEqual(111, ((ObjectMappingForTest)resultCRUDOpeartion.Data.Item).IntValue);
             Assert.AreEqual("222", ((ObjectMappingForTest)resultCRUDOpeartion.Data.Item).StrValue);
-            allDataInDB = bll.FetchDataAsync(new FetchDataParameters()).Result;
+            allDataInDB = GetFetchData<ObjectMappingForTest>().FetchDataAsync(new FetchDataParameters()).Result;
             Assert.AreEqual(2, allDataInDB.TotalCountRows, "Количество записей не должно меняться в БД");
             //Проверка, что данные изменились
             Assert.AreEqual(1, allDataInDB.Items[0].Id);
@@ -185,7 +191,7 @@ namespace UnitTestProject.BLL
             Assert.AreEqual(ResultStatus.Fail, resultCRUDOpeartion.Status);
             Assert.IsNotNull(resultCRUDOpeartion.Data, "Результат не может быть null.");
             Assert.IsNull(resultCRUDOpeartion.Data.Item, "Объекта с таким ID нет в БД.");
-            Assert.AreEqual(1, bll.FetchDataAsync(new FetchDataParameters()).Result.TotalCountRows, "Не должно измениться количество строк в БД");
+            Assert.AreEqual(1, GetFetchData<ObjectMappingForTest>().FetchDataAsync(new FetchDataParameters()).Result.TotalCountRows, "Не должно измениться количество строк в БД");
 
             //Удаление объекта
             objectFroCRUD.Item = new ObjectMappingForTest() { Id = 1 };
@@ -193,7 +199,7 @@ namespace UnitTestProject.BLL
             Assert.AreEqual(ResultStatus.Success, resultCRUDOpeartion.Status);
             Assert.IsNotNull(resultCRUDOpeartion.Data, "После сохранения должен отдаваться сохраненный объект.");
             Assert.IsInstanceOfType(resultCRUDOpeartion.Data, typeof(SaveResultType<ObjectMappingForTest>));
-            Assert.AreEqual(0, bll.FetchDataAsync(new FetchDataParameters()).Result.TotalCountRows, "Не должно измениться количество строк в БД");
+            Assert.AreEqual(0, GetFetchData<ObjectMappingForTest>().FetchDataAsync(new FetchDataParameters()).Result.TotalCountRows, "Не должно измениться количество строк в БД");
         }
         [TestMethod]
         public void SaveItemWithErrorTest()
@@ -205,7 +211,7 @@ namespace UnitTestProject.BLL
             BaseResultType<SaveResultType<ObjectMappingForTest>> resultCRUDOpeartion = bll.SaveItem(ExecuteTypeConstCRUD.ADD, objectFroCRUD);
             Assert.AreEqual(ResultStatus.Fail, resultCRUDOpeartion.Status, "Не прошла валидация по обязательным полям контекста.");
             StringAssert.Contains("Для проверки ошибки подготовки в БЛЛ", resultCRUDOpeartion.Message, "Должно пробрасываться сообщение об ошибке из стратегии.");
-            ResultFetchData<ObjectMappingForTest> allDataInDB = bll.FetchDataAsync(new FetchDataParameters()).Result;
+            ResultFetchData<ObjectMappingForTest> allDataInDB = GetFetchData<ObjectMappingForTest>().FetchDataAsync(new FetchDataParameters()).Result;
             Assert.IsNull(allDataInDB.Items.FirstOrDefault(x => x.StrValue == "222222"), "Не должно быть записи в БД, так как ошибка подготовки была");
         }
 
@@ -219,26 +225,7 @@ namespace UnitTestProject.BLL
             Assert.AreEqual(ResultStatus.Fail, resultCRUDOpeartion.Status, "Не прошла валидация по обязательным полям контекста.");
         }
 
-        [TestMethod]
-        public void GetByIdTest()
-        {
-            CreateContext();
-            DefaultCRUDBLL<ObjectMappingForTest> bll = new DefaultCRUDBLL<ObjectMappingForTest>(_uow);
-
-            BaseResultType<ObjectMappingForTest> resultGetById = bll.GetByIdAsync(10).Result;
-            Assert.AreEqual(ResultStatus.Fail, resultGetById.Status);
-            Assert.AreEqual("Запись не найдена.", ((BaseResultType<ObjectMappingForTest>)resultGetById).Message);
-
-            //Проверка успешного получения записи
-
-            resultGetById = bll.GetByIdAsync(1).Result;
-
-            Assert.AreEqual(ResultStatus.Success, resultGetById.Status);
-            Assert.IsNotNull(resultGetById.Data);
-            Assert.AreEqual(1, resultGetById.Data.Id);
-            Assert.AreEqual(2, resultGetById.Data.IntValue);
-            Assert.AreEqual("2", resultGetById.Data.StrValue);
-        }
+       
 
         [TestMethod]
         public void SaveItem_IsOnlyAddInContext_Test()
@@ -260,7 +247,7 @@ namespace UnitTestProject.BLL
             Assert.AreEqual(2, resultCRUDOpeartion.Data.Item.Id);
             Assert.AreEqual(11, ((ObjectMappingForTest)resultCRUDOpeartion.Data.Item).IntValue);
             Assert.AreEqual("22", ((ObjectMappingForTest)resultCRUDOpeartion.Data.Item).StrValue);
-            ResultFetchData<ObjectMappingForTest> allDataInDB = bll.FetchDataAsync(new FetchDataParameters()).Result;
+            ResultFetchData<ObjectMappingForTest> allDataInDB = GetFetchData<ObjectMappingForTest>().FetchDataAsync(new FetchDataParameters()).Result;
             Assert.AreEqual(1, allDataInDB.TotalCountRows, "Должна была добавиться одна запись в БД");
             Assert.AreEqual(1, allDataInDB.Items[0].Id);
             Assert.AreEqual(2, allDataInDB.Items[0].IntValue);
@@ -313,7 +300,7 @@ namespace UnitTestProject.BLL
             Assert.IsInstanceOfType(resultCRUDOpeartion.Question[0].Buttons[0], typeof(ButtonQuestionWithResult));
             Assert.IsInstanceOfType(resultCRUDOpeartion.Question[0].Buttons[1], typeof(ButtonQuestionWithResult));
 
-            ResultFetchData<ObjectMappingForTest> allDataInDB = bll.FetchDataAsync(new FetchDataParameters()).Result;
+            ResultFetchData<ObjectMappingForTest> allDataInDB = GetFetchData<ObjectMappingForTest>().FetchDataAsync(new FetchDataParameters()).Result;
             Assert.AreEqual(1, allDataInDB.TotalCountRows, "Добавление не произошло, так как есть вопрос к пользователю");
             Assert.AreEqual(1, allDataInDB.Items[0].Id);
             Assert.AreEqual(2, allDataInDB.Items[0].IntValue);
@@ -330,7 +317,7 @@ namespace UnitTestProject.BLL
             Assert.IsTrue(resultCRUDOpeartion.Question == null || resultCRUDOpeartion.Question.Count() == 0);
 
             //После ответа ДА сохранилось и должно быть 2 записи
-            allDataInDB = bll.FetchDataAsync(new FetchDataParameters()).Result;
+            allDataInDB = GetFetchData<ObjectMappingForTest>().FetchDataAsync(new FetchDataParameters()).Result;
             Assert.AreEqual(2, allDataInDB.TotalCountRows, "После ответа ДА сохранилось и должно быть 2 записи в БД");
             Assert.AreEqual(1, allDataInDB.Items[0].Id);
             Assert.AreEqual(2, allDataInDB.Items[0].IntValue);
@@ -365,7 +352,7 @@ namespace UnitTestProject.BLL
             Assert.IsInstanceOfType(resultCRUDOpeartion.Question[0].Buttons[0], typeof(ButtonQuestionWithResult));
             Assert.IsInstanceOfType(resultCRUDOpeartion.Question[0].Buttons[1], typeof(ButtonQuestionWithResult));
 
-            ResultFetchData<ObjectMappingForTest> allDataInDB = bll.FetchDataAsync(new FetchDataParameters()).Result;
+            ResultFetchData<ObjectMappingForTest> allDataInDB = GetFetchData<ObjectMappingForTest>().FetchDataAsync(new FetchDataParameters()).Result;
             Assert.AreEqual(1, allDataInDB.TotalCountRows, "Добавление не произошло, так как есть вопрос к пользователю");
             Assert.AreEqual(1, allDataInDB.Items[0].Id);
             Assert.AreEqual(2, allDataInDB.Items[0].IntValue);
@@ -388,7 +375,7 @@ namespace UnitTestProject.BLL
             Assert.AreEqual(2, resultCRUDOpeartion.Question[0].Buttons.Count);
 
             //После ответа ДА сохранилось и должно быть 2 записи
-            allDataInDB = bll.FetchDataAsync(new FetchDataParameters()).Result;
+            allDataInDB = GetFetchData<ObjectMappingForTest>().FetchDataAsync(new FetchDataParameters()).Result;
             Assert.AreEqual(1, allDataInDB.TotalCountRows, "После ответа ДА сохранилось и должно быть 2 записи в БД");
             Assert.AreEqual(1, allDataInDB.Items[0].Id);
             Assert.AreEqual(2, allDataInDB.Items[0].IntValue);

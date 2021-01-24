@@ -13,6 +13,7 @@ using Shamdev.TOA.BLL;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Shamdev.TOA.BLL.Service;
 using Shamdev.TOA.BLL.Service.Interface;
+using Shamdev.TOA.BLL.Interface;
 
 namespace BLL.Common
 {
@@ -29,7 +30,7 @@ namespace BLL.Common
         {
             services.AddBLL<TContext>(configuration);
 
-            services.AddTransient<IDefaultCRUDBLL<User>, DefaultCRUDBLL<User>>();
+            services.AddTransient<IProcessingDomainObject<User>, ProcessingDomainObject<User>>();
             services.AddTransient<IAccountService,AccountService> ();
             
             services

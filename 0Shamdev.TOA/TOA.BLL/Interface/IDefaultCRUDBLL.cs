@@ -6,15 +6,12 @@ using Shamdev.TOA.Core.Data.Infrastructure.ResultType;
 using Shamdev.TOA.DAL.Infrastructure;
 using System.Threading.Tasks;
 
-namespace Shamdev.TOA.BLL
+namespace Shamdev.TOA.BLL.Interface
 {
     public interface IDefaultCRUDBLL<TEntity> where TEntity : DomainObject,new()
     {
-        Task<ResultFetchData<TEntity>> FetchDataAsync(FetchDataParameters paramQuery);
         Task<BaseResultType<SaveResultType<TEntity>>> SaveItemAsync(ExecuteTypeConstCRUD executeTypeCRUD, DefaultParamOfCRUDOperation<TEntity> paramOfCRUDOperation);
-
         bool IsOnlyAddInContext { get; set; }
 
-        Task<BaseResultType<TEntity>> GetByIdAsync(long id);
     }
 }

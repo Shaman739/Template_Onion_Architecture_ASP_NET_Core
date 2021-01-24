@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
 using Shamdev.TOA.BLL;
+using Shamdev.TOA.BLL.Interface;
 using Shamdev.TOA.Core.Data;
 using System;
 using System.Collections.Generic;
@@ -12,7 +13,7 @@ namespace Shamdev.TOA.Web
     public class AuthorizeDefaultController<TEntity> : DefaultController<TEntity>
            where TEntity : DomainObject, new()
     {
-        public AuthorizeDefaultController(ILogger<DefaultController<TEntity>> logger, IDefaultCRUDBLL<TEntity> defaultCRUDBLL) : base(logger, defaultCRUDBLL)
+        public AuthorizeDefaultController(ILogger<DefaultController<TEntity>> logger, IProcessingDomainObject<TEntity> processingDomainObject) : base(logger, processingDomainObject)
         {
         }
     }

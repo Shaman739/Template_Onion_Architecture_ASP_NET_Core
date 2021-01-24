@@ -15,6 +15,7 @@ using Newtonsoft.Json.Converters;
 using System;
 using Newtonsoft.Json.Linq;
 using DAL.Common;
+using Shamdev.TOA.BLL.Interface;
 
 namespace RegisterHouse
 {
@@ -31,8 +32,8 @@ namespace RegisterHouse
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddCors();
-            services.AddTransient<IDefaultCRUDBLL<House>, HouseBLL>();
-            services.AddTransient<IDefaultCRUDBLL<Street>, DefaultCRUDBLL<Street>>();
+            services.AddTransient<IProcessingDomainObject<House>, ProcessingHouse>();
+            services.AddTransient<IProcessingDomainObject<Street>, ProcessingDomainObject<Street>>();
 
             //Добавление TOA зависимостей
             services.AddOnionArchitecture<RegisterApplicationContext>(Configuration);
