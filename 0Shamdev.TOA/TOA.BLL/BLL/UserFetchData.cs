@@ -12,9 +12,9 @@ using System.Threading.Tasks;
 
 namespace Shamdev.TOA.BLL.BLL
 {
-    internal class UserBLL : DefaultCRUDBLL<User>, IUserBLL
+    internal class UserFetchData : FetchDomainData<User>, IUserBLL
     {
-        public UserBLL(IUnitOfWork contextDB) : base(contextDB)
+        public UserFetchData(IUnitOfWork contextDB) : base(contextDB)
         {
         }
 

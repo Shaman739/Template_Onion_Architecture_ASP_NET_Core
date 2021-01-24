@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Shamdev.TOA.BLL.BLL.Interface
 {
-    public interface IUserBLL: IDefaultCRUDBLL<User>
+    public interface IUserBLL: IFetchData<User>
     {
         /// <summary>
         /// Проверка возможности авторизации

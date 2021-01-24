@@ -4,6 +4,7 @@ using Shamdev.TOA.BLL.BLL.Interface;
 using Shamdev.TOA.BLL.Infrastructure;
 using Shamdev.TOA.BLL.Infrastructure.ParamOfCRUD;
 using Shamdev.TOA.BLL.Infrastructure.ResultType;
+using Shamdev.TOA.BLL.Interface;
 using Shamdev.TOA.BLL.Service.DTO;
 using Shamdev.TOA.BLL.Service.Interface;
 using Shamdev.TOA.Core.Data.Infrastructure.ResultType;
@@ -21,8 +22,8 @@ namespace Shamdev.TOA.BLL.Service
     public class AccountService : IAccountService
     {
         private IUnitOfWork _contextDB;
-        private IUserBLL _userBLL;
-
+        private IUserBLL _userFetchData;
+        private IDefaultCRUDBLL<User> _userBLL;
         private AccountService()
         {
 
@@ -33,7 +34,8 @@ namespace Shamdev.TOA.BLL.Service
             if (_contextDB == null)
                 throw new ArgumentNullException("Отсутствует обязательный параметр contextDB");
 
-            _userBLL = new UserBLL(contextDB);
+            _userBLL = new DefaultCRUDBLL<User>(contextDB);
+            _userFetchData = new UserFetchData(contextDB);
         }
         /// <summary>
         /// Проверка возможности авторизации пользователя
@@ -48,7 +50,7 @@ namespace Shamdev.TOA.BLL.Service
                 Email = param?.Item?.Email,
                 Password = param?.Item?.Password
             };
-            return _userBLL.LoginAllowCheckAsync(paramUser);
+            return _userFetchData.LoginAllowCheckAsync(paramUser);
            
         }
 
