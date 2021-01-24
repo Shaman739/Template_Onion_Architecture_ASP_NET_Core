@@ -12,7 +12,7 @@ namespace RegisterHouse.Controllers
     [Route("[controller]")]
     public class StreetController : AuthorizeDefaultController<Street>
     {
-        public StreetController(ILogger<StreetController> logger, IProcessingDomainObject<Street> processingDomainObject) : base(logger, processingDomainObject)
+        public StreetController(ILogger<StreetController> logger, IProcessingObject<Street> processingDomainObject) : base(logger, processingDomainObject)
         {
         }
     }

@@ -30,7 +30,7 @@ namespace BLL.Common
         {
             services.AddBLL<TContext>(configuration);
 
-            services.AddTransient<IProcessingDomainObject<User>, ProcessingDomainObject<User>>();
+            services.AddTransient<IProcessingObject<User>, ProcessingDomainObject<User>>();
             services.AddTransient<IAccountService,AccountService> ();
             
             services

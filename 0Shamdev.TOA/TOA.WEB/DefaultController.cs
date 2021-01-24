@@ -20,8 +20,8 @@ namespace Shamdev.TOA.Web
         where TEntity : DomainObject, new()
     {
         private readonly ILogger<DefaultController<TEntity>> _logger;
-        IProcessingDomainObject<TEntity> _defaultCRUDBLL;
-        public DefaultController(ILogger<DefaultController<TEntity>> logger, IProcessingDomainObject<TEntity> defaultCRUDBLL)
+        IProcessingObject<TEntity> _defaultCRUDBLL;
+        public DefaultController(ILogger<DefaultController<TEntity>> logger, IProcessingObject<TEntity> defaultCRUDBLL)
         {
             _logger = logger;
             _defaultCRUDBLL = defaultCRUDBLL;

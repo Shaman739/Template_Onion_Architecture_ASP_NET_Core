@@ -11,7 +11,7 @@ namespace Shamdev.TOA.BLL
     /// Обработка доменных объектов
     /// </summary>
     /// <typeparam name="TEntity"></typeparam>
-    public class ProcessingDomainObject<TEntity> : IProcessingDomainObject<TEntity> where TEntity : DomainObject, new()
+    public class ProcessingDomainObject<TEntity> : IProcessingObject<TEntity> where TEntity : DomainObject, new()
     {
         protected IUnitOfWork contextDB;
         private ProcessingDomainObject()

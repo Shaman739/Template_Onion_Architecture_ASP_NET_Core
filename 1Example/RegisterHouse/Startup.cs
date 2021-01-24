@@ -32,8 +32,8 @@ namespace RegisterHouse
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddCors();
-            services.AddTransient<IProcessingDomainObject<House>, ProcessingHouse>();
-            services.AddTransient<IProcessingDomainObject<Street>, ProcessingDomainObject<Street>>();
+            services.AddTransient<IProcessingObject<House>, ProcessingHouse>();
+            services.AddTransient<IProcessingObject<Street>, ProcessingDomainObject<Street>>();
 
             //Добавление TOA зависимостей
             services.AddOnionArchitecture<RegisterApplicationContext>(Configuration);
