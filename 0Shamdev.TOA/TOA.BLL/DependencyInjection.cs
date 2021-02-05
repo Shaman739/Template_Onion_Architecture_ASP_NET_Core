@@ -14,9 +14,18 @@ namespace TOA.BLL
             where TContext: DbContext, IApplicationContext
         {
             string connection = configuration.GetConnectionString("DefaultConnection");
+            if(!string.IsNullOrWhiteSpace(configuration["SERVER"]) &&
+                !string.IsNullOrWhiteSpace(configuration["DATABASE_NAME"]) &&
+                !string.IsNullOrWhiteSpace(configuration["USER_BD"]) &&
+                !string.IsNullOrWhiteSpace(configuration["USER_BD_PASSWORD"])) 
+               connection = $"Server={configuration["ASPNETCORE_server"]};Database={configuration["ASPNETCORE_bd"]};User ID={configuration["ASPNETCORE_sa"]};Password={configuration["ASPNETCORE_password"]}";
+        
             services.AddDbContext<TContext>(options => options.UseSqlServer(connection));
             services.AddTransient<IApplicationContext, TContext>();
             services.AddTransient<IUnitOfWork, UnitOfWork>();
         }
+
+
+
     }
 }

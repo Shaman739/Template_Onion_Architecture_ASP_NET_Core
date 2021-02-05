@@ -4,10 +4,9 @@ services:
         build: .
         ports:
             - "8000:80"
-        depends_on:
-            - db
-  db:
-    image: "mcr.microsoft.com/mssql/server"
-    environment:
-        SA_PASSWORD: "Your_password123"
-        ACCEPT_EULA: "Y"
+        environment:
+            - SERVER=192.168.0.105,9000
+            - DATABASE_NAME=RegisterHouseIdentity
+            - USER_BD=sa
+            - USER_BD_PASSWORD=111
+            
