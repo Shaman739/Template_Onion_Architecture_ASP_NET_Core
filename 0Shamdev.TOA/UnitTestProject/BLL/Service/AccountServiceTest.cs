@@ -100,7 +100,7 @@ namespace UnitTestProject.BLL.Service
             }
         }
 
-        private static void CreateContext()
+        private async static void CreateContext()
         {
             var options = new DbContextOptionsBuilder<ApplicationContextForTest>()
                                           .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
@@ -109,7 +109,7 @@ namespace UnitTestProject.BLL.Service
             context.Add(new User() { Id = 1, Email = "123@mail.ru", Password = "pass" });
             context.Add(new User() { Id = 2, Email = "123l.ru", Password = "pass" });
             _uow = new UnitOfWork(context);
-            _uow.SaveChangesAsync();
+            await _uow.SaveChangesAsync();
         }
     }
 }

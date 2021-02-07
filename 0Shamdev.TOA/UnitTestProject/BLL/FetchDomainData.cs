@@ -24,7 +24,7 @@ namespace UnitTestProject.BLL
             }
         }
 
-        private static void CreateContext()
+        private async static void CreateContext()
         {
             var options = new DbContextOptionsBuilder<ApplicationContextForTest>()
                                           .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
@@ -32,7 +32,7 @@ namespace UnitTestProject.BLL
             context = new ApplicationContextForTest(options);
             context.Add(new ObjectMappingForTest() { Id = 1, IntValue = 2, StrValue = "2", SubObject = new SubObjectMappingForTest() { Id = 33, IntValueSub = 34, StrValueSub = "35" } });
             _uow = new UnitOfWork(context);
-            _uow.SaveChangesAsync();
+            await _uow.SaveChangesAsync();
         }
 
 

@@ -431,5 +431,37 @@ namespace UnitTestProject.BLL
             Assert.AreEqual(ResultStatus.Fail, resultCRUDOpeartion.Status);
             Assert.AreEqual("Отсутствует идентификатор объекта для вопроса.", resultCRUDOpeartion.Message);
         }
+
+        [TestMethod,Description("Проверка срабатывания события при crud операциях")]
+        public void SaveItemSentEventTest()
+        {
+            //ARRANGE
+            DefaultParamOfCRUDOperation<ObjectMappingForTest> objectFroCRUD = new DefaultParamOfCRUDOperation<ObjectMappingForTest>();
+            objectFroCRUD.Item = new ObjectMappingForTest() { IntValue = 11 };
+            objectFroCRUD.Item.IntValue2 = 33;
+            objectFroCRUD.Item.CustomIdentity = "1";
+            CreateContext();
+
+            SaveWithWarrningDefaultCRUDBLLForTest bll = new SaveWithWarrningDefaultCRUDBLLForTest(_uow);
+            ObjectMappingForTest objectEventSuccess=null;
+            ExecuteTypeConstCRUD executeTypeCRUDEventSuccess = null;
+            bll.DomainChangeEvent += new DefaultCRUDBLL<ObjectMappingForTest>.DomainChangeHandler((executeTypeCRUD,item) => {
+                //Получение объекта после успешного изменения
+                objectEventSuccess = item;
+                executeTypeCRUDEventSuccess = executeTypeCRUD;
+            });
+
+            //ACT
+            BaseResultType<SaveResultType<ObjectMappingForTest>> resultCRUDOpeartion = bll.SaveItemAsync(ExecuteTypeConstCRUD.ADD, objectFroCRUD).Result;
+
+            //ASSERT
+            Assert.IsNotNull(objectEventSuccess);
+            Assert.IsNotNull(objectEventSuccess);
+            Assert.AreEqual(33, objectEventSuccess.IntValue2);
+            Assert.AreEqual("1", objectEventSuccess.CustomIdentity);
+            Assert.AreEqual(1, executeTypeCRUDEventSuccess.Value);
+
+
+        }
     }
 }

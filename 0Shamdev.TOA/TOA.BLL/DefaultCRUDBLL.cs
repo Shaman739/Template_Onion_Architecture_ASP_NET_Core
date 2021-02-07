@@ -16,6 +16,11 @@ namespace Shamdev.TOA.BLL
     public class DefaultCRUDBLL<TEntity> : IDefaultCRUDBLL<TEntity>
         where TEntity : DomainObject, new()
     {
+        public delegate void DomainChangeHandler(ExecuteTypeConstCRUD executeTypeCRUD,TEntity item);
+       /// <summary>
+       /// Событие после успешной операции над объектом
+       /// </summary>
+        public event DomainChangeHandler DomainChangeEvent;
         IUnitOfWork _contextDB;
         /// <summary>
         /// Признак, что нужно только добавить в контекст, но не сохранять в БД
@@ -89,6 +94,8 @@ namespace Shamdev.TOA.BLL
 
                     saveResultType.Status = ResultStatus.Success;
                     saveResultType.Data.Item = item.Item;
+                    //Оповещаем об успешном изменение
+                    if (DomainChangeEvent != null) DomainChangeEvent(executeTypeCRUD,item.Item);
                 }
                // else if (validate.Status == ResultStatus.Fail)
                // {
