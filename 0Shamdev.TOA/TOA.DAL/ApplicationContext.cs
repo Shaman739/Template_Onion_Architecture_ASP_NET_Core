@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace Shamdev.TOA.DAL
 {
@@ -32,9 +33,9 @@ namespace Shamdev.TOA.DAL
             RegisterCustomReposynoryType<User, UserRepository>();
         }
 
-        int IApplicationContext.SaveChanges()
+        async Task<int> IApplicationContext.SaveChangesAsync()
         {
-            return base.SaveChanges();
+            return await base.SaveChangesAsync();
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

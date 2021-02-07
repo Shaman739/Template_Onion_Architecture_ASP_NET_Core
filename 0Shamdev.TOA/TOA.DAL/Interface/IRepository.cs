@@ -8,8 +8,7 @@ namespace Shamdev.TOA.DAL
     {
         //Получение данных
         Task<ResultFetchData<TEntity>> FetchDataAsync(FetchDataParameters paramQuery);
-        ResultFetchData<TEntity> FetchData(FetchDataParameters paramQuery);
-        TEntity GetById(long id);
+        Task<TEntity> GetByIdAsync(long id);
 
         //CRUD
         void Add(TEntity item);

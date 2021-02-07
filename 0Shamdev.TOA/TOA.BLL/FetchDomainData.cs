@@ -45,15 +45,11 @@ namespace Shamdev.TOA.BLL
         /// <returns></returns>
         public async Task<BaseResultType<TEntity>> GetByIdAsync(long id)
         {
-            return await Task.Run(() => GetById(id));
-        }
-        private BaseResultType<TEntity> GetById(long id)
-        {
             BaseResultType<TEntity> result = new BaseResultType<TEntity>();
             result.Status = ResultStatus.Success;
             try
             {
-                result.Data = _contextDB.Repository<TEntity>().GetById(id);
+                result.Data = await _contextDB.Repository<TEntity>().GetByIdAsync(id);
                 if (result.Data == null)
                     result.AddError("Запись не найдена.");
 

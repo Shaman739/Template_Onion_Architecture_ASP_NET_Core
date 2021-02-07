@@ -3,6 +3,7 @@ using Shamdev.TOA.BLL.Infrastructure.PrepareItemForCRUDOperations;
 using Shamdev.TOA.Core.Data;
 using Shamdev.TOA.DAL.Interface;
 using System;
+using System.Threading.Tasks;
 
 namespace Shamdev.TOA.BLL.PrepareItemForCRUDOperations
 {
@@ -31,7 +32,7 @@ namespace Shamdev.TOA.BLL.PrepareItemForCRUDOperations
 
         protected virtual TEntity CreateItem(TEntity item)
         {
-            return dao.GetById(item.Id);
+            return dao.GetByIdAsync(item.Id).Result;
         }
     }
 }

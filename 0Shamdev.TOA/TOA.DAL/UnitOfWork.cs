@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using Shamdev.TOA.Core.Data;
 using Shamdev.TOA.DAL.ValidateContext;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Shamdev.TOA.DAL
 {
@@ -52,16 +53,15 @@ namespace Shamdev.TOA.DAL
             
             return (IRepository<TEntity>)_repositoriesCreated[type];
         }
-        public int SaveChanges()
+        public async Task<int> SaveChangesAsync()
         {
-            return _contextDB.SaveChanges();
+            return await _contextDB.SaveChangesAsync();
         }
 
         public void Dispose()
         {
             _repositoriesCreated?.Clear();
             _contextDB.Dispose();
-            GC.Collect();
 
         }
         /// <summary>

@@ -20,7 +20,7 @@ namespace UnitTestProject.BLL.PrepareItemForCRUDStrategy
             ApplicationContextForTest context = new ApplicationContextForTest(options);
             context.Add(new ObjectMappingForTest() { Id = 1, IntValue = 2, StrValue = "2", SubObject = new SubObjectMappingForTest() { Id = 33, IntValueSub = 34, StrValueSub = "35" } });
             UnitOfWork uow = new UnitOfWork(context);
-            uow.SaveChanges();
+            uow.SaveChangesAsync();
             DefaultParamOfCRUDOperation<ObjectMappingForTest> sourceObjectMappingForTest = new DefaultParamOfCRUDOperation<ObjectMappingForTest>();
             sourceObjectMappingForTest.Item = new ObjectMappingForTest();
             sourceObjectMappingForTest.Item.IntValue = 1;

@@ -39,12 +39,8 @@ namespace Shamdev.TOA.BLL
             PrepareItemForCRUDStrategyFactory = new Lazy<PrepareItemForCRUDStrategyFactory<TEntity>>(() => new PrepareItemForCRUDStrategyFactory<TEntity>(_contextDB));
             ValidateDomainObject = new Lazy<ValidateDomainObjectFactory<TEntity>>(() => new ValidateDomainObjectFactory<TEntity>(_contextDB));
         }
-        public async Task<BaseResultType<SaveResultType<TEntity>>> SaveItemAsync(ExecuteTypeConstCRUD executeTypeCRUD, DefaultParamOfCRUDOperation<TEntity> paramOfCRUDOperation)
-        {
-            return await Task.Run(() => SaveItem(executeTypeCRUD, paramOfCRUDOperation));
 
-        }
-        public BaseResultType<SaveResultType<TEntity>> SaveItem(ExecuteTypeConstCRUD executeTypeCRUD, DefaultParamOfCRUDOperation<TEntity> paramOfCRUDOperation)
+        public async Task<BaseResultType<SaveResultType<TEntity>>> SaveItemAsync(ExecuteTypeConstCRUD executeTypeCRUD, DefaultParamOfCRUDOperation<TEntity> paramOfCRUDOperation)
         {
             BaseResultType<SaveResultType<TEntity>> resultCRUDOpeartion = new BaseResultType<SaveResultType<TEntity>>();
             try
@@ -61,7 +57,7 @@ namespace Shamdev.TOA.BLL
                 if (prepareItemResult.Status == ResultStatus.Fail)
                     resultCRUDOpeartion.AddError(prepareItemResult.Message);
                 else
-                    resultCRUDOpeartion = SaveContextWithObject(paramOfCRUDOperation, executeTypeCRUD);
+                    resultCRUDOpeartion = await SaveContextWithObjectAsync(paramOfCRUDOperation, executeTypeCRUD);
 
             }
             catch (Exception e)
@@ -75,7 +71,7 @@ namespace Shamdev.TOA.BLL
         /// Сохраняет контекст EF с валидациейю Нужен для добавления и изменения объектов.
         /// Валидация через ValidateDomainObject
         /// </summary>
-        private BaseResultType<SaveResultType<TEntity>> SaveContextWithObject(DefaultParamOfCRUDOperation<TEntity> item, ExecuteTypeConstCRUD executeTypeCRUD)
+        private async Task<BaseResultType<SaveResultType<TEntity>>> SaveContextWithObjectAsync(DefaultParamOfCRUDOperation<TEntity> item, ExecuteTypeConstCRUD executeTypeCRUD)
         {
             BaseResultType<SaveResultType<TEntity>> saveResultType = new BaseResultType<SaveResultType<TEntity>>();
             try
@@ -89,7 +85,7 @@ namespace Shamdev.TOA.BLL
                 if (validate.Status == ResultStatus.Success)
                 {
                     if (!IsOnlyAddInContext)
-                        _contextDB.SaveChanges();
+                       await _contextDB.SaveChangesAsync();
 
                     saveResultType.Status = ResultStatus.Success;
                     saveResultType.Data.Item = item.Item;

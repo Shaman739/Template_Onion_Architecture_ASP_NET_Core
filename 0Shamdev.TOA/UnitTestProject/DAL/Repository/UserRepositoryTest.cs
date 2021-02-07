@@ -49,7 +49,7 @@ namespace UnitTestProject.DAL.Repository
             context.Add(new User() { Id = 1, Email = "123@mail.ru", Password = "pass" });
             context.Add(new User() { Id = 2, Email = "123l.ru", Password = "pass" });
             _uow = new UnitOfWork(context);
-            _uow.SaveChanges();
+            _uow.SaveChangesAsync();
         }
     }
 }

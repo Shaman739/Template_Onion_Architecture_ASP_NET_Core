@@ -41,7 +41,7 @@ namespace UnitTestProject.Web
             context.Add(new ObjectMappingForTest() { Id = 2, IntValue = 22, StrValue = "23", SubObject = new SubObjectMappingForTest() { Id = 34, IntValueSub = 34, StrValueSub = "34" } });
             context.Add(new ObjectMappingForTest() { Id = 3, IntValue = 23, StrValue = "23", SubObject = new SubObjectMappingForTest() { Id = 35, IntValueSub = 35, StrValueSub = "35" } });
             _uow = new UnitOfWork(context);
-            _uow.SaveChanges();
+            _uow.SaveChangesAsync();
         }
 
         class FakeLogger : ILogger<DefaultController<ObjectMappingForTest>>

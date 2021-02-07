@@ -30,16 +30,12 @@ namespace Shamdev.TOA.DAL
         /// <returns></returns>
         public async Task<ResultFetchData<TEntity>> FetchDataAsync(FetchDataParameters paramQuery)
         {
-            return await Task.Run(() => FetchData(paramQuery));
-        }
-        public ResultFetchData<TEntity> FetchData(FetchDataParameters paramQuery)
-        {
             if (paramQuery == null) paramQuery = new FetchDataParameters();
             paramQuery.CheckAndResetParam();
 
             ResultFetchData<TEntity> result = new ResultFetchData<TEntity>();
 
-            result.TotalCountRows = DbSetWithInclude.Count();
+            result.TotalCountRows = await DbSetWithInclude.AsNoTracking().CountAsync();
 
             int startRow = (paramQuery.PageNumber - 1) * paramQuery.CountOnPage;
             IQueryable<TEntity> query = DbSetWithInclude.Skip(startRow).Take((int)paramQuery.CountOnPage);
@@ -47,7 +43,7 @@ namespace Shamdev.TOA.DAL
             if (paramQuery.IsOnlyShowData)
                 query = query.AsNoTracking();
 
-            result.Items = query.ToList();
+            result.Items = await query.ToListAsync();
             result.PageNumber = paramQuery.PageNumber;
             return result;
         }
@@ -70,9 +66,9 @@ namespace Shamdev.TOA.DAL
             _dbSet.Add(item);
             return item;
         }
-        public TEntity GetById(long id)
+        public async Task<TEntity> GetByIdAsync(long id)
         {
-            return DbSetWithInclude.SingleOrDefault(x=>x.Id == id);
+            return await DbSetWithInclude.SingleOrDefaultAsync(x=>x.Id == id);
         }
 
         public TEntity Delete(long id)

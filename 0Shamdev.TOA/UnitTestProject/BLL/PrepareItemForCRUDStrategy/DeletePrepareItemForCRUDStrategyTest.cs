@@ -20,8 +20,8 @@ namespace UnitTestProject.BLL.PrepareItemForCRUDStrategy
             ApplicationContextForTest context = new ApplicationContextForTest(options);
             context.Add(new ObjectMappingForTest() { Id = 1, IntValue = 2, StrValue = "2", SubObject = new SubObjectMappingForTest() { Id = 33, IntValueSub = 34, StrValueSub = "35" } });
             UnitOfWork uow = new UnitOfWork(context);
-            uow.SaveChanges();
-            Assert.AreEqual(1, uow.Repository<ObjectMappingForTest>().FetchData(null).TotalCountRows);
+            uow.SaveChangesAsync();
+            Assert.AreEqual(1, uow.Repository<ObjectMappingForTest>().FetchDataAsync(null).Result.TotalCountRows);
             //Такого объекта нет в БД. Должна быть ошибка
             DefaultParamOfCRUDOperation<ObjectMappingForTest> sourceObjectMappingForTest = new DefaultParamOfCRUDOperation<ObjectMappingForTest>();
             sourceObjectMappingForTest.Item = new ObjectMappingForTest();
@@ -35,8 +35,8 @@ namespace UnitTestProject.BLL.PrepareItemForCRUDStrategy
 
             sourceObjectMappingForTest.Item.Id = 1;
             objectMappingForTest = deletePrepareItemForCRUDStrategy.GetItem(sourceObjectMappingForTest);
-            uow.SaveChanges();
-            Assert.AreEqual(0, uow.Repository<ObjectMappingForTest>().FetchData(null).TotalCountRows);
+            uow.SaveChangesAsync();
+            Assert.AreEqual(0, uow.Repository<ObjectMappingForTest>().FetchDataAsync(null).Result.TotalCountRows);
 
         }
     }

@@ -100,7 +100,7 @@ namespace UnitTestProject.BLL.Validate
                          .Options;
             context = new ApplicationContextForTest(options);
             uow = new UnitOfWork(context);
-            uow.SaveChanges();
+            uow.SaveChangesAsync();
         }
 
         [TestMethod]
