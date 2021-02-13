@@ -13,6 +13,8 @@ namespace Shamdev.TOA.BLL
     /// <typeparam name="TEntity"></typeparam>
     public class ProcessingDomainObject<TEntity> : IProcessingObject<TEntity> where TEntity : DomainObject, new()
     {
+        private IFetchData<TEntity> _fetchDataHandler;
+        private IDefaultCRUDBLL<TEntity> _crudHandler;
         protected IUnitOfWork contextDB;
         private ProcessingDomainObject()
         {
@@ -29,7 +31,10 @@ namespace Shamdev.TOA.BLL
         /// <returns></returns>
         public virtual IFetchData<TEntity> GetFetchDataHandler()
         {
-            return new FetchDomainData<TEntity>(contextDB);
+            if(_fetchDataHandler == null)
+                _fetchDataHandler = new FetchDomainData<TEntity>(contextDB);
+
+            return _fetchDataHandler;
         }
         /// <summary>
         /// Изменения данных в БД
@@ -37,7 +42,11 @@ namespace Shamdev.TOA.BLL
         /// <returns></returns>
         public virtual IDefaultCRUDBLL<TEntity> GetCRUDHandler()
         {
-            return new DefaultCRUDBLL<TEntity>(contextDB);
+            if (_crudHandler == null)
+                _crudHandler = new DefaultCRUDBLL<TEntity>(contextDB);
+
+            return _crudHandler;
+
         }
     }
 }

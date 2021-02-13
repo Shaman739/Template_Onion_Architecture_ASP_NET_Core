@@ -16,6 +16,11 @@ using System;
 using Newtonsoft.Json.Linq;
 using DAL.Common;
 using Shamdev.TOA.BLL.Interface;
+using Shamdev.TOA.WEB.Cache.Interface;
+using Shamdev.TOA.WEB.Cache;
+using Shamdev.TOA.Web.Cache;
+using Microsoft.Extensions.Logging;
+using Shamdev.TOA.DAL.Interface;
 
 namespace RegisterHouse
 {
@@ -32,8 +37,14 @@ namespace RegisterHouse
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddCors();
+            
+          
             services.AddTransient<IProcessingObject<House>, ProcessingHouse>();
             services.AddTransient<IProcessingObject<Street>, ProcessingDomainObject<Street>>();
+
+            //Добавялен кеш 
+            services.AddCacheInBLL<Street, MemoryCacheRepository<Street>>(Configuration);
+            services.AddCacheInBLL<House, MemoryCacheRepository<House>>(Configuration);
 
             //Добавление TOA зависимостей
             services.AddOnionArchitecture<RegisterApplicationContext>(Configuration);

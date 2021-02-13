@@ -125,6 +125,7 @@ namespace UnitTestProject.BLL
         [TestMethod]
         public void SaveItemTest()
         {
+            CreateContext();
             DefaultCRUDBLL<ObjectMappingForTest> bll = new DefaultCRUDBLL<ObjectMappingForTest>(_uow);
             BaseResultType<SaveResultType<ObjectMappingForTest>> resultCRUDOpeartion = bll.SaveItemAsync(ExecuteTypeConstCRUD.ADD, null).Result;
             Assert.AreEqual(ResultStatus.Fail, resultCRUDOpeartion.Status);
@@ -445,7 +446,7 @@ namespace UnitTestProject.BLL
             SaveWithWarrningDefaultCRUDBLLForTest bll = new SaveWithWarrningDefaultCRUDBLLForTest(_uow);
             ObjectMappingForTest objectEventSuccess=null;
             ExecuteTypeConstCRUD executeTypeCRUDEventSuccess = null;
-            bll.DomainChangeEvent += new DefaultCRUDBLL<ObjectMappingForTest>.DomainChangeHandler((executeTypeCRUD,item) => {
+            bll.DomainChangeEvent +=  new IDefaultCRUDBLL<ObjectMappingForTest>.DomainChangeHandler<ObjectMappingForTest>((executeTypeCRUD,item) => {
                 //Получение объекта после успешного изменения
                 objectEventSuccess = item;
                 executeTypeCRUDEventSuccess = executeTypeCRUD;
@@ -461,6 +462,32 @@ namespace UnitTestProject.BLL
             Assert.AreEqual("1", objectEventSuccess.CustomIdentity);
             Assert.AreEqual(1, executeTypeCRUDEventSuccess.Value);
 
+
+        }
+
+        [TestMethod, Description("Проверка не срабатывания события при crud операциях, если не сохранилось")]
+        public void SaveItemDontSentEventAfterNotSuccessSavedTest()
+        {
+            //ARRANGE
+            DefaultParamOfCRUDOperation<ObjectMappingForTest> objectFroCRUD = new DefaultParamOfCRUDOperation<ObjectMappingForTest>();
+            objectFroCRUD.Item = new ObjectMappingForTest() { };
+
+            CreateContext();
+
+            SaveWithWarrningDefaultCRUDBLLForTest bll = new SaveWithWarrningDefaultCRUDBLLForTest(_uow);
+            ObjectMappingForTest objectEventSuccess = null;
+            ExecuteTypeConstCRUD executeTypeCRUDEventSuccess = null;
+            bll.DomainChangeEvent += new IDefaultCRUDBLL<ObjectMappingForTest>.DomainChangeHandler<ObjectMappingForTest>((executeTypeCRUD, item) => {
+                //Получение объекта после успешного изменения
+                objectEventSuccess = item;
+                executeTypeCRUDEventSuccess = executeTypeCRUD;
+            });
+
+            //ACT
+            BaseResultType<SaveResultType<ObjectMappingForTest>> resultCRUDOpeartion = bll.SaveItemAsync(ExecuteTypeConstCRUD.ADD, objectFroCRUD).Result;
+
+            //ASSERT
+            Assert.IsNull(objectEventSuccess);
 
         }
     }

@@ -1,6 +1,4 @@
-﻿
-
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -14,6 +12,12 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Shamdev.TOA.BLL.Service;
 using Shamdev.TOA.BLL.Service.Interface;
 using Shamdev.TOA.BLL.Interface;
+using Shamdev.TOA.WEB.Cache.Interface;
+using Shamdev.TOA.Core.Data;
+using Shamdev.TOA.Web.Cache;
+using Shamdev.TOA.DAL.Interface;
+using Shamdev.TOA.WEB.Cache;
+using System;
 
 namespace BLL.Common
 {
@@ -47,6 +51,7 @@ namespace BLL.Common
                    o.SerializerSettings.Converters.Add(new StringEnumConverter());
                    o.SerializerSettings.Converters.Add(new JsonInt32Converter());
 
+
                });
 
             // установка конфигурации подключения
@@ -56,5 +61,25 @@ namespace BLL.Common
                         options.LoginPath = new Microsoft.AspNetCore.Http.PathString("/Login");
                     });
         }
+
+        /// <summary>
+        /// Добавляет кеш через AddSingleton для типа и декорирует стандартный БЛЛ IProcessingObject
+        /// </summary>
+        /// <typeparam name="TEntity"></typeparam>
+        /// <typeparam name="TCacheClass"></typeparam>
+        /// <param name="services"></param>
+        /// <param name="configuration"></param>
+        public static void AddCacheInBLL<TEntity, TCacheClass>(this IServiceCollection services, IConfiguration configuration)
+            where TEntity: DomainObject,new()
+            where TCacheClass : class, ICache<TEntity>
+        {
+            services.AddSingleton<ICache<TEntity>, TCacheClass>();
+            services.Decorate<IProcessingObject<TEntity>, ProcessingObjectCacheDecorator<TEntity>>();
+
+        }
+
+       
+
+        
     }
 }

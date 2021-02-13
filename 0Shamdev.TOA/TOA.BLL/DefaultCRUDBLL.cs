@@ -16,11 +16,30 @@ namespace Shamdev.TOA.BLL
     public class DefaultCRUDBLL<TEntity> : IDefaultCRUDBLL<TEntity>
         where TEntity : DomainObject, new()
     {
-        public delegate void DomainChangeHandler(ExecuteTypeConstCRUD executeTypeCRUD,TEntity item);
+
        /// <summary>
        /// Событие после успешной операции над объектом
        /// </summary>
-        public event DomainChangeHandler DomainChangeEvent;
+        public event IDefaultCRUDBLL<TEntity>.DomainChangeHandler<TEntity> DomainChangeEvent;
+        object objectLock = new Object();
+        event IDefaultCRUDBLL<TEntity>.DomainChangeHandler<TEntity> IDefaultCRUDBLL<TEntity>.DomainChangeEvent
+        {
+            add
+            {
+                lock (objectLock)
+                {
+                    DomainChangeEvent += value;
+                }
+            }
+
+            remove
+            {
+                lock (objectLock)
+                {
+                    DomainChangeEvent -= value;
+                }
+            }
+        }
         IUnitOfWork _contextDB;
         /// <summary>
         /// Признак, что нужно только добавить в контекст, но не сохранять в БД
