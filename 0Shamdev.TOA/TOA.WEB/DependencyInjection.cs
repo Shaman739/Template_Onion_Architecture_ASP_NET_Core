@@ -18,6 +18,8 @@ using Shamdev.TOA.Web.Cache;
 using Shamdev.TOA.DAL.Interface;
 using Shamdev.TOA.WEB.Cache;
 using System;
+using Shamdev.TOA.Web.Infrastructure;
+using Shamdev.ERP.Core.Data.Infrastructure.Interface;
 
 namespace BLL.Common
 {
@@ -29,10 +31,10 @@ namespace BLL.Common
         /// <typeparam name="TContext">Контекст БД</typeparam>
         /// <param name="services"></param>
         /// <param name="configuration"></param>
-        public static void AddOnionArchitecture<TContext>(this IServiceCollection services, IConfiguration configuration)
+        public static void AddOnionArchitecture<TContext>(this IServiceCollection services, IConfiguration configuration, IGetEnvironment environment)
              where TContext : DbContext, IApplicationContext
         {
-            services.AddBLL<TContext>(configuration);
+            services.AddBLL<TContext>(configuration, environment);
 
             services.AddTransient<IProcessingObject<User>, ProcessingDomainObject<User>>();
             services.AddTransient<IAccountService,AccountService> ();

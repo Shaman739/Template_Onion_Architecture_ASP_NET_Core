@@ -1,12 +1,17 @@
 version: "3.9"
 services:
   web:
-        build: .
+        image: house:latest
         ports:
-            - "8000:80"
+            - "9001:80"
         environment:
             - SERVER=192.168.0.105,9000
             - DATABASE_NAME=RegisterHouseIdentity
             - USER_BD=sa
             - USER_BD_PASSWORD=111
+            - MONGODB_IP=192.168.0.105
+            - MONGODB_PORT=27017
+            - MONGODB_DB_NAME=houseLogs
+            
+            
             

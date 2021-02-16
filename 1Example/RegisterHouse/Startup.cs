@@ -3,24 +3,21 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Newtonsoft.Json;
+
 using BLL.Common;
 using Core.Data.Domain;
 using Shamdev.TOA.BLL;
 using BLL.Common.House;
-using Microsoft.AspNetCore.Mvc;
-using System.Net.Mime;
-using Shamdev.TOA.Web.Infrastructure.TypeOfResultQuery;
-using Newtonsoft.Json.Converters;
-using System;
-using Newtonsoft.Json.Linq;
+
 using DAL.Common;
 using Shamdev.TOA.BLL.Interface;
-using Shamdev.TOA.WEB.Cache.Interface;
+
 using Shamdev.TOA.WEB.Cache;
 using Shamdev.TOA.Web.Cache;
-using Microsoft.Extensions.Logging;
-using Shamdev.TOA.DAL.Interface;
+using Shamdev.TOA.BLL.MongoDB.Interface;
+using Shamdev.TOA.BLL.MongoDB;
+using Shamdev.TOA.Web.Infrastructure;
+using Shamdev.ERP.Core.Data.Infrastructure.Interface;
 
 namespace RegisterHouse
 {
@@ -37,8 +34,11 @@ namespace RegisterHouse
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddCors();
-            
+
+            services.AddSingleton<IGetEnvironment, GetEnvironment>();
           
+            services.AddTransient<ILog, LogInMongoDBBLL>();
+
             services.AddTransient<IProcessingObject<House>, ProcessingHouse>();
             services.AddTransient<IProcessingObject<Street>, ProcessingDomainObject<Street>>();
 
@@ -46,9 +46,11 @@ namespace RegisterHouse
             services.AddCacheInBLL<Street, MemoryCacheRepository<Street>>(Configuration);
             services.AddCacheInBLL<House, MemoryCacheRepository<House>>(Configuration);
 
-            //Добавление TOA зависимостей
-            services.AddOnionArchitecture<RegisterApplicationContext>(Configuration);
+            services.Decorate<IProcessingObject<House>, ProcessingObjectLogDecorator<House>>();
 
+            //Добавление TOA зависимостей
+            services.AddOnionArchitecture<RegisterApplicationContext>(Configuration, services.BuildServiceProvider().GetService<IGetEnvironment>());
+            
 
         }
 
