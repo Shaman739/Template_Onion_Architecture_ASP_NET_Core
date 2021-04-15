@@ -20,6 +20,8 @@ using Shamdev.TOA.WEB.Cache;
 using System;
 using Shamdev.TOA.Web.Infrastructure;
 using Shamdev.ERP.Core.Data.Infrastructure.Interface;
+using Shamdev.TOA.Web;
+using Microsoft.AspNetCore.Http;
 
 namespace BLL.Common
 {
@@ -62,16 +64,19 @@ namespace BLL.Common
                     {
                         options.LoginPath = new Microsoft.AspNetCore.Http.PathString("/Login");
                     });
+
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddSingleton<IUserContext, UserContext>();
         }
 
-        /// <summary>
-        /// Добавляет кеш через AddSingleton для типа и декорирует стандартный БЛЛ IProcessingObject
-        /// </summary>
-        /// <typeparam name="TEntity"></typeparam>
-        /// <typeparam name="TCacheClass"></typeparam>
-        /// <param name="services"></param>
-        /// <param name="configuration"></param>
-        public static void AddCacheInBLL<TEntity, TCacheClass>(this IServiceCollection services, IConfiguration configuration)
+            /// <summary>
+            /// Добавляет кеш через AddSingleton для типа и декорирует стандартный БЛЛ IProcessingObject
+            /// </summary>
+            /// <typeparam name="TEntity"></typeparam>
+            /// <typeparam name="TCacheClass"></typeparam>
+            /// <param name="services"></param>
+            /// <param name="configuration"></param>
+            public static void AddCacheInBLL<TEntity, TCacheClass>(this IServiceCollection services, IConfiguration configuration)
             where TEntity: DomainObject,new()
             where TCacheClass : class, ICache<TEntity>
         {

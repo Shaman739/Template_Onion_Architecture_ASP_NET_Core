@@ -35,10 +35,11 @@ namespace RegisterHouse.Controllers
         public async Task<IActionResult> Login(DefaultParamOfCRUDOperation<UserDTO> param)
         {
 
-            BaseResultType result = await _accountService.LoginAllowCheckAsync(param);
+            BaseResultType<User> result = await _accountService.LoginAllowCheckAsync(param);
             if(result.Status == ResultStatus.Success)
             {
-                await Authenticate(param.Item.Email); // аутентификация
+                param.Item.Id = result.Data.Id;
+                await Authenticate(param.Item); // аутентификация
             }
 
             return Json(result);
@@ -52,18 +53,19 @@ namespace RegisterHouse.Controllers
             BaseResultType result = await _accountService.RegisterAsync(param);
             if (result.Status == ResultStatus.Success)
             {
-                await Authenticate(param.Item.Email); // аутентификация
+                await Authenticate(param.Item); // аутентификация
             }
 
             return Json(result);
         }
 
-        private async Task Authenticate(string userName)
+        private async Task Authenticate(UserDTO user)
         {
             // создаем один claim
             var claims = new List<Claim>
             {
-                new Claim(ClaimsIdentity.DefaultNameClaimType, userName)
+                new Claim(ClaimsIdentity.DefaultNameClaimType, user.Email),
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
             };
             // создаем объект ClaimsIdentity
             ClaimsIdentity id = new ClaimsIdentity(claims, "ApplicationCookie", ClaimsIdentity.DefaultNameClaimType, ClaimsIdentity.DefaultRoleClaimType);

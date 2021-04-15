@@ -22,15 +22,17 @@ namespace Shamdev.TOA.BLL.Service
     public class AccountService : IAccountService
     {
         private IUnitOfWork _contextDB;
+        private IUserContext _userContext;
         private IUserBLL _userFetchData;
         private IDefaultCRUDBLL<User> _userBLL;
         private AccountService()
         {
 
         }
-        public AccountService(IUnitOfWork contextDB)
+        public AccountService(IUnitOfWork contextDB, IUserContext userContext)
         {
             _contextDB = contextDB;
+            _userContext = userContext;
             if (_contextDB == null)
                 throw new ArgumentNullException("Отсутствует обязательный параметр contextDB");
 

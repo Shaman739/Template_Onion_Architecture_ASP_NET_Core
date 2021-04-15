@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using UnitTestProject.DAL.TestFakeClasses;
+using UnitTestProject.Web.FakeClass;
 
 namespace UnitTestProject.BLL.Service
 {
@@ -21,14 +22,14 @@ namespace UnitTestProject.BLL.Service
         {
 
             //ASSERT
-            Assert.ThrowsException<ArgumentNullException>(() => { new AccountService(null); });
+            Assert.ThrowsException<ArgumentNullException>(() => { new AccountService(null,null); });
         }
 
         [TestMethod]
         public void LoginAsyncTest_EmptyParam()
         {
             // ARRANGE
-            AccountService accountService = new AccountService(_uow);
+            AccountService accountService = new AccountService(_uow, new UserContextFake());
             
             // ACT
             BaseResultType result = accountService.LoginAllowCheckAsync(new DefaultParamOfCRUDOperation<UserDTO>()).Result;
@@ -41,7 +42,7 @@ namespace UnitTestProject.BLL.Service
         public void LoginAsyncTest_NullParam()
         {
             // ARRANGE
-            AccountService accountService = new AccountService(_uow);
+            AccountService accountService = new AccountService(_uow, new UserContextFake());
 
             // ACT
             BaseResultType result = accountService.LoginAllowCheckAsync(null).Result;
@@ -58,7 +59,7 @@ namespace UnitTestProject.BLL.Service
         public void LoginAsyncTest_CheckUser(string email,string password, ResultStatus resultCheck)
         {
             // ARRANGE
-            AccountService accountService = new AccountService(_uow);
+            AccountService accountService = new AccountService(_uow, new UserContextFake());
             DefaultParamOfCRUDOperation<UserDTO> userParam = new DefaultParamOfCRUDOperation<UserDTO>();
             userParam.Item = new UserDTO();
             userParam.Item.Email = email;
@@ -74,7 +75,7 @@ namespace UnitTestProject.BLL.Service
         public void RegisterAsyncTest() 
         {
             // ARRANGE
-            AccountService accountService = new AccountService(_uow);
+            AccountService accountService = new AccountService(_uow, new UserContextFake());
             DefaultParamOfCRUDOperation<UserDTO> userParam = new DefaultParamOfCRUDOperation<UserDTO>();
             userParam.Item = new UserDTO();
             userParam.Item.Email = "a@ma1il.ru";

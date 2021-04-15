@@ -1,9 +1,10 @@
-﻿using Shamdev.TOA.Core.Data;
+﻿using Shamdev.ERP.Core.Data.Interface;
+using Shamdev.TOA.Core.Data;
 using System.Collections.Generic;
 
 namespace Core.Data.Domain
 {
-    public class House : DomainObject
+    public class House : DomainObject, IDomainObjectIdentity
     {
         /// <summary>
         /// Номер дома
@@ -19,5 +20,9 @@ namespace Core.Data.Domain
         public int? CountOfFloor { get; set; }
 
         public List<Flat> Flats{ get; set; }
-}
+        /// <summary>
+        /// Идентификатор пользователя
+        /// </summary>
+        public long? UserId { get; set; }
+    }
 }

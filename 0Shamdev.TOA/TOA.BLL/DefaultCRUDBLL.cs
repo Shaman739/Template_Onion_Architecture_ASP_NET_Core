@@ -3,6 +3,7 @@ using Shamdev.TOA.BLL.Infrastructure.ParamOfCRUD;
 using Shamdev.TOA.BLL.Infrastructure.ResultType;
 using Shamdev.TOA.BLL.Interface;
 using Shamdev.TOA.BLL.PrepareItemForCRUDOperations;
+using Shamdev.TOA.BLL.PrepareItemForCRUDOperations.Interface;
 using Shamdev.TOA.BLL.Validate;
 using Shamdev.TOA.Core.Data;
 using Shamdev.TOA.Core.Data.Infrastructure.ResultType;
@@ -17,9 +18,9 @@ namespace Shamdev.TOA.BLL
         where TEntity : DomainObject, new()
     {
 
-       /// <summary>
-       /// Событие после успешной операции над объектом
-       /// </summary>
+        /// <summary>
+        /// Событие после успешной операции над объектом
+        /// </summary>
         public event IDefaultCRUDBLL<TEntity>.DomainChangeHandler<TEntity> DomainChangeEvent;
         object objectLock = new Object();
         event IDefaultCRUDBLL<TEntity>.DomainChangeHandler<TEntity> IDefaultCRUDBLL<TEntity>.DomainChangeEvent
@@ -41,6 +42,7 @@ namespace Shamdev.TOA.BLL
             }
         }
         IUnitOfWork _contextDB;
+
         /// <summary>
         /// Признак, что нужно только добавить в контекст, но не сохранять в БД
         /// </summary>
@@ -51,7 +53,7 @@ namespace Shamdev.TOA.BLL
         ///  PrepareItemForCRUDStrategyFactory.Value.ReplaceStrategy(ExecuteTypeCRUD.ADD, new CustomddPrepareItemForCRUDStrategy<TEntity>(uow))
         ///  Делать это нужно в конструкторе
         /// </summary>
-        protected Lazy<PrepareItemForCRUDStrategyFactory<TEntity>> PrepareItemForCRUDStrategyFactory;
+        protected Lazy<IPrepareItemForCRUDStrategyFactory<TEntity>> PrepareItemForCRUDStrategyFactory;
         protected Lazy<ValidateDomainObjectFactory<TEntity>> ValidateDomainObject;
         private DefaultCRUDBLL()
         {
@@ -60,7 +62,12 @@ namespace Shamdev.TOA.BLL
         public DefaultCRUDBLL(IUnitOfWork contextDB) : this()
         {
             _contextDB = contextDB;
-            PrepareItemForCRUDStrategyFactory = new Lazy<PrepareItemForCRUDStrategyFactory<TEntity>>(() => new PrepareItemForCRUDStrategyFactory<TEntity>(_contextDB));
+
+
+            if (_contextDB== null)
+                throw new ArgumentNullException("contextDB");
+
+            PrepareItemForCRUDStrategyFactory = new Lazy<IPrepareItemForCRUDStrategyFactory<TEntity>>(() => new PrepareItemForCRUDStrategyFactory<TEntity>(_contextDB));
             ValidateDomainObject = new Lazy<ValidateDomainObjectFactory<TEntity>>(() => new ValidateDomainObjectFactory<TEntity>(_contextDB));
         }
 

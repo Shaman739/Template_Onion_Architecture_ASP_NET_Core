@@ -9,13 +9,18 @@ namespace BLL.Common.House
 {
     public class ProcessingHouse : ProcessingDomainObject<Core.Data.Domain.House>
     {
-        public ProcessingHouse(IUnitOfWork contextDB) : base(contextDB)
-        {
+        private IUserContext _userContext;
 
+        public ProcessingHouse(IUnitOfWork contextDB, IUserContext userContext) : base(contextDB)
+        {
+            _userContext = userContext;
+
+            if (_userContext == null)
+                throw new ArgumentNullException("userContext");
         }
         public override IDefaultCRUDBLL<Core.Data.Domain.House> GetCRUDHandler()
         {
-            return new HouseBLL(contextDB);
+            return new HouseBLL(contextDB,_userContext);
         }
 
     }

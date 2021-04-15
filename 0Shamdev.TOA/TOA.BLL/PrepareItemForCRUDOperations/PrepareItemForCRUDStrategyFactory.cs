@@ -2,6 +2,7 @@
 using Shamdev.TOA.BLL.Infrastructure.ParamOfCRUD;
 using Shamdev.TOA.BLL.Infrastructure.PrepareItemForCRUDOperations.Interface;
 using Shamdev.TOA.BLL.Infrastructure.ResultType;
+using Shamdev.TOA.BLL.PrepareItemForCRUDOperations.Interface;
 using Shamdev.TOA.Core.Data;
 using Shamdev.TOA.Core.Data.Infrastructure.ResultType;
 using Shamdev.TOA.DAL.Interface;
@@ -16,7 +17,7 @@ namespace Shamdev.TOA.BLL.PrepareItemForCRUDOperations
     /// Тут можно удалить или добавить новые, чтобы БЛЛ знала о новый типах или при удалении типа стратегии, БЛЛ не могла выполнить нужный тип CRUD
     /// </summary>
     /// <typeparam name="TEntity"></typeparam>
-    public class PrepareItemForCRUDStrategyFactory<TEntity>
+    public class PrepareItemForCRUDStrategyFactory<TEntity> : IPrepareItemForCRUDStrategyFactory<TEntity> 
         where TEntity : DomainObject, new()
     {
         public PrepareItemForCRUDStrategyFactory(IUnitOfWork uow)
