@@ -1,4 +1,6 @@
-﻿using Shamdev.TOA.Core.Data.Consts;
+﻿using Shamdev.ERP.DAL.Common.Interface;
+using Shamdev.TOA.Core.Data.Consts;
+using System.Collections.Generic;
 
 namespace Shamdev.TOA.DAL.Infrastructure
 {
@@ -12,8 +14,9 @@ namespace Shamdev.TOA.DAL.Infrastructure
             PageNumber = PagingConsts.DEFAULT_PAGE_NUMBER;
             CountOnPage = PagingConsts.DEFAULT_PAGE_COUNT_ROW;
             IsOnlyShowData = false;
+            Filters = new List<IWhereDinamicItem>();
         }
-        public FetchDataParameters(int pageNumber, int countOnPage, bool isOnlyShowData = true)
+        public FetchDataParameters(int pageNumber, int countOnPage, bool isOnlyShowData = true):this()
         {
             PageNumber = pageNumber;
             CountOnPage = countOnPage;
@@ -22,6 +25,8 @@ namespace Shamdev.TOA.DAL.Infrastructure
         public int PageNumber { get; set; }
         public int CountOnPage { get; set; }
         public bool IsOnlyShowData { get; set; }
+
+        public ICollection<IWhereDinamicItem> Filters { get; set; }
 
         /// <summary>
         /// Проверка на валидность значений поиска. Если pageNumber < 1, то PageNumber=1.Если CountOnPage < 1, то CountOnPage= PagingConsts.DEFAULT_PAGE_COUNT_ROW.

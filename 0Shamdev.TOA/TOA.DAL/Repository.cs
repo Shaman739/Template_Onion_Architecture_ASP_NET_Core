@@ -4,6 +4,9 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Shamdev.TOA.DAL.Infrastructure;
+using Shamdev.ERP.DAL.Common.Interface;
+using System.Collections.Generic;
+using System.Linq.Expressions;
 
 namespace Shamdev.TOA.DAL
 {
@@ -22,7 +25,7 @@ namespace Shamdev.TOA.DAL
         /// </summary>
         protected virtual IQueryable<TEntity> DbSetWithInclude => _dbSet; 
         
-
+      
         /// <summary>
         /// Метод, который получает данные из БД
         /// </summary>
@@ -35,10 +38,10 @@ namespace Shamdev.TOA.DAL
 
             ResultFetchData<TEntity> result = new ResultFetchData<TEntity>();
 
-            result.TotalCountRows = await DbSetWithInclude.AsNoTracking().CountAsync();
+            result.TotalCountRows = await DbSetWithInclude.WheryDinamic(paramQuery.Filters).AsNoTracking().CountAsync();
 
             int startRow = (paramQuery.PageNumber - 1) * paramQuery.CountOnPage;
-            IQueryable<TEntity> query = DbSetWithInclude.Skip(startRow).Take((int)paramQuery.CountOnPage);
+            IQueryable<TEntity> query = DbSetWithInclude.WheryDinamic(paramQuery.Filters).Skip(startRow).Take((int)paramQuery.CountOnPage);
 
             if (paramQuery.IsOnlyShowData)
                 query = query.AsNoTracking();

@@ -9,7 +9,7 @@ namespace UnitTestProject.Web.FakeClass
 {
     class UserContextFake : IUserContext
     {
-        public long GetUserId()
+        public long? GetUserId()
         {
             return 1;
         }

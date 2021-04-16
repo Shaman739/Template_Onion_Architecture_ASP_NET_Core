@@ -22,11 +22,11 @@ namespace Shamdev.TOA.Web
         }
 
 
-        public long GetUserId()
+        public long? GetUserId()
         {
-            string userId = _httpContextAccessor.HttpContext.User.Claims.First(x => x.Type == ClaimTypes.NameIdentifier).Value;
+            Claim claim = _httpContextAccessor.HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
 
-            return Convert.ToInt64(userId);
+            return claim != null ? Convert.ToInt64(claim.Value) : null;
         }
     }
 }

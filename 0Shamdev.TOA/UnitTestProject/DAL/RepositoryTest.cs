@@ -1,8 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Shamdev.ERP.DAL.Common.Infrastructure;
+using Shamdev.ERP.DAL.Common.Interface;
 using Shamdev.TOA.DAL;
 using Shamdev.TOA.DAL.Infrastructure;
 using System;
+using System.Linq;
 using UnitTestProject.DAL.TestFakeClasses;
 
 namespace UnitTestProject.DAL
@@ -89,6 +92,24 @@ namespace UnitTestProject.DAL
             resultFetchData = repository.FetchDataAsync(new FetchDataParameters(2, 2)).Result;
             Assert.AreEqual(4, resultFetchData.Items[0].Id);
             Assert.AreEqual(5, resultFetchData.Items[1].Id);
+        }
+
+        [TestMethod]
+        public void FetchDataTest_WithDinamicFilters()
+        {
+            //ARRANGE
+            ReCreateContext();
+            FetchDataParameters param = new FetchDataParameters();
+            param.Filters.Add(new WhereDinamicItem("Id", TypeFilterEnum.NOT_EQUAL, "2"));
+            //ACT
+
+            //Проверяем уже с заданым пейджингом
+            ResultFetchData<ObjectMappingForTest> resultFetchData = repository.FetchDataAsync(param).Result;
+
+            //ASSERT
+
+            Assert.AreEqual(5, resultFetchData.Items.Count);
+            Assert.IsFalse(resultFetchData.Items.Any(x => x.Id == 2));
         }
 
         [TestMethod]

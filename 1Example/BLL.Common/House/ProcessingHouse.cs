@@ -1,4 +1,5 @@
 ﻿using Shamdev.TOA.BLL;
+using Shamdev.TOA.BLL.Decorators;
 using Shamdev.TOA.BLL.Interface;
 using Shamdev.TOA.DAL.Interface;
 using System;
@@ -23,5 +24,9 @@ namespace BLL.Common.House
             return new HouseBLL(contextDB,_userContext);
         }
 
+        public override IFetchData<Core.Data.Domain.House> GetFetchDataHandler()
+        {
+            return new UserDataSecurityFetchDomainData<Core.Data.Domain.House>(base.GetFetchDataHandler(), _userContext);
+        }
     }
 }

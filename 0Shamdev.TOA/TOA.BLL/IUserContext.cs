@@ -2,6 +2,6 @@
 {
     public interface IUserContext
     {
-        long GetUserId();
+        long? GetUserId();
     }
 }

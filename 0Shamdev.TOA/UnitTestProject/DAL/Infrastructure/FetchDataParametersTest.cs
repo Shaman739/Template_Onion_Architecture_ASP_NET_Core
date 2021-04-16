@@ -19,6 +19,8 @@ namespace UnitTestProject.DAL.Infrastructure
             Assert.AreEqual(20, fetchDataParameters.PageNumber);
             Assert.AreEqual(30, fetchDataParameters.CountOnPage);
             Assert.IsTrue(fetchDataParameters.IsOnlyShowData);
+            Assert.IsNotNull(fetchDataParameters.Filters);
+            Assert.AreEqual(0,fetchDataParameters.Filters.Count);
 
         }
 
@@ -36,6 +38,8 @@ namespace UnitTestProject.DAL.Infrastructure
             fetchDataParameters.CountOnPage = 20;
             Assert.AreEqual(10, fetchDataParameters.PageNumber);
             Assert.AreEqual(20, fetchDataParameters.CountOnPage);
+            Assert.IsNotNull(fetchDataParameters.Filters);
+            Assert.AreEqual(0, fetchDataParameters.Filters.Count);
         }
     }
 }
