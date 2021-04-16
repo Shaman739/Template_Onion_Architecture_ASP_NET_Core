@@ -49,9 +49,9 @@ namespace RegisterHouse
           
 
             //Street
-            services.AddCacheInBLL<Street, MemoryCacheRepository<Street>>(Configuration);
             services.AddTransient<IDefaultCRUDBLL<Street>, DefaultCRUDBLL<Street>>();
             services.AddTransient<IFetchData<Street>, FetchDomainData<Street>>();
+            services.AddCacheInBLL<Street, MemoryCacheRepository<Street>>(Configuration);
             //Добавление TOA зависимостей
             
             services.AddOnionArchitecture<RegisterApplicationContext>(Configuration, services.BuildServiceProvider().GetService<IGetEnvironment>());
