@@ -89,14 +89,14 @@ namespace UnitTestProject.Web.Logs
             //ARRANGE
             LogTest logTestClass = new LogTest();
             Assert.AreEqual(0, logTestClass.LogItemsCollection.Count);//Пустые логи
-            ProcessingDomainObject<ObjectMappingForTest> processingObjectTestCalss = new ProcessingDomainObject<ObjectMappingForTest>(_uow);
+            DefaultCRUDBLL<ObjectMappingForTest> processingObjectTestCalss = new DefaultCRUDBLL<ObjectMappingForTest>(_uow);
             ObjectMappingForTest item = new ObjectMappingForTest() { IntValue = 22, IntValue2 = 33 };
             if (id !=null)
                 item.Id = (long)id;
             //ACT
 
-            ProcessingObjectLogDecorator<ObjectMappingForTest> processingObjectLogDecorator = new ProcessingObjectLogDecorator<ObjectMappingForTest>(processingObjectTestCalss, logTestClass);
-            BaseResultType<SaveResultType<ObjectMappingForTest>> resultSave = processingObjectLogDecorator.GetCRUDHandler().SaveItemAsync(executeTypeConstCRUD, new DefaultParamOfCRUDOperation<ObjectMappingForTest>() { Item = item }).Result;
+            LogerCRUDBLLDecoratorDecorator<ObjectMappingForTest> processingObjectLogDecorator = new LogerCRUDBLLDecoratorDecorator<ObjectMappingForTest>(processingObjectTestCalss, logTestClass);
+            BaseResultType<SaveResultType<ObjectMappingForTest>> resultSave = processingObjectLogDecorator.SaveItemAsync(executeTypeConstCRUD, new DefaultParamOfCRUDOperation<ObjectMappingForTest>() { Item = item }).Result;
             
             //ASSERT
             Assert.AreEqual(ResultStatus.Success, resultSave.Status);

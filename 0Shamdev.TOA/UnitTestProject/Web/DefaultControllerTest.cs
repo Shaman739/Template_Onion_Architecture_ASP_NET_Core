@@ -65,7 +65,7 @@ namespace UnitTestProject.Web
         public void GetAsyncTest()
         {
             CreateContext();
-            DefaultController<ObjectMappingForTest> defaultController = new DefaultController<ObjectMappingForTest>(new FakeLogger(), new ProcessingDomainObject<ObjectMappingForTest>(_uow));
+            DefaultController<ObjectMappingForTest> defaultController = new DefaultController<ObjectMappingForTest>(new FakeLogger(), new DefaultCRUDBLL<ObjectMappingForTest>(_uow), new FetchDomainData<ObjectMappingForTest>(_uow));
 
             //Выборка первой страницы с дефолтным размером стриницы
             JsonResult result = defaultController.GetAsync(null).Result;
@@ -97,7 +97,7 @@ namespace UnitTestProject.Web
         public void AddTest()
         {
             CreateContext();
-            DefaultController<ObjectMappingForTest> defaultController = new DefaultController<ObjectMappingForTest>(new FakeLogger(), new ProcessingDomainObject<ObjectMappingForTest>(_uow));
+            DefaultController<ObjectMappingForTest> defaultController = new DefaultController<ObjectMappingForTest>(new FakeLogger(), new DefaultCRUDBLL<ObjectMappingForTest>(_uow), new FetchDomainData<ObjectMappingForTest>(_uow));
 
             //Проверка на возврат ошибки
             JsonResult resultAdd = defaultController.Add(new DefaultParamOfCRUDOperation<ObjectMappingForTest>()).Result;
@@ -129,7 +129,7 @@ namespace UnitTestProject.Web
         public void EditTest()
         {
             CreateContext();
-            DefaultController<ObjectMappingForTest> defaultController = new DefaultController<ObjectMappingForTest>(new FakeLogger(), new ProcessingDomainObject<ObjectMappingForTest>(_uow));
+            DefaultController<ObjectMappingForTest> defaultController = new DefaultController<ObjectMappingForTest>(new FakeLogger(), new DefaultCRUDBLL<ObjectMappingForTest>(_uow), new FetchDomainData<ObjectMappingForTest>(_uow));
 
             //Проверка на возврат ошибки
             JsonResult resultAdd = defaultController.Edit(new DefaultParamOfCRUDOperation<ObjectMappingForTest>()).Result;
@@ -186,7 +186,7 @@ namespace UnitTestProject.Web
         public void DeleteTest()
         {
             CreateContext();
-            DefaultController<ObjectMappingForTest> defaultController = new DefaultController<ObjectMappingForTest>(new FakeLogger(), new ProcessingDomainObject<ObjectMappingForTest>(_uow));
+            DefaultController<ObjectMappingForTest> defaultController = new DefaultController<ObjectMappingForTest>(new FakeLogger(), new DefaultCRUDBLL<ObjectMappingForTest>(_uow), new FetchDomainData<ObjectMappingForTest>(_uow));
 
             JsonResult resultAdd = defaultController.Delete(10).Result;
             BaseResultType resultQuery = (FailResultQuery)resultAdd.Value;
@@ -215,7 +215,7 @@ namespace UnitTestProject.Web
         public void GetByIdTest()
         {
             CreateContext();
-            DefaultController<ObjectMappingForTest> defaultController = new DefaultController<ObjectMappingForTest>(new FakeLogger(), new ProcessingDomainObject<ObjectMappingForTest>(_uow));
+            DefaultController<ObjectMappingForTest> defaultController = new DefaultController<ObjectMappingForTest>(new FakeLogger(), new DefaultCRUDBLL<ObjectMappingForTest>(_uow), new FetchDomainData<ObjectMappingForTest>(_uow));
 
             JsonResult resultGetById = defaultController.GetByIdAsync(10).Result;
             BaseResultType<ObjectMappingForTest> resultQuery = (BaseResultType<ObjectMappingForTest>)resultGetById.Value;

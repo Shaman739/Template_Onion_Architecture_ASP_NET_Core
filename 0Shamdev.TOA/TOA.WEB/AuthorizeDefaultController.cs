@@ -13,7 +13,7 @@ namespace Shamdev.TOA.Web
     public class AuthorizeDefaultController<TEntity> : DefaultController<TEntity>
            where TEntity : DomainObject, new()
     {
-        public AuthorizeDefaultController(ILogger<DefaultController<TEntity>> logger, IProcessingObject<TEntity> processingDomainObject) : base(logger, processingDomainObject)
+        public AuthorizeDefaultController(ILogger<DefaultController<TEntity>> logger, IDefaultCRUDBLL<TEntity> defaultCRUDBLL, IFetchData<TEntity> fetchData) : base(logger, defaultCRUDBLL, fetchData)
         {
         }
     }

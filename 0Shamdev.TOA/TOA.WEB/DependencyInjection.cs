@@ -38,7 +38,8 @@ namespace BLL.Common
         {
             services.AddBLL<TContext>(configuration, environment);
 
-            services.AddTransient<IProcessingObject<User>, ProcessingDomainObject<User>>();
+            services.AddTransient<IDefaultCRUDBLL<User>, DefaultCRUDBLL<User>>();
+            services.AddTransient<IFetchData<User>, FetchDomainData<User>>();
             services.AddTransient<IAccountService,AccountService> ();
             
             services
@@ -81,7 +82,8 @@ namespace BLL.Common
             where TCacheClass : class, ICache<TEntity>
         {
             services.AddSingleton<ICache<TEntity>, TCacheClass>();
-            services.Decorate<IProcessingObject<TEntity>, ProcessingObjectCacheDecorator<TEntity>>();
+            services.Decorate<IDefaultCRUDBLL<TEntity>, CacheCRUDBLLDecorator<TEntity>>();
+            services.Decorate<IFetchData<TEntity>, FetchDataCacheDecorator<TEntity>>();
 
         }
 

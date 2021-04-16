@@ -50,13 +50,14 @@ namespace UnitTestProject.Web.Cache
         {
             //ARRANGE
             MemoryCacheRepository<ObjectMappingForTest> cacheTestClass = new MemoryCacheRepository<ObjectMappingForTest>();
-            ProcessingDomainObject<ObjectMappingForTest> processingObjectTestCalss = new ProcessingDomainObject<ObjectMappingForTest>(_uow);
+            DefaultCRUDBLL<ObjectMappingForTest> processingObjectTestCalss = new DefaultCRUDBLL<ObjectMappingForTest>(_uow);
+            FetchDomainData<ObjectMappingForTest> fetchDomainDataTestClass = new FetchDomainData<ObjectMappingForTest>(_uow);
 
 
             //ACT
-            ProcessingObjectCacheDecorator<ObjectMappingForTest> processingObjectCacheDecorator = new ProcessingObjectCacheDecorator<ObjectMappingForTest>(processingObjectTestCalss, cacheTestClass);
+            CacheCRUDBLLDecorator<ObjectMappingForTest> processingObjectCacheDecorator = new CacheCRUDBLLDecorator<ObjectMappingForTest>(processingObjectTestCalss, cacheTestClass);
             BaseResultType<ObjectMappingForTest> resultFromCache = cacheTestClass.GetByIdAsync(1).Result;
-            BaseResultType<ObjectMappingForTest> resultFromDB = processingObjectTestCalss.GetFetchDataHandler().GetByIdAsync(1).Result;
+            BaseResultType<ObjectMappingForTest> resultFromDB = fetchDomainDataTestClass.GetByIdAsync(1).Result;
          
             
             //ASSERT
@@ -72,16 +73,16 @@ namespace UnitTestProject.Web.Cache
         {
             //ARRANGE
             MemoryCacheRepository<ObjectMappingForTest> cacheTestClass = new MemoryCacheRepository<ObjectMappingForTest>();
-            ProcessingDomainObject<ObjectMappingForTest> processingObjectTestCalss = new ProcessingDomainObject<ObjectMappingForTest>(_uow);
-
+            DefaultCRUDBLL<ObjectMappingForTest> processingObjectTestCalss = new DefaultCRUDBLL<ObjectMappingForTest>(_uow);
+            FetchDomainData<ObjectMappingForTest> fetchDomainDataTestClass = new FetchDomainData<ObjectMappingForTest>(_uow);
 
             //ACT
-            ProcessingObjectCacheDecorator<ObjectMappingForTest> processingObjectCacheDecorator = new ProcessingObjectCacheDecorator<ObjectMappingForTest>(processingObjectTestCalss, cacheTestClass);
-            var resultSave=processingObjectCacheDecorator.GetCRUDHandler().SaveItemAsync(ExecuteTypeConstCRUD.ADD, new DefaultParamOfCRUDOperation<ObjectMappingForTest>() { Item = new ObjectMappingForTest() { IntValue = 22 ,IntValue2=33} }).Result;
+            CacheCRUDBLLDecorator<ObjectMappingForTest> processingObjectCacheDecorator = new CacheCRUDBLLDecorator<ObjectMappingForTest>(processingObjectTestCalss, cacheTestClass);
+            var resultSave=processingObjectCacheDecorator.SaveItemAsync(ExecuteTypeConstCRUD.ADD, new DefaultParamOfCRUDOperation<ObjectMappingForTest>() { Item = new ObjectMappingForTest() { IntValue = 22 ,IntValue2=33} }).Result;
 
 
             BaseResultType<ObjectMappingForTest> resultFromCache = cacheTestClass.GetByIdAsync(2).Result;
-            BaseResultType<ObjectMappingForTest> resultFromDB = processingObjectTestCalss.GetFetchDataHandler().GetByIdAsync(2).Result;
+            BaseResultType<ObjectMappingForTest> resultFromDB = fetchDomainDataTestClass.GetByIdAsync(2).Result;
 
 
             //ASSERT
@@ -92,7 +93,7 @@ namespace UnitTestProject.Web.Cache
             Assert.AreEqual(resultFromDB.Data.IntValue2, resultFromCache.Data.IntValue2);
 
             //Удаляем для дальнейших тестов
-            resultSave = processingObjectCacheDecorator.GetCRUDHandler().SaveItemAsync(ExecuteTypeConstCRUD.DELETE, new DefaultParamOfCRUDOperation<ObjectMappingForTest>() { Item = new ObjectMappingForTest() {Id=2, IntValue = 22, IntValue2 = 33 } }).Result;
+            resultSave = processingObjectCacheDecorator.SaveItemAsync(ExecuteTypeConstCRUD.DELETE, new DefaultParamOfCRUDOperation<ObjectMappingForTest>() { Item = new ObjectMappingForTest() {Id=2, IntValue = 22, IntValue2 = 33 } }).Result;
             Assert.AreEqual(resultSave.Status, ResultStatus.Success);
 
         }
@@ -102,16 +103,16 @@ namespace UnitTestProject.Web.Cache
         {
             //ARRANGE
             MemoryCacheRepository<ObjectMappingForTest> cacheTestClass = new MemoryCacheRepository<ObjectMappingForTest>();
-            ProcessingDomainObject<ObjectMappingForTest> processingObjectTestCalss = new ProcessingDomainObject<ObjectMappingForTest>(_uow);
-
+            DefaultCRUDBLL<ObjectMappingForTest> processingObjectTestCalss = new DefaultCRUDBLL<ObjectMappingForTest>(_uow);
+            FetchDomainData<ObjectMappingForTest> fetchDomainDataTestClass = new FetchDomainData<ObjectMappingForTest>(_uow);
 
             //ACT
-            ProcessingObjectCacheDecorator<ObjectMappingForTest> processingObjectCacheDecorator = new ProcessingObjectCacheDecorator<ObjectMappingForTest>(processingObjectTestCalss, cacheTestClass);
-            var resultSave = processingObjectCacheDecorator.GetCRUDHandler().SaveItemAsync(ExecuteTypeConstCRUD.EDIT, new DefaultParamOfCRUDOperation<ObjectMappingForTest>() { Item = new ObjectMappingForTest() {Id=1, IntValue = 22, IntValue2 = 33 } }).Result;
+            CacheCRUDBLLDecorator<ObjectMappingForTest> processingObjectCacheDecorator = new CacheCRUDBLLDecorator<ObjectMappingForTest>(processingObjectTestCalss, cacheTestClass);
+            var resultSave = processingObjectCacheDecorator.SaveItemAsync(ExecuteTypeConstCRUD.EDIT, new DefaultParamOfCRUDOperation<ObjectMappingForTest>() { Item = new ObjectMappingForTest() {Id=1, IntValue = 22, IntValue2 = 33 } }).Result;
 
 
             BaseResultType<ObjectMappingForTest> resultFromCache = cacheTestClass.GetByIdAsync(1).Result;
-            BaseResultType<ObjectMappingForTest> resultFromDB = processingObjectTestCalss.GetFetchDataHandler().GetByIdAsync(1).Result;
+            BaseResultType<ObjectMappingForTest> resultFromDB = fetchDomainDataTestClass.GetByIdAsync(1).Result;
 
 
             //ASSERT
@@ -129,16 +130,16 @@ namespace UnitTestProject.Web.Cache
         {
             //ARRANGE
             MemoryCacheRepository<ObjectMappingForTest> cacheTestClass = new MemoryCacheRepository<ObjectMappingForTest>();
-            ProcessingDomainObject<ObjectMappingForTest> processingObjectTestCalss = new ProcessingDomainObject<ObjectMappingForTest>(_uow);
-
+            DefaultCRUDBLL<ObjectMappingForTest> processingObjectTestCalss = new DefaultCRUDBLL<ObjectMappingForTest>(_uow);
+            FetchDomainData<ObjectMappingForTest> fetchDomainDataTestClass = new FetchDomainData<ObjectMappingForTest>(_uow);
 
             //ACT
-            ProcessingObjectCacheDecorator<ObjectMappingForTest> processingObjectCacheDecorator = new ProcessingObjectCacheDecorator<ObjectMappingForTest>(processingObjectTestCalss, cacheTestClass);
-            var resultSave = processingObjectCacheDecorator.GetCRUDHandler().SaveItemAsync(ExecuteTypeConstCRUD.EDIT, new DefaultParamOfCRUDOperation<ObjectMappingForTest>() { Item = new ObjectMappingForTest() { Id = 1, IntValue = 22, IntValue2 = 33 } }).Result;
-            resultSave = processingObjectCacheDecorator.GetCRUDHandler().SaveItemAsync(ExecuteTypeConstCRUD.EDIT, new DefaultParamOfCRUDOperation<ObjectMappingForTest>() { Item = new ObjectMappingForTest() { Id = 1, IntValue = 22, IntValue2 = 44 } }).Result;
+            CacheCRUDBLLDecorator<ObjectMappingForTest> processingObjectCacheDecorator = new CacheCRUDBLLDecorator<ObjectMappingForTest>(processingObjectTestCalss, cacheTestClass);
+            var resultSave = processingObjectCacheDecorator.SaveItemAsync(ExecuteTypeConstCRUD.EDIT, new DefaultParamOfCRUDOperation<ObjectMappingForTest>() { Item = new ObjectMappingForTest() { Id = 1, IntValue = 22, IntValue2 = 33 } }).Result;
+            resultSave = processingObjectCacheDecorator.SaveItemAsync(ExecuteTypeConstCRUD.EDIT, new DefaultParamOfCRUDOperation<ObjectMappingForTest>() { Item = new ObjectMappingForTest() { Id = 1, IntValue = 22, IntValue2 = 44 } }).Result;
 
             BaseResultType<ObjectMappingForTest> resultFromCache = cacheTestClass.GetByIdAsync(1).Result;
-            BaseResultType<ObjectMappingForTest> resultFromDB = processingObjectTestCalss.GetFetchDataHandler().GetByIdAsync(1).Result;
+            BaseResultType<ObjectMappingForTest> resultFromDB = fetchDomainDataTestClass.GetByIdAsync(1).Result;
 
 
             //ASSERT
@@ -156,16 +157,16 @@ namespace UnitTestProject.Web.Cache
         {
             //ARRANGE
             MemoryCacheRepository<ObjectMappingForTest> cacheTestClass = new MemoryCacheRepository<ObjectMappingForTest>();
-            ProcessingDomainObject<ObjectMappingForTest> processingObjectTestCalss = new ProcessingDomainObject<ObjectMappingForTest>(_uow);
-
+            DefaultCRUDBLL<ObjectMappingForTest> processingObjectTestCalss = new DefaultCRUDBLL<ObjectMappingForTest>(_uow);
+            FetchDomainData<ObjectMappingForTest> fetchDomainDataTestClass = new FetchDomainData<ObjectMappingForTest>(_uow);
 
             //ACT
-            ProcessingObjectCacheDecorator<ObjectMappingForTest> processingObjectCacheDecorator = new ProcessingObjectCacheDecorator<ObjectMappingForTest>(processingObjectTestCalss, cacheTestClass);
-            var resultSave = processingObjectCacheDecorator.GetCRUDHandler().SaveItemAsync(ExecuteTypeConstCRUD.ADD, new DefaultParamOfCRUDOperation<ObjectMappingForTest>() { Item = new ObjectMappingForTest() { IntValue = 2222, IntValue2 = 3333 } }).Result;
+            CacheCRUDBLLDecorator<ObjectMappingForTest> processingObjectCacheDecorator = new CacheCRUDBLLDecorator<ObjectMappingForTest>(processingObjectTestCalss, cacheTestClass);
+            var resultSave = processingObjectCacheDecorator.SaveItemAsync(ExecuteTypeConstCRUD.ADD, new DefaultParamOfCRUDOperation<ObjectMappingForTest>() { Item = new ObjectMappingForTest() { IntValue = 2222, IntValue2 = 3333 } }).Result;
            
 
             BaseResultType<ObjectMappingForTest> resultFromCache = cacheTestClass.GetByIdAsync(3).Result;
-            BaseResultType<ObjectMappingForTest> resultFromDB = processingObjectTestCalss.GetFetchDataHandler().GetByIdAsync(3).Result;
+            BaseResultType<ObjectMappingForTest> resultFromDB = fetchDomainDataTestClass.GetByIdAsync(3).Result;
 
             //ASSERT
             Assert.IsNotNull(resultFromCache.Data);//В кеше есть данные
@@ -178,9 +179,9 @@ namespace UnitTestProject.Web.Cache
 
 
             //ACT - Удаляем данные
-            resultSave = processingObjectCacheDecorator.GetCRUDHandler().SaveItemAsync(ExecuteTypeConstCRUD.DELETE, new DefaultParamOfCRUDOperation<ObjectMappingForTest>() { Item = new ObjectMappingForTest() { Id = 3 } }).Result;
+            resultSave = processingObjectCacheDecorator.SaveItemAsync(ExecuteTypeConstCRUD.DELETE, new DefaultParamOfCRUDOperation<ObjectMappingForTest>() { Item = new ObjectMappingForTest() { Id = 3 } }).Result;
             resultFromCache = cacheTestClass.GetByIdAsync(3).Result;
-            resultFromDB = processingObjectTestCalss.GetFetchDataHandler().GetByIdAsync(3).Result;
+            resultFromDB = fetchDomainDataTestClass.GetByIdAsync(3).Result;
             //ASSERT
             Assert.IsNull(resultFromCache.Data);//В кеше есть данные
             Assert.AreEqual(ResultStatus.Fail, resultFromCache.Status);

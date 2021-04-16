@@ -18,6 +18,7 @@ using Shamdev.TOA.BLL.MongoDB.Interface;
 using Shamdev.TOA.BLL.MongoDB;
 using Shamdev.TOA.Web.Infrastructure;
 using Shamdev.ERP.Core.Data.Infrastructure.Interface;
+using Shamdev.TOA.BLL.Decorators;
 
 namespace RegisterHouse
 {
@@ -39,16 +40,20 @@ namespace RegisterHouse
           
             services.AddTransient<ILog, LogInMongoDBBLL>();
 
-            services.AddTransient<IProcessingObject<House>, ProcessingHouse>();
-            services.AddTransient<IProcessingObject<Street>, ProcessingDomainObject<Street>>();
-
-            //Добавялен кеш 
-            services.AddCacheInBLL<Street, MemoryCacheRepository<Street>>(Configuration);
+            //House
+            services.AddTransient<IDefaultCRUDBLL<House>, HouseBLL>();
+            services.AddTransient<IFetchData<House>, FetchDomainData<House>>();
             services.AddCacheInBLL<House, MemoryCacheRepository<House>>(Configuration);
+            services.Decorate<IDefaultCRUDBLL<House>, LogerCRUDBLLDecoratorDecorator<House>>();
+            services.Decorate<IFetchData<House>, UserDataSecurityFetchDomainData<House>>();
+          
 
-            services.Decorate<IProcessingObject<House>, ProcessingObjectLogDecorator<House>>();
-
+            //Street
+            services.AddCacheInBLL<Street, MemoryCacheRepository<Street>>(Configuration);
+            services.AddTransient<IDefaultCRUDBLL<Street>, DefaultCRUDBLL<Street>>();
+            services.AddTransient<IFetchData<Street>, FetchDomainData<Street>>();
             //Добавление TOA зависимостей
+            
             services.AddOnionArchitecture<RegisterApplicationContext>(Configuration, services.BuildServiceProvider().GetService<IGetEnvironment>());
             
 

@@ -20,13 +20,15 @@ namespace Shamdev.TOA.Web
         where TEntity : DomainObject, new()
     {
         private readonly ILogger<DefaultController<TEntity>> _logger;
-        IProcessingObject<TEntity> _defaultCRUDBLL;
-        public DefaultController(ILogger<DefaultController<TEntity>> logger, IProcessingObject<TEntity> defaultCRUDBLL)
+        IDefaultCRUDBLL<TEntity> _defaultCRUDBLL;
+        private IFetchData<TEntity> _fetchData;
+
+        public DefaultController(ILogger<DefaultController<TEntity>> logger, IDefaultCRUDBLL<TEntity> defaultCRUDBLL, IFetchData<TEntity> fetchData)
         {
             _logger = logger;
             _defaultCRUDBLL = defaultCRUDBLL;
+            _fetchData = fetchData;
         }
-
 
         /// <summary>
         /// Запрос получения данных и БД
@@ -42,7 +44,7 @@ namespace Shamdev.TOA.Web
             {
                 if (fetchDataParameters == null) fetchDataParameters = new FetchDataParameters();
 
-                ResultFetchData<TEntity> items = await _defaultCRUDBLL.GetFetchDataHandler().FetchDataAsync(fetchDataParameters);
+                ResultFetchData<TEntity> items = await _fetchData.FetchDataAsync(fetchDataParameters);
                 resultQuery = new BaseResultType<ResultFetchData<TEntity>>();
 
                 (resultQuery as BaseResultType<ResultFetchData<TEntity>>).Data = items;
@@ -62,7 +64,7 @@ namespace Shamdev.TOA.Web
             BaseResultType resultQuery = new BaseResultType();
             try
             {
-                resultQuery= await _defaultCRUDBLL.GetFetchDataHandler().GetByIdAsync(id);
+                resultQuery= await _fetchData.GetByIdAsync(id);
                // resultQuery.Merge((resultQuery as BaseResultType<TEntity>));
             }
             catch (Exception e)
@@ -101,7 +103,7 @@ namespace Shamdev.TOA.Web
             BaseResultType resultQuery = new BaseResultType();
             try
             {
-                BaseResultType<SaveResultType<TEntity>> resultCRUDOpeartion = await _defaultCRUDBLL.GetCRUDHandler().SaveItemAsync(executeTypeCRUD, paramOfCRUD);
+                BaseResultType<SaveResultType<TEntity>> resultCRUDOpeartion = await _defaultCRUDBLL.SaveItemAsync(executeTypeCRUD, paramOfCRUD);
                 resultQuery = resultCRUDOpeartion;
                 if (resultCRUDOpeartion != null && ((resultCRUDOpeartion.Question == null || resultCRUDOpeartion.Question.Count() == 0) && resultCRUDOpeartion.Status == ResultStatus.Fail))
                     throw new Exception(resultCRUDOpeartion?.Message);

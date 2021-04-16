@@ -12,7 +12,7 @@ namespace RegisterHouse.Controllers
     [Route("[controller]")]
     public class HouseController : DefaultController<House>
     {
-        public HouseController(ILogger<HouseController> logger, IProcessingObject<House> processingDomainObject) : base(logger, processingDomainObject)
+        public HouseController(ILogger<HouseController> logger, IDefaultCRUDBLL<House> defaultCRUDBLL, IFetchData<House> fetchData) : base(logger, defaultCRUDBLL, fetchData)
         {
         }
     }
