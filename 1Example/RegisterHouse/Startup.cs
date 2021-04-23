@@ -53,9 +53,8 @@ namespace RegisterHouse
             services.AddTransient<IFetchData<Street>, FetchDomainData<Street>>();
             services.AddCacheInBLL<Street, MemoryCacheRepository<Street>>(Configuration);
             //Добавление TOA зависимостей
-            
+
             services.AddOnionArchitecture<RegisterApplicationContext>(Configuration, services.BuildServiceProvider().GetService<IGetEnvironment>());
-            
 
         }
 
@@ -70,9 +69,12 @@ namespace RegisterHouse
             app.UseRouting();
             app.UseDefaultFiles();
             app.UseStaticFiles();
-            app.UseCors(builder => builder.WithOrigins("http://localhost:4200").AllowAnyHeader()
-                            .AllowAnyMethod());
-           // app.UseAuthorization();
+            app.UseCors(builder =>
+           builder.WithOrigins("http://localhost:4200")
+           .AllowAnyHeader()
+           .AllowAnyMethod()
+           .AllowCredentials());
+
             app.UseAuthentication();    // аутентификация
             app.UseAuthorization();
             app.UseEndpoints(endpoints =>

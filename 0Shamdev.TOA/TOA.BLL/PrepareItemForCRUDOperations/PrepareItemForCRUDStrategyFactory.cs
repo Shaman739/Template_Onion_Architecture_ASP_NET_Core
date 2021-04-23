@@ -90,5 +90,9 @@ namespace Shamdev.TOA.BLL.PrepareItemForCRUDOperations
 
         }
 
+        public HashSet<ExecuteTypeConstCRUD> GetAllStrategiesTypes()
+        {
+            return listStrategies.Keys.ToHashSet();
+        }
     }
 }

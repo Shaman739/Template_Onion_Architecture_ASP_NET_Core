@@ -31,11 +31,17 @@ namespace Shamdev.TOA.BLL.PrepareItemForCRUDOperations.Decorators
             if (_userContext == null)
                 throw new ArgumentNullException("userContext");
 
+            DecorateAllStrategy();
+        }
+
+        public HashSet<ExecuteTypeConstCRUD> GetAllStrategiesTypes()
+        {
+            return _prepareItemForCRUDStrategyFactory.GetAllStrategiesTypes();
         }
 
         public IPrepareItemForCRUDStrategy<TEntity> GetStrategy(ExecuteTypeConstCRUD executeType)
         {
-            return new UserIdentityPrepareItemForCRUDStrategyDecorator<TEntity>(_prepareItemForCRUDStrategyFactory.GetStrategy(executeType), _userContext);
+            return _prepareItemForCRUDStrategyFactory.GetStrategy(executeType);
         }
 
         public BaseResultType<PrepareItemResult<TEntity>> PrepareItem(DefaultParamOfCRUDOperation<TEntity> queryObject, ExecuteTypeConstCRUD executeType)
@@ -50,7 +56,14 @@ namespace Shamdev.TOA.BLL.PrepareItemForCRUDOperations.Decorators
 
         public void ReplaceStrategy(ExecuteTypeConstCRUD executeType, IPrepareItemForCRUDStrategy<TEntity> newStrategy)
         {
-            _prepareItemForCRUDStrategyFactory.ReplaceStrategy(executeType, newStrategy);
+            
+            _prepareItemForCRUDStrategyFactory.ReplaceStrategy(executeType, new UserIdentityPrepareItemForCRUDStrategyDecorator<TEntity>(newStrategy, _userContext));
+        }
+
+        private void DecorateAllStrategy()
+        {
+            foreach (var strategy in GetAllStrategiesTypes())
+                ReplaceStrategy(strategy, GetStrategy(strategy));
         }
     }
 }
