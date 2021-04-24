@@ -5,6 +5,7 @@ using Shamdev.TOA.BLL.Interface;
 using Shamdev.TOA.Core.Data;
 using Shamdev.TOA.Core.Data.Infrastructure.ResultType;
 using Shamdev.TOA.DAL.Infrastructure;
+using Shamdev.TOA.DAL.Infrastructure.Interface;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,7 +34,7 @@ namespace Shamdev.TOA.BLL.Decorators
             if (userContext == null)
                 throw new ArgumentNullException("userContext");
         }
-        public Task<ResultFetchData<TEntity>> FetchDataAsync(FetchDataParameters paramQuery)
+        public Task<ResultFetchData<TEntity>> FetchDataAsync(IFetchDataParameters paramQuery)
         {
             //Добавляем параметр фильтрации по идентификатору пользователя
             paramQuery.Filters.Add(new WhereDinamicItem(nameof(IDomainObjectIdentity.UserId), TypeFilterEnum.EQUAL, _userContext.GetUserId().ToString()));

@@ -19,6 +19,7 @@ using Shamdev.TOA.BLL.MongoDB;
 using Shamdev.TOA.Web.Infrastructure;
 using Shamdev.ERP.Core.Data.Infrastructure.Interface;
 using Shamdev.TOA.BLL.Decorators;
+using Shamdev.TOA.DAL.Infrastructure;
 
 namespace RegisterHouse
 {

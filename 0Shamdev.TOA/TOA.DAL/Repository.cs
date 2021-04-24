@@ -7,6 +7,7 @@ using Shamdev.TOA.DAL.Infrastructure;
 using Shamdev.ERP.DAL.Common.Interface;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using Shamdev.TOA.DAL.Infrastructure.Interface;
 
 namespace Shamdev.TOA.DAL
 {
@@ -31,7 +32,7 @@ namespace Shamdev.TOA.DAL
         /// </summary>
         /// <param name="paramQuery">Параметры запроса: номер страницы, размер страницы. По дефолту размер страницы 40 записей</param>
         /// <returns></returns>
-        public async Task<ResultFetchData<TEntity>> FetchDataAsync(FetchDataParameters paramQuery)
+        public async Task<ResultFetchData<TEntity>> FetchDataAsync(IFetchDataParameters paramQuery)
         {
             if (paramQuery == null) paramQuery = new FetchDataParameters();
             paramQuery.CheckAndResetParam();

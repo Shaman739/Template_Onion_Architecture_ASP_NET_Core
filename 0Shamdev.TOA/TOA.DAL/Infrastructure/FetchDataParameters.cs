@@ -1,5 +1,6 @@
 ﻿using Shamdev.ERP.DAL.Common.Interface;
 using Shamdev.TOA.Core.Data.Consts;
+using Shamdev.TOA.DAL.Infrastructure.Interface;
 using System.Collections.Generic;
 
 namespace Shamdev.TOA.DAL.Infrastructure
@@ -7,7 +8,7 @@ namespace Shamdev.TOA.DAL.Infrastructure
     /// <summary>
     /// Параметры запроса на получения данных из БД
     /// </summary>
-    public class FetchDataParameters
+    public class FetchDataParameters : IFetchDataParameters
     {
         public FetchDataParameters()
         {
@@ -16,7 +17,7 @@ namespace Shamdev.TOA.DAL.Infrastructure
             IsOnlyShowData = false;
             Filters = new List<IWhereDinamicItem>();
         }
-        public FetchDataParameters(int pageNumber, int countOnPage, bool isOnlyShowData = true):this()
+        public FetchDataParameters(int pageNumber, int countOnPage, bool isOnlyShowData = true) : this()
         {
             PageNumber = pageNumber;
             CountOnPage = countOnPage;

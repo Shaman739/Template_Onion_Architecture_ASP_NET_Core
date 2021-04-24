@@ -8,7 +8,7 @@ using Shamdev.TOA.BLL.Interface;
 using Shamdev.TOA.Core.Data;
 using Shamdev.TOA.Core.Data.Infrastructure.ResultType;
 using Shamdev.TOA.DAL.Infrastructure;
-
+using Shamdev.TOA.DAL.Infrastructure.Interface;
 using Shamdev.TOA.Web.Infrastructure.TypeOfResultQuery;
 using System;
 using System.Linq;
@@ -16,8 +16,16 @@ using System.Threading.Tasks;
 
 namespace Shamdev.TOA.Web
 {
-    public class DefaultController<TEntity> : Controller
+    public class DefaultController<TEntity> : DefaultController<TEntity, FetchDataParameters>
+       where TEntity : DomainObject, new()
+    {
+        public DefaultController(ILogger<DefaultController<TEntity>> logger, IDefaultCRUDBLL<TEntity> defaultCRUDBLL, IFetchData<TEntity> fetchData) : base(logger, defaultCRUDBLL, fetchData)
+        {
+        }
+    }
+    public class DefaultController<TEntity, TFetchDataParameters> : Controller
         where TEntity : DomainObject, new()
+            where TFetchDataParameters : FetchDataParameters, new()
     {
         private readonly ILogger<DefaultController<TEntity>> _logger;
         IDefaultCRUDBLL<TEntity> _defaultCRUDBLL;
@@ -36,13 +44,13 @@ namespace Shamdev.TOA.Web
         /// <param name="fetchDataParameters"></param>
         /// <returns></returns>
         [HttpGet]
-        public async Task<JsonResult> GetAsync([FromQuery] FetchDataParameters fetchDataParameters)
+        public async Task<JsonResult> GetAsync([FromQuery] TFetchDataParameters fetchDataParameters)
         {
             BaseResultType resultQuery = new BaseResultType();
             
             try
             {
-                if (fetchDataParameters == null) fetchDataParameters = new FetchDataParameters();
+                if (fetchDataParameters == null) fetchDataParameters = new TFetchDataParameters();
 
                 ResultFetchData<TEntity> items = await _fetchData.FetchDataAsync(fetchDataParameters);
                 resultQuery = new BaseResultType<ResultFetchData<TEntity>>();

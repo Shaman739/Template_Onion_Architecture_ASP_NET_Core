@@ -4,9 +4,9 @@
     <TargetFramework>net5.0</TargetFramework>
     <AssemblyName>Shamdev.TOA.DAL</AssemblyName>
     <RootNamespace>Shamdev.ERP.DAL.Common</RootNamespace>
-    <AssemblyVersion>0.1.0.0</AssemblyVersion>
-    <FileVersion>0.1.0.0</FileVersion>
-    <Version>0.1.0</Version>
+    <AssemblyVersion>0.1.1.0</AssemblyVersion>
+    <FileVersion>0.1.1.0</FileVersion>
+    <Version>0.1.1</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <RepositoryUrl></RepositoryUrl>
   </PropertyGroup>

@@ -2,6 +2,7 @@
 using Shamdev.TOA.Core.Data;
 using Shamdev.TOA.Core.Data.Infrastructure.ResultType;
 using Shamdev.TOA.DAL.Infrastructure;
+using Shamdev.TOA.DAL.Infrastructure.Interface;
 using Shamdev.TOA.WEB.Cache.Interface;
 using System;
 using System.Collections.Generic;
@@ -21,7 +22,7 @@ namespace Shamdev.TOA.Web.Cache
             _fetchData = fetchData;
             _cache = cache;
         }
-        public Task<ResultFetchData<TEntity>> FetchDataAsync(FetchDataParameters paramQuery)
+        public Task<ResultFetchData<TEntity>> FetchDataAsync(IFetchDataParameters paramQuery)
         {
             return _fetchData.FetchDataAsync(paramQuery);
         }

@@ -3,6 +3,7 @@ using Shamdev.TOA.Core.Data;
 using Shamdev.TOA.Core.Data.Infrastructure.ResultType;
 using Shamdev.TOA.DAL;
 using Shamdev.TOA.DAL.Infrastructure;
+using Shamdev.TOA.DAL.Infrastructure.Interface;
 using Shamdev.TOA.DAL.Interface;
 using System;
 using System.Threading.Tasks;
@@ -34,7 +35,7 @@ namespace Shamdev.TOA.BLL
         /// </summary>
         /// <param name="paramQuery"></param>
         /// <returns></returns>
-        public Task<ResultFetchData<TEntity>> FetchDataAsync(FetchDataParameters paramQuery)
+        public Task<ResultFetchData<TEntity>> FetchDataAsync(IFetchDataParameters paramQuery)
         {
             return _contextDB.Repository<TEntity>().FetchDataAsync(paramQuery);
         }
