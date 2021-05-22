@@ -44,7 +44,7 @@ namespace UnitTestProject.BLL.PrepareItemForCRUDStrategy
             PrepareItemForCRUDStrategyFactory<ObjectMappingForTest> factory = new PrepareItemForCRUDStrategyFactory<ObjectMappingForTest>(_uow);
             Assert.IsNotNull(factory.GetStrategy(ExecuteTypeConstCRUD.ADD));
             factory.RemoveStrategy(ExecuteTypeConstCRUD.ADD);
-            Assert.ThrowsException<Exception>(() => factory.GetStrategy(ExecuteTypeConstCRUD.ADD), "Ошибка, так как должно бытьисклчюение при поиске стратегии по типу");
+            Assert.ThrowsException<ArgumentException>(() => factory.GetStrategy(ExecuteTypeConstCRUD.ADD), "Ошибка, так как должно бытьисклчюение при поиске стратегии по типу");
         }
 
         [TestMethod]
@@ -62,7 +62,7 @@ namespace UnitTestProject.BLL.PrepareItemForCRUDStrategy
         {
             PrepareItemForCRUDStrategyFactory<ObjectMappingForTest> factory = new PrepareItemForCRUDStrategyFactory<ObjectMappingForTest>(_uow);
             factory.RemoveStrategy(ExecuteTypeConstCRUD.ADD);
-            Assert.ThrowsException<Exception>(() => factory.GetStrategy(ExecuteTypeConstCRUD.ADD), "Ошибка, так как должно бытьисклчюение при поиске стратегии по типу");
+            Assert.ThrowsException<ArgumentException>(() => factory.GetStrategy(ExecuteTypeConstCRUD.ADD), "Ошибка, так как должно бытьисклчюение при поиске стратегии по типу");
 
             factory.ReplaceStrategy(ExecuteTypeConstCRUD.ADD, new NewStrategy<ObjectMappingForTest>());
             Assert.IsInstanceOfType(factory.GetStrategy(ExecuteTypeConstCRUD.ADD), typeof(NewStrategy<ObjectMappingForTest>));
@@ -89,10 +89,8 @@ namespace UnitTestProject.BLL.PrepareItemForCRUDStrategy
 
             //Проверка при изменение с несуществующим объектом в БД
             sourceObjectMappingForTest.Item.Id = 1000;
-            prepareItemResult = factory.PrepareItem(sourceObjectMappingForTest, ExecuteTypeConstCRUD.EDIT);
-            Assert.AreEqual(ResultStatus.Fail, prepareItemResult.Status, "Подготовка для изменения в БД должна быть не успешной, так как не задан id, а для изменения происходит запрос объекта из БД.");
-            Assert.AreEqual("Объект не найден в БД для изменения.", prepareItemResult.Message);
-
+            var ex = Assert.ThrowsException<ArgumentException>(()=>factory.PrepareItem(sourceObjectMappingForTest, ExecuteTypeConstCRUD.EDIT),"Объект не найден в БД для изменения.");
+            Assert.AreEqual("Объект не найден в БД для изменения.", ex.Message);
             //Проверка  с существующим БД при изменение
             sourceObjectMappingForTest.Item.Id = 1;
             prepareItemResult = factory.PrepareItem(sourceObjectMappingForTest, ExecuteTypeConstCRUD.EDIT);

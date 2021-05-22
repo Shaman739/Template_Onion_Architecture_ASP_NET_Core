@@ -42,13 +42,11 @@ namespace UnitTestProject.BLL
             CreateContext();
             FetchDomainData<ObjectMappingForTest> bll = new FetchDomainData<ObjectMappingForTest>(_uow);
 
-            BaseResultType<ObjectMappingForTest> resultGetById = bll.GetByIdAsync(10).Result;
-            Assert.AreEqual(ResultStatus.Fail, resultGetById.Status);
-            Assert.AreEqual("Запись не найдена.", ((BaseResultType<ObjectMappingForTest>)resultGetById).Message);
-
+            var ex = Assert.ThrowsExceptionAsync<ArgumentException>(()=> bll.GetByIdAsync(10), "Запись не найдена.");
+           
             //Проверка успешного получения записи
 
-            resultGetById = bll.GetByIdAsync(1).Result;
+            BaseResultType<ObjectMappingForTest> resultGetById = bll.GetByIdAsync(1).Result;
 
             Assert.AreEqual(ResultStatus.Success, resultGetById.Status);
             Assert.IsNotNull(resultGetById.Data);

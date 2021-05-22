@@ -100,14 +100,13 @@ namespace UnitTestProject.Web
             DefaultController<ObjectMappingForTest> defaultController = new DefaultController<ObjectMappingForTest>(new FakeLogger(), new DefaultCRUDBLL<ObjectMappingForTest>(_uow), new FetchDomainData<ObjectMappingForTest>(_uow));
 
             //Проверка на возврат ошибки
-            JsonResult resultAdd = defaultController.Add(new DefaultParamOfCRUDOperation<ObjectMappingForTest>()).Result;
-            BaseResultType resultQuery = (FailResultQuery)resultAdd.Value;
-            Assert.AreEqual(ResultStatus.Fail, resultQuery.Status);
-            Assert.AreEqual("Объект для добавления/изменения не может быть null.", ((FailResultQuery)resultQuery).Message);
+            var ex = Assert.ThrowsExceptionAsync<ArgumentNullException>(()=> defaultController.Add(new DefaultParamOfCRUDOperation<ObjectMappingForTest>()));
+
+            Assert.AreEqual("Value cannot be null. (Parameter 'Объект для добавления/изменения не может быть null.')", ex.Result.Message);
 
             DefaultParamOfCRUDOperation<ObjectMappingForTest> paramQueryAdd = new DefaultParamOfCRUDOperation<ObjectMappingForTest>();
             paramQueryAdd.Item = new ObjectMappingForTest() { IntValue = 1, IntValue2 = 1, StrValue = "1" };
-            resultAdd = defaultController.Add(paramQueryAdd).Result;
+            JsonResult resultAdd = defaultController.Add(paramQueryAdd).Result;
             BaseResultType<SaveResultType<ObjectMappingForTest>> resultSuccessQuery = ((BaseResultType<SaveResultType<ObjectMappingForTest>>)resultAdd.Value);
             Assert.AreEqual(ResultStatus.Success, resultSuccessQuery.Status);
             Assert.IsNotNull(resultSuccessQuery.Data);
@@ -132,10 +131,9 @@ namespace UnitTestProject.Web
             DefaultController<ObjectMappingForTest> defaultController = new DefaultController<ObjectMappingForTest>(new FakeLogger(), new DefaultCRUDBLL<ObjectMappingForTest>(_uow), new FetchDomainData<ObjectMappingForTest>(_uow));
 
             //Проверка на возврат ошибки
-            JsonResult resultAdd = defaultController.Edit(new DefaultParamOfCRUDOperation<ObjectMappingForTest>()).Result;
-            BaseResultType resultQuery = (FailResultQuery)resultAdd.Value;
-            Assert.AreEqual(ResultStatus.Fail, resultQuery.Status);
-            Assert.AreEqual("Объект для добавления/изменения не может быть null.", ((FailResultQuery)resultQuery).Message);
+            var ex = Assert.ThrowsExceptionAsync<ArgumentNullException>(() => defaultController.Edit(new DefaultParamOfCRUDOperation<ObjectMappingForTest>()));
+
+            Assert.AreEqual("Value cannot be null. (Parameter 'Объект для добавления/изменения не может быть null.')", ex.Result.Message);
 
             //Проверка редактирования без ID.Будет ошибка, так как нет идентификатора записи
             DefaultParamOfCRUDOperation<ObjectMappingForTest> paramQueryAdd = new DefaultParamOfCRUDOperation<ObjectMappingForTest>();
@@ -145,10 +143,9 @@ namespace UnitTestProject.Web
                 IntValue2 = 1,
                 StrValue = "1"
             };
-            resultAdd = defaultController.Edit(paramQueryAdd).Result;
-            resultQuery = (FailResultQuery)resultAdd.Value;
-            Assert.AreEqual(ResultStatus.Fail, resultQuery.Status);
-            Assert.AreEqual("Объект не найден в БД для изменения.", ((FailResultQuery)resultQuery).Message);
+            var exArgumentException = Assert.ThrowsExceptionAsync<ArgumentException>(() => defaultController.Edit(paramQueryAdd));
+           
+            Assert.AreEqual("Объект не найден в БД для изменения.", exArgumentException.Result.Message);
 
             //Проверка успешного изменения записи
             paramQueryAdd.Item = new ObjectMappingForTest()
@@ -158,7 +155,7 @@ namespace UnitTestProject.Web
                 IntValue2 = 1,
                 StrValue = "1"
             };
-            resultAdd = defaultController.Edit(paramQueryAdd).Result;
+            JsonResult resultAdd = defaultController.Edit(paramQueryAdd).Result;
             BaseResultType<SaveResultType<ObjectMappingForTest>> resultSuccessQuery = (BaseResultType<SaveResultType<ObjectMappingForTest>>)resultAdd.Value;
             Assert.AreEqual(ResultStatus.Success, resultSuccessQuery.Status);
             Assert.IsNotNull(resultSuccessQuery.Data.Item);
@@ -188,14 +185,13 @@ namespace UnitTestProject.Web
             CreateContext();
             DefaultController<ObjectMappingForTest> defaultController = new DefaultController<ObjectMappingForTest>(new FakeLogger(), new DefaultCRUDBLL<ObjectMappingForTest>(_uow), new FetchDomainData<ObjectMappingForTest>(_uow));
 
-            JsonResult resultAdd = defaultController.Delete(10).Result;
-            BaseResultType resultQuery = (FailResultQuery)resultAdd.Value;
-            Assert.AreEqual(ResultStatus.Fail, resultQuery.Status);
-            Assert.AreEqual("Записи для удаления не существует.", ((FailResultQuery)resultQuery).Message);
+            var exArgumentException = Assert.ThrowsExceptionAsync<ArgumentException>(() => defaultController.Delete(10));
+    
+            Assert.AreEqual("Записи для удаления не существует.", exArgumentException.Result.Message);
 
             //Проверка успешного удаления записи
             long idDelete = 3;
-            resultAdd = defaultController.Delete(idDelete).Result;
+            JsonResult resultAdd = defaultController.Delete(idDelete).Result;
             BaseResultType<SaveResultType<ObjectMappingForTest>> resultSuccessQuery = (BaseResultType<SaveResultType<ObjectMappingForTest>>)resultAdd.Value;
             Assert.AreEqual(ResultStatus.Success, resultSuccessQuery.Status);
             Assert.IsNotNull(resultSuccessQuery.Data.Item);
@@ -217,14 +213,13 @@ namespace UnitTestProject.Web
             CreateContext();
             DefaultController<ObjectMappingForTest> defaultController = new DefaultController<ObjectMappingForTest>(new FakeLogger(), new DefaultCRUDBLL<ObjectMappingForTest>(_uow), new FetchDomainData<ObjectMappingForTest>(_uow));
 
-            JsonResult resultGetById = defaultController.GetByIdAsync(10).Result;
-            BaseResultType<ObjectMappingForTest> resultQuery = (BaseResultType<ObjectMappingForTest>)resultGetById.Value;
-            Assert.AreEqual(ResultStatus.Fail, resultQuery.Status);
-            Assert.AreEqual("Запись не найдена.", resultQuery.Message);
+            var exArgumentException = Assert.ThrowsExceptionAsync<ArgumentException>(() => defaultController.GetByIdAsync(10));
+           
+            Assert.AreEqual("Запись не найдена.", exArgumentException.Result.Message);
 
             //Проверка успешного получения записи
 
-            resultGetById = defaultController.GetByIdAsync(3).Result;
+            JsonResult resultGetById = defaultController.GetByIdAsync(3).Result;
             BaseResultType<ObjectMappingForTest> resultSuccessQuery = (BaseResultType<ObjectMappingForTest>)resultGetById.Value;
             Assert.AreEqual(ResultStatus.Success, resultSuccessQuery.Status);
             Assert.IsNotNull(resultSuccessQuery.Data);

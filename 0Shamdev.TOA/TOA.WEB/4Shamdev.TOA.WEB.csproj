@@ -4,7 +4,7 @@
     <TargetFramework>net5.0</TargetFramework>
     <RootNamespace>Shamdev.TOA.Web</RootNamespace>
     <AssemblyName>Shamdev.TOA.Web</AssemblyName>
-    <Version>0.1.2</Version>
+    <Version>0.1.3</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 

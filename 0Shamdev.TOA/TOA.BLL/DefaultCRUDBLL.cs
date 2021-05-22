@@ -64,7 +64,7 @@ namespace Shamdev.TOA.BLL
             _contextDB = contextDB;
 
 
-            if (_contextDB== null)
+            if (_contextDB == null)
                 throw new ArgumentNullException("contextDB");
 
             PrepareItemForCRUDStrategyFactory = new Lazy<IPrepareItemForCRUDStrategyFactory<TEntity>>(() => new PrepareItemForCRUDStrategyFactory<TEntity>(_contextDB));
@@ -74,27 +74,21 @@ namespace Shamdev.TOA.BLL
         public async Task<BaseResultType<SaveResultType<TEntity>>> SaveItemAsync(ExecuteTypeConstCRUD executeTypeCRUD, DefaultParamOfCRUDOperation<TEntity> paramOfCRUDOperation)
         {
             BaseResultType<SaveResultType<TEntity>> resultCRUDOpeartion = new BaseResultType<SaveResultType<TEntity>>();
-            try
-            {
-                if (paramOfCRUDOperation == null || paramOfCRUDOperation.Item == null)
-                    throw new Exception("Объект для добавления/изменения не может быть null.");
 
-                BaseResultType<PrepareItemResult<TEntity>> prepareItemResult = PrepareItemForCRUDStrategyFactory.Value.PrepareItem(paramOfCRUDOperation, executeTypeCRUD);
-              
-                DefaultParamOfCRUDOperation<TEntity> paramValidate = new DefaultParamOfCRUDOperation<TEntity>();
-                paramOfCRUDOperation.Item = prepareItemResult.Data.Item;
-                paramOfCRUDOperation.Questions = paramOfCRUDOperation.Questions;
-               
-                if (prepareItemResult.Status == ResultStatus.Fail)
-                    resultCRUDOpeartion.AddError(prepareItemResult.Message);
-                else
-                    resultCRUDOpeartion = await SaveContextWithObjectAsync(paramOfCRUDOperation, executeTypeCRUD);
+            if (paramOfCRUDOperation == null || paramOfCRUDOperation.Item == null)
+                throw new ArgumentNullException("Объект для добавления/изменения не может быть null.");
 
-            }
-            catch (Exception e)
-            {
-                resultCRUDOpeartion.AddError(e.Message);
-            }
+            BaseResultType<PrepareItemResult<TEntity>> prepareItemResult = PrepareItemForCRUDStrategyFactory.Value.PrepareItem(paramOfCRUDOperation, executeTypeCRUD);
+
+            DefaultParamOfCRUDOperation<TEntity> paramValidate = new DefaultParamOfCRUDOperation<TEntity>();
+            paramOfCRUDOperation.Item = prepareItemResult.Data.Item;
+            paramOfCRUDOperation.Questions = paramOfCRUDOperation.Questions;
+
+            if (prepareItemResult.Status == ResultStatus.Fail)
+                resultCRUDOpeartion.AddError(prepareItemResult.Message);
+            else
+                resultCRUDOpeartion = await SaveContextWithObjectAsync(paramOfCRUDOperation, executeTypeCRUD);
+
             return resultCRUDOpeartion;
         }
 
@@ -105,39 +99,30 @@ namespace Shamdev.TOA.BLL
         private async Task<BaseResultType<SaveResultType<TEntity>>> SaveContextWithObjectAsync(DefaultParamOfCRUDOperation<TEntity> item, ExecuteTypeConstCRUD executeTypeCRUD)
         {
             BaseResultType<SaveResultType<TEntity>> saveResultType = new BaseResultType<SaveResultType<TEntity>>();
-            try
+
+            BaseResultType validate = new BaseResultType() { Status = ResultStatus.Success };
+            //Валидация объекта по типу запроса
+            validate.Merge(ValidateDomainObject.Value.GetValidate(item, executeTypeCRUD));
+
+            saveResultType.Merge(validate);
+
+            if (validate.Status == ResultStatus.Success)
             {
-                BaseResultType validate = new BaseResultType() { Status = ResultStatus.Success };
-                //Валидация объекта по типу запроса
-                validate.Merge(ValidateDomainObject.Value.GetValidate(item, executeTypeCRUD));
+                if (!IsOnlyAddInContext)
+                    await _contextDB.SaveChangesAsync();
 
-                saveResultType.Merge(validate);
-
-                if (validate.Status == ResultStatus.Success)
-                {
-                    if (!IsOnlyAddInContext)
-                       await _contextDB.SaveChangesAsync();
-
-                    saveResultType.Status = ResultStatus.Success;
-                    saveResultType.Data.Item = item.Item;
-                    //Оповещаем об успешном изменение
-                    if (DomainChangeEvent != null) DomainChangeEvent(executeTypeCRUD,item.Item);
-                }
-               // else if (validate.Status == ResultStatus.Fail)
-               // {
-               //     saveResultType.AddError(validate.Message);
-              //  }
-                if (saveResultType.Question?.Count > 0)
-                    saveResultType.Data.Item = item.Item;
-
+                saveResultType.Status = ResultStatus.Success;
+                saveResultType.Data.Item = item.Item;
+                //Оповещаем об успешном изменение
+                if (DomainChangeEvent != null) DomainChangeEvent(executeTypeCRUD, item.Item);
             }
-            catch (Exception e)
-            {
-                saveResultType.AddError(e.Message);
-            }
+
+            if (saveResultType.Question?.Count > 0)
+                saveResultType.Data.Item = item.Item;
+
+
             return saveResultType;
         }
 
-       
     }
 }

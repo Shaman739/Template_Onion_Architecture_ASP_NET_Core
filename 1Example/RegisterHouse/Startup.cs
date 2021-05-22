@@ -20,6 +20,7 @@ using Shamdev.TOA.Web.Infrastructure;
 using Shamdev.ERP.Core.Data.Infrastructure.Interface;
 using Shamdev.TOA.BLL.Decorators;
 using Shamdev.TOA.DAL.Infrastructure;
+using Shamdev.TOA.Web;
 
 namespace RegisterHouse
 {
@@ -66,6 +67,7 @@ namespace RegisterHouse
             {
                 app.UseDeveloperExceptionPage();
             }
+            app.UseMiddleware<ErrorHandlingMiddleware>();
           
             app.UseRouting();
             app.UseDefaultFiles();
@@ -82,6 +84,7 @@ namespace RegisterHouse
             {
                 endpoints.MapControllers();
             });
+
         }
 
        

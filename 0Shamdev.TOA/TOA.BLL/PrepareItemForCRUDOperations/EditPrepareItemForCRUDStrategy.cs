@@ -24,7 +24,7 @@ namespace Shamdev.TOA.BLL.PrepareItemForCRUDOperations
         public sealed override TEntity GetItem(DefaultParamOfCRUDOperation<TEntity> item)
         {
             TEntity itemNew = CreateItem(item.Item);
-            if (itemNew == null) throw new Exception("Объект не найден в БД для изменения.");
+            if (itemNew == null) throw new ArgumentException("Объект не найден в БД для изменения.");
             uow.UpdateItem<TEntity>(itemNew, item.Item);
 
             return itemNew;

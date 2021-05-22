@@ -17,7 +17,7 @@ namespace Shamdev.TOA.BLL.PrepareItemForCRUDOperations
     /// Тут можно удалить или добавить новые, чтобы БЛЛ знала о новый типах или при удалении типа стратегии, БЛЛ не могла выполнить нужный тип CRUD
     /// </summary>
     /// <typeparam name="TEntity"></typeparam>
-    public class PrepareItemForCRUDStrategyFactory<TEntity> : IPrepareItemForCRUDStrategyFactory<TEntity> 
+    public class PrepareItemForCRUDStrategyFactory<TEntity> : IPrepareItemForCRUDStrategyFactory<TEntity>
         where TEntity : DomainObject, new()
     {
         public PrepareItemForCRUDStrategyFactory(IUnitOfWork uow)
@@ -39,7 +39,7 @@ namespace Shamdev.TOA.BLL.PrepareItemForCRUDOperations
         {
             var strategy = listStrategies.SingleOrDefault(x => x.Key == executeType);
             if (strategy.Value == null)
-                throw new Exception($"Неизвестный тип стратегии {executeType} при создании объекта для изменения.");
+                throw new ArgumentException($"Неизвестный тип стратегии {executeType} при создании объекта для изменения.");
             else
                 return strategy.Value.Value;
         }
@@ -60,7 +60,10 @@ namespace Shamdev.TOA.BLL.PrepareItemForCRUDOperations
         public void ReplaceStrategy(ExecuteTypeConstCRUD executeType, IPrepareItemForCRUDStrategy<TEntity> newStrategy)
         {
             var strategy = listStrategies.SingleOrDefault(x => x.Key == executeType);
-            if (strategy.Value != null) listStrategies.Remove(executeType);
+           
+            if (strategy.Value != null) 
+                listStrategies.Remove(executeType);
+           
             listStrategies.Add(executeType, new Lazy<IPrepareItemForCRUDStrategy<TEntity>>(() => newStrategy));
 
         }
@@ -77,15 +80,10 @@ namespace Shamdev.TOA.BLL.PrepareItemForCRUDOperations
         public BaseResultType<PrepareItemResult<TEntity>> PrepareItem(DefaultParamOfCRUDOperation<TEntity> queryObject, ExecuteTypeConstCRUD executeType)
         {
             BaseResultType<PrepareItemResult<TEntity>> result = new BaseResultType<PrepareItemResult<TEntity>>();
-            try
-            {
-                result.Data.Item = GetStrategy(executeType).GetItem(queryObject);
-                result.Status = ResultStatus.Success;
-            }
-            catch (Exception e)
-            {
-                result.AddError(e.Message);
-            }
+
+            result.Data.Item = GetStrategy(executeType).GetItem(queryObject);
+            result.Status = ResultStatus.Success;
+
             return result;
 
         }

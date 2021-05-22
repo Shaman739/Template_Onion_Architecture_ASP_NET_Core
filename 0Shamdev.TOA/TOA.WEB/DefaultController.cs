@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Shamdev.TOA.BLL;
 using Shamdev.TOA.BLL.Infrastructure;
@@ -46,22 +47,13 @@ namespace Shamdev.TOA.Web
         [HttpGet]
         public async Task<JsonResult> GetAsync([FromQuery] TFetchDataParameters fetchDataParameters)
         {
-            BaseResultType resultQuery = new BaseResultType();
-            
-            try
-            {
-                if (fetchDataParameters == null) fetchDataParameters = new TFetchDataParameters();
+            if (fetchDataParameters == null) fetchDataParameters = new TFetchDataParameters();
 
-                ResultFetchData<TEntity> items = await _fetchData.FetchDataAsync(fetchDataParameters);
-                resultQuery = new BaseResultType<ResultFetchData<TEntity>>();
+            ResultFetchData<TEntity> items = await _fetchData.FetchDataAsync(fetchDataParameters);
+            BaseResultType resultQuery = new BaseResultType<ResultFetchData<TEntity>>();
 
-                (resultQuery as BaseResultType<ResultFetchData<TEntity>>).Data = items;
+            (resultQuery as BaseResultType<ResultFetchData<TEntity>>).Data = items;
 
-            }
-            catch (Exception e)
-            {
-                resultQuery = new FailResultQuery() { Message = e.Message };
-            }
             return Json(resultQuery);
         }
 
@@ -69,29 +61,20 @@ namespace Shamdev.TOA.Web
         [Route("Get")]
         public async Task<JsonResult> GetByIdAsync(long id)
         {
-            BaseResultType resultQuery = new BaseResultType();
-            try
-            {
-                resultQuery= await _fetchData.GetByIdAsync(id);
-               // resultQuery.Merge((resultQuery as BaseResultType<TEntity>));
-            }
-            catch (Exception e)
-            {
-                resultQuery = new FailResultQuery() { Message = e.Message };
-            }
+            BaseResultType resultQuery = await _fetchData.GetByIdAsync(id);
+          
             return Json(resultQuery);
         }
 
         [HttpPost]
         public async Task<JsonResult> Add(DefaultParamOfCRUDOperation<TEntity> paramOfCRUD)
         {
-            return await SaveItemAsync(ExecuteTypeConstCRUD.ADD, paramOfCRUD);
-
-        }
+            return Json(await _defaultCRUDBLL.SaveItemAsync(ExecuteTypeConstCRUD.ADD, paramOfCRUD));
+         }
         [HttpPut]
         public async Task<JsonResult> Edit(DefaultParamOfCRUDOperation<TEntity> paramOfCRUD)
         {
-            return await SaveItemAsync(ExecuteTypeConstCRUD.EDIT, paramOfCRUD);
+            return Json(await _defaultCRUDBLL.SaveItemAsync(ExecuteTypeConstCRUD.EDIT, paramOfCRUD)); 
 
         }
         [HttpDelete("{id}")]
@@ -102,28 +85,8 @@ namespace Shamdev.TOA.Web
             {
                 Id = id
             };
-            return await SaveItemAsync(ExecuteTypeConstCRUD.DELETE, param);
+            return Json(await _defaultCRUDBLL.SaveItemAsync(ExecuteTypeConstCRUD.DELETE, param));
 
-        }
-
-        private async Task<JsonResult> SaveItemAsync(ExecuteTypeConstCRUD executeTypeCRUD, DefaultParamOfCRUDOperation<TEntity> paramOfCRUD)
-        {
-            BaseResultType resultQuery = new BaseResultType();
-            try
-            {
-                BaseResultType<SaveResultType<TEntity>> resultCRUDOpeartion = await _defaultCRUDBLL.SaveItemAsync(executeTypeCRUD, paramOfCRUD);
-                resultQuery = resultCRUDOpeartion;
-                if (resultCRUDOpeartion != null && ((resultCRUDOpeartion.Question == null || resultCRUDOpeartion.Question.Count() == 0) && resultCRUDOpeartion.Status == ResultStatus.Fail))
-                    throw new Exception(resultCRUDOpeartion?.Message);
-
-             //   resultQuery = new BaseResultType<SaveResultType<TEntity>>();
-              //  (resultQuery as BaseResultType<SaveResultType<TEntity>>).Data = resultCRUDOpeartion;
-            }
-            catch (Exception e)
-            {
-                resultQuery = new FailResultQuery() { Message = e.Message };
-            }
-            return Json(resultQuery);
         }
 
     }

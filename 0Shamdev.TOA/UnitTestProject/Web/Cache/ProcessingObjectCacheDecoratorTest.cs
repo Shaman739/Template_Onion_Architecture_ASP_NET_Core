@@ -181,13 +181,13 @@ namespace UnitTestProject.Web.Cache
             //ACT - Удаляем данные
             resultSave = processingObjectCacheDecorator.SaveItemAsync(ExecuteTypeConstCRUD.DELETE, new DefaultParamOfCRUDOperation<ObjectMappingForTest>() { Item = new ObjectMappingForTest() { Id = 3 } }).Result;
             resultFromCache = cacheTestClass.GetByIdAsync(3).Result;
-            resultFromDB = fetchDomainDataTestClass.GetByIdAsync(3).Result;
+            var exArgumentException = Assert.ThrowsExceptionAsync<ArgumentException>(() => fetchDomainDataTestClass.GetByIdAsync(3));
+          
             //ASSERT
             Assert.IsNull(resultFromCache.Data);//В кеше есть данные
             Assert.AreEqual(ResultStatus.Fail, resultFromCache.Status);
 
-            Assert.IsNull(resultFromDB.Data);//В кеше есть данные
-            Assert.AreEqual(ResultStatus.Fail, resultFromDB.Status);
+
 
         }
     }

@@ -48,17 +48,10 @@ namespace Shamdev.TOA.BLL
         {
             BaseResultType<TEntity> result = new BaseResultType<TEntity>();
             result.Status = ResultStatus.Success;
-            try
-            {
-                result.Data = await _contextDB.Repository<TEntity>().GetByIdAsync(id);
-                if (result.Data == null)
-                    result.AddError("Запись не найдена.");
+            result.Data = await _contextDB.Repository<TEntity>().GetByIdAsync(id);
+            if (result.Data == null)
+                throw new ArgumentException("Запись не найдена.");
 
-            }
-            catch (Exception e)
-            {
-                result.AddError(e.Message);
-            }
             return result;
 
 

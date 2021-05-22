@@ -30,7 +30,7 @@ namespace UnitTestProject.BLL.PrepareItemForCRUDStrategy
 
             EditPrepareItemForCRUDStrategy<ObjectMappingForTest> addPrepareItemForCRUDStrategy = new EditPrepareItemForCRUDStrategy<ObjectMappingForTest>(uow);
             ObjectMappingForTest objectMappingForTest;
-            Assert.ThrowsException<Exception>(() => objectMappingForTest = addPrepareItemForCRUDStrategy.GetItem(sourceObjectMappingForTest), "Будет ошибка, так как это изменение и не указан id записи. В БД есть только с id = 1");
+            Assert.ThrowsException<ArgumentException>(() => objectMappingForTest = addPrepareItemForCRUDStrategy.GetItem(sourceObjectMappingForTest), "Будет ошибка, так как это изменение и не указан id записи. В БД есть только с id = 1");
 
             sourceObjectMappingForTest.Item.Id = 1;
             objectMappingForTest = addPrepareItemForCRUDStrategy.GetItem(sourceObjectMappingForTest);
